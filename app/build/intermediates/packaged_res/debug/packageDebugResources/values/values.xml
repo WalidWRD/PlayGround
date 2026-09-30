@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="blocked_ad_hosts">
+        <item>doubleclick.net</item>
+        <item>googlesyndication.com</item>
+        <item>admob.com</item>
+        <item>googleadservices.com</item>
+        <item>pagead2.googlesyndication.com</item>
+        <item>adservice.google.com</item>
+        <item>ads.google.com</item>
+        <item>adsrvr.org</item>
+        <item>adnxs.com</item>
+        <item>criteo.com</item>
+        <item>criteo.net</item>
+        <item>amazon-adsystem.com</item>
+        <item>rubiconproject.com</item>
+        <item>pubmatic.com</item>
+        <item>openx.net</item>
+        <item>casalemedia.com</item>
+        <item>indexexchange.com</item>
+        <item>yieldmo.com</item>
+        <item>taboola.com</item>
+        <item>outbrain.com</item>
+        <item>moatads.com</item>
+        <item>scorecardresearch.com</item>
+        <item>adsymptotic.com</item>
+        <item>adroll.com</item>
+    </array>
+    <array name="login_banner_texts">
+        <item>سجّل الدخول</item>
+        <item>سجل الدخول</item>
+        <item>اشترك</item>
+        <item>اشترك أو سجّل الدخول</item>
+        <item>login to unlock</item>
+        <item>sign in to unlock</item>
+        <item>subscribe or sign in</item>
+        <item>subscribe or login</item>
+    </array>
+    <array name="target_packages">
+        <item>ai.mainfunc.genspark.pro</item>
+        <item>ai.mainfunc.genspark</item>
+    </array>
+    <string name="app_name">Genspark UpdateKiller</string>
+    <string name="module_description">Genspark UpdateKiller v2.0.1 — targets ai.mainfunc.genspark.pro / ai.mainfunc.genspark. Forced-update bypass, version spoof, subscription enforce.</string>
+</resources>

@@ -1,0 +1,16 @@
+R_DEF: Internal format may change without notice
+local
+array blocked_ad_hosts
+array login_banner_texts
+array target_packages
+id btnLoad
+id btnSave
+id config
+id hint
+id status
+id title
+layout activity_main
+mipmap ic_launcher
+mipmap ic_launcher_foreground
+string app_name
+string module_description

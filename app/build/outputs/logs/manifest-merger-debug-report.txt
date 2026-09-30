@@ -1,0 +1,68 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:2:1-30:12
+INJECTED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:2:1-30:12
+INJECTED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:2:1-30:12
+INJECTED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:2:1-30:12
+	package
+		INJECTED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:2:11-69
+uses-sdk
+ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:4:5-74
+INJECTED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:4:5-74
+INJECTED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:4:5-74
+	android:targetSdkVersion
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:4:42-71
+		INJECTED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:4:15-41
+		INJECTED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml
+application
+ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:6:5-29:19
+	android:extractNativeLibs
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:10:9-41
+	android:label
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:7:9-41
+	android:hasCode
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:9:9-31
+	android:icon
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:8:9-43
+meta-data#xposedmodule
+ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:11:9-13:36
+	android:value
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:13:13-33
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:12:13-40
+meta-data#xposeddescription
+ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:14:9-16:58
+	android:value
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:16:13-55
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:15:13-45
+meta-data#xposedminversion
+ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:17:9-19:34
+	android:value
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:19:13-31
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:18:13-44
+activity#com.genspark.updatekiller.MainActivity
+ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:21:9-28:20
+	android:exported
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:23:13-36
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:22:13-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:24:13-27:29
+action#android.intent.action.MAIN
+ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:25:17-69
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:25:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:26:17-77
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:26:27-74

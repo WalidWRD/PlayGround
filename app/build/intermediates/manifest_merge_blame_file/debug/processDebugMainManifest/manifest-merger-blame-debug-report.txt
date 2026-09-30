@@ -1,0 +1,63 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.genspark.updatekiller"
+4    android:versionCode="2003"
+5    android:versionName="2.0.3" >
+6
+7    <uses-sdk
+7-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:4:5-74
+8        android:minSdkVersion="26"
+8-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:4:15-41
+9        android:targetSdkVersion="34" />
+9-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:4:42-71
+10
+11    <application
+11-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:6:5-29:19
+12        android:debuggable="true"
+13        android:extractNativeLibs="true"
+13-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:10:9-41
+14        android:hasCode="true"
+14-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:9:9-31
+15        android:icon="@mipmap/ic_launcher"
+15-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:8:9-43
+16        android:label="@string/app_name" >
+16-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:7:9-41
+17        <meta-data
+17-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:11:9-13:36
+18            android:name="xposedmodule"
+18-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:12:13-40
+19            android:value="true" />
+19-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:13:13-33
+20        <meta-data
+20-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:14:9-16:58
+21            android:name="xposeddescription"
+21-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:15:13-45
+22            android:value="@string/module_description" />
+22-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:16:13-55
+23        <meta-data
+23-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:17:9-19:34
+24            android:name="xposedminversion"
+24-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:18:13-44
+25            android:value="93" />
+25-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:19:13-31
+26
+27        <activity
+27-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:21:9-28:20
+28            android:name="com.genspark.updatekiller.MainActivity"
+28-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:22:13-41
+29            android:exported="true" >
+29-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:23:13-36
+30            <intent-filter>
+30-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:24:13-27:29
+31                <action android:name="android.intent.action.MAIN" />
+31-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:25:17-69
+31-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:25:25-66
+32
+33                <category android:name="android.intent.category.LAUNCHER" />
+33-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:26:17-77
+33-->/home/runner/work/PlayGround/PlayGround/app/src/main/AndroidManifest.xml:26:27-74
+34            </intent-filter>
+35        </activity>
+36    </application>
+37
+38</manifest>

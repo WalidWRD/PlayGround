@@ -1,0 +1,14 @@
+com.genspark.updatekiller:string/app_name = 0x7f050000
+com.genspark.updatekiller:array/blocked_ad_hosts = 0x7f010000
+com.genspark.updatekiller:mipmap/ic_launcher = 0x7f040000
+com.genspark.updatekiller:array/login_banner_texts = 0x7f010001
+com.genspark.updatekiller:id/status = 0x7f020004
+com.genspark.updatekiller:string/module_description = 0x7f050001
+com.genspark.updatekiller:id/hint = 0x7f020003
+com.genspark.updatekiller:layout/activity_main = 0x7f030000
+com.genspark.updatekiller:id/config = 0x7f020002
+com.genspark.updatekiller:array/target_packages = 0x7f010002
+com.genspark.updatekiller:id/title = 0x7f020005
+com.genspark.updatekiller:id/btnSave = 0x7f020001
+com.genspark.updatekiller:mipmap/ic_launcher_foreground = 0x7f040001
+com.genspark.updatekiller:id/btnLoad = 0x7f020000

@@ -1,0 +1,37 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.genspark.updatekiller.app-debug-4:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "/home/runner/work/PlayGround/PlayGround/app/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,114",
+                        "endColumns": "58,193",
+                        "endOffsets": "109,303"
+                    },
+                    "to": {
+                        "startLines": "42,43",
+                        "startColumns": "4,4",
+                        "startOffsets": "1459,1518",
+                        "endColumns": "58,193",
+                        "endOffsets": "1513,1707"
+                    }
+                },
+                {
+                    "source": "/home/runner/work/PlayGround/PlayGround/app/src/main/res/values/arrays.xml",
+                    "from": {
+                        "startLines": "2,28,38",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,980,1323",
+                        "endLines": "27,37,41",
+                        "endColumns": "12,12,12",
+                        "endOffsets": "975,1318,1454"
+                    }
+                }
+            ]
+        }
+    ]
+}

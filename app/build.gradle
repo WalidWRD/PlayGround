@@ -1,0 +1,28 @@
+plugins {
+    id("com.android.application")
+}
+
+android {
+    namespace = "com.genspark.updatekiller"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.genspark.updatekiller"
+        minSdk = 26
+        targetSdk = 34
+        versionCode = 2003
+        versionName = "2.0.3"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        debug {
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
