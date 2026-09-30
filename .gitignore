@@ -1,0 +1,24 @@
+
+screenshots/
+
+*.log
+
+*.pid
+
+.agents/
+
+.agentsweb/
+
+.omgithub-runtime/
+
+.opencode-ssh/
+
+.opencode-web/
+
+node_modules/
+
+# build intermediates (keep release APK)
+build/apk/
+build/classes/
+build/dex/
+build/gen/

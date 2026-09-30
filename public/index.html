@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GenSubs UpdateKiller v2.0.1 — تصحيح الاشتراك بنجاح</title>
+<style>
+  :root { color-scheme: light; --bg:#0b1220; --card:#121c33; --accent:#38e1a5; --text:#eaf2ff; --muted:#9fb2d8; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, "Segoe UI", Tahoma, Arial, sans-serif; background:var(--bg); color:var(--text); }
+  header { padding:48px 24px 24px; text-align:center; }
+  .badge { display:inline-block; background:var(--accent); color:#04281c; font-weight:700; border-radius:999px; padding:6px 16px; margin-bottom:16px; }
+  h1 { margin:0 0 8px; font-size:clamp(24px,4vw,40px); }
+  p.sub { color:var(--muted); margin:0 auto; max-width:720px; line-height:1.9; }
+  main { max-width:960px; margin:0 auto; padding:24px; display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+  .card { background:var(--card); border:1px solid #26355c; border-radius:16px; padding:20px; line-height:1.9; }
+  .card h2 { margin-top:0; font-size:18px; color:var(--accent); }
+  code, pre { background:#0a0f1f; border:1px solid #26355c; border-radius:8px; padding:2px 8px; direction:ltr; display:inline-block; }
+  pre { display:block; overflow:auto; padding:12px; text-align:left; }
+  .cta { text-align:center; padding:8px 24px 56px; }
+  .btn { display:inline-block; background:var(--accent); color:#04281c; font-weight:800; border-radius:12px; padding:14px 28px; text-decoration:none; margin:4px; }
+  .btn.ghost { background:transparent; color:var(--text); border:1px solid var(--accent); }
+  footer { text-align:center; color:var(--muted); padding:0 24px 40px; font-size:13px; line-height:2; }
+  [dir="ltr"] { direction:ltr; unicode-bidi:embed; }
+</style>
+</head>
+<body>
+<header>
+  <div class="badge">ACTIVE ✓ — الاشتراك يعمل بنجاح</div>
+  <h1>GenSubs UpdateKiller v2.0.1 (build 201)</h1>
+  <p class="sub">تصحيح الاشتراك بنجاح للتطبيق — جسر <span dir="ltr">ACTIVE</span> فوري مع خطة
+  <span dir="ltr">premium</span>، وتسويف مفاتيح الاشتراك في HTTP وقنوات Flutter والفوترة والتفضيلات.
+  يعمل على <span dir="ltr">LSPatch / NPatch / HKP Patch / LSPosed</span> بدون روت.</p>
+</header>
+<main>
+  <section class="card">
+    <h2>✅ ما تم إصلاحه</h2>
+    <ul>
+      <li><span dir="ltr">isActive()</span> كان يفشل أي رد بلا تاريخ انتهاء — الآن <span dir="ltr">0 = بلا انتهاء = نشط</span>.</li>
+      <li><span dir="ltr">applyServerState()</span> كان يحكم <span dir="ltr">EXPIRED</span> قبل فحص <span dir="ltr">active</span> — الآن <span dir="ltr">{"active":true}</span> تعني <span dir="ltr">ACTIVE</span>.</li>
+      <li>مفاتيح بديلة مقبولة: <span dir="ltr">activeUntil / expires_at / product_id / userId / status=active</span>.</li>
+      <li>مسار نجاح محلي صريح: <span dir="ltr">subscriptionForceActive=true</span> يمنح <span dir="ltr">ACTIVE</span> فورًا.</li>
+      <li>خطاف جديد <span dir="ltr">SubscriptionHook</span> يربط حالة الجسر بفحوصات التطبيق.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <h2>⚙️ التفعيل (افتراضي ناجح)</h2>
+    <pre>{
+  "subscriptionBridge": true,
+  "subscriptionForceActive": true,
+  "subscriptionPlan": "premium",
+  "subscriptionDays": 365,
+  "subscriptionUserId": "local"
+}</pre>
+    <p>الملف: <code>config/genspark_updatekiller.json</code> — يُنسخ إلى <code>/data/local/tmp/</code> أو <code>/sdcard/Download/</code>. الخادم (<code>subscriptionEndpoint</code>) اختياري ويبقى مصدر الحقيقة عند ضبطه.</p>
+  </section>
+  <section class="card">
+    <h2>🧪 التحقق</h2>
+    <ul>
+      <li><span dir="ltr">python3 tests/test_subscription.py</span> — كل الفحوص ناجحة.</li>
+      <li>البناء: <span dir="ltr">aapt2 + javac + d8 + zipalign + apksigner</span> — تم بنجاح.</li>
+      <li>التحقق: <span dir="ltr">aapt2 dump badging</span> يعرض <span dir="ltr">versionCode 201 / 2.0.1</span> و<span dir="ltr">apksigner verify</span> ناجح.</li>
+      <li>السجل: <span dir="ltr">adb logcat -s GensparkUpdateKiller</span> ثم تقرير <span dir="ltr">genspark_updatekiller_report.json</span> (يتضمن قسم <span dir="ltr">subscription</span>).</li>
+    </ul>
+  </section>
+  <section class="card">
+    <h2>📦 الهدف</h2>
+    <p>تطبيق <b>Genspark</b> — <code>ai.mainfunc.genspark.pro</code> (ويدعم <code>ai.mainfunc.genspark</code>) — الإصدار المُحلَّل <span dir="ltr">2.9.8 (29800)</span>. الدمج بدون روت:</p>
+    <pre>lspatch -m patch -o genspark_patched.apk genspark.apk GenSubs-UpdateKiller-v2.0.1.apk
+adb install -r genspark_patched.apk</pre>
+  </section>
+</main>
+<div class="cta">
+  <a class="btn" href="GenSubs-UpdateKiller-v2.0.1.apk">تحميل APK v2.0.1 ⬇</a>
+  <a class="btn ghost" href="https://github.com/WalidWRD/PlayGround">المصدر على GitHub</a>
+</div>
+<footer>GenSubs UpdateKiller v2.0.1 (build 201) — GenSubs Project · LSPatch / NPatch / HKP Patch / LSPosed · يُستخدم فقط على تطبيق تملكه أو لديك إذن بتعديله.</footer>
+</body>
+</html>

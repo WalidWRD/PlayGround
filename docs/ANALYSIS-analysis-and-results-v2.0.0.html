@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>GenSubs UpdateKiller v2.0.0 — ملف التحليل والنتائج ودليل البناء والصيانة</title>
+<style>
+  @page { size: A4; margin: 18mm 15mm 16mm 15mm;
+          @bottom-center { content: "GenSubs UpdateKiller v2.0.0 — صفحة " counter(page); font-size: 8pt; color: #667; } }
+  * { box-sizing: border-box; }
+  body { font-family: "Noto Naskh Arabic", "Amiri", "DejaVu Sans", sans-serif;
+         direction: rtl; text-align: right; font-size: 10.2pt; line-height: 1.75; color: #14202e; }
+  h1 { font-size: 20pt; color: #0f2b46; margin: 0 0 4px 0; border-bottom: 3px solid #1f6feb; padding-bottom: 6px; }
+  h2 { font-size: 13.5pt; color: #0f2b46; margin: 20px 0 8px 0; padding: 5px 9px; background: #eef4fd;
+       border-right: 5px solid #1f6feb; border-radius: 4px; page-break-after: avoid; }
+  h3 { font-size: 11.5pt; color: #17456f; margin: 14px 0 6px 0; page-break-after: avoid; }
+  p, li { margin: 5px 0; }
+  ul, ol { padding-right: 20px; margin: 5px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 12px 0; font-size: 9.3pt; page-break-inside: avoid; }
+  th { background: #0f2b46; color: #fff; text-align: right; padding: 6px 8px; font-weight: 600; }
+  td { border: 1px solid #cdd8e6; padding: 5px 8px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f6f9fe; }
+  code, .mono { font-family: "DejaVu Sans Mono", monospace; direction: ltr; unicode-bidi: embed;
+                background: #f0f3f8; padding: 1px 4px; border-radius: 3px; font-size: 8.8pt; }
+  pre { direction: ltr; text-align: left; background: #0f1c2b; color: #e6edf6; padding: 9px 11px;
+        border-radius: 5px; font-family: "DejaVu Sans Mono", monospace; font-size: 8.6pt;
+        line-height: 1.5; overflow-wrap: anywhere; page-break-inside: avoid; }
+  .lead { font-size: 10.6pt; color: #35485f; margin: 8px 0 14px 0; }
+  .box { border: 1px solid #cdd8e6; border-right: 5px solid #1f6feb; background: #fbfdff;
+         padding: 8px 11px; border-radius: 5px; margin: 10px 0; page-break-inside: avoid; }
+  .warn { border-right-color: #c0392b; background: #fdf3f2; }
+  .ok { border-right-color: #1f8a4c; background: #f2fbf5; }
+  .tag { display: inline-block; background: #1f6feb; color: #fff; border-radius: 10px;
+         padding: 1px 9px; font-size: 8.4pt; margin-inline-start: 4px; }
+  .tag.new { background: #1f8a4c; }
+  .tag.fix { background: #b9770e; }
+  .kv { font-size: 9.5pt; }
+  .k { color: #4a5c72; }
+  .small { font-size: 8.8pt; color: #5a6b80; }
+  .footer-note { margin-top: 18px; border-top: 1px solid #cdd8e6; padding-top: 8px; font-size: 8.6pt; color: #5a6b80; }
+</style>
+</head>
+<body>
+
+<h1>GenSubs UpdateKiller — ملف التحليل والنتائج ودليل البناء والصيانة</h1>
+<p class="lead"><strong>الإصدار 2.0.0 (build 200)</strong> · تاريخ الإعداد <strong>2026-09-28</strong> ·
+هذا الملف مرجعي مختصر يجمع كل نتائج التحليل والقرارات التصميمية وخطوات البناء والدمج، حتى لا تُعاد
+التحليل في كل مرة. يعتمد على إصدارات 1.1.0 → 1.5.0 المرفقة ويضيف محرّك الإصدار 2.0.0.</p>
+
+<div class="box ok">
+<strong>الخلاصة التنفيذية في ثلاثة أسطر:</strong>
+<ol>
+<li>منطق التحديث الإجباري <strong>لا يوجد في Java/DEX ولا في الطبقة الأصلية</strong> — كله في طبقة Dart
+داخل <code>libapp.so</code> (AOT snapshot)، لذلك تعديل النصوص الثنائية لا يُزيل الحوار.</li>
+<li>الحل الصحيح: <strong>اعتراض وقت التشغيل</strong> عبر موديول Xposed/دمج بدون روت، يستهدف
+<strong>نقاط القرار</strong> (الإصدار + حقول الفرض + فتح المتجر) لا النصوص.</li>
+<li>الإصدار 2.0.0 يرفع المناعة: <strong>فهرس أسماء الفئات من DEX الهدف</strong> + مطابقة بنيوية +
+تثبيت مُؤجَّل متعدّد المرور + اعتراض قنوات Flutter بـProxy — فلا أسماء فئات ثابتة، ويعمل على
+الإصدارات الأعلى والأقل وعلى الحزم المضغوطة/المحمية/المشوّشة.</li>
+</ol>
+</div>
+
+<h2>1) الملفات المُحلَّلة وبيانات التطبيق الهدف</h2>
+<table>
+<tr><th>الحقل / الملف</th><th>القيمة</th></tr>
+<tr><td>الملفات المُحلَّلة <span class="small">(من 1.1.0/1.2.0)</span></td>
+<td><code>Genspark Classes.zip</code> (4.85 MB) → <code>classes.dex</code> 9.9 MB + <code>classes2.dex</code> 1 KB + <code>classes3.dex</code> 437 KB ·
+<code>AndroidManifest.txt</code> 43,501 B · <code>arm64-v8a.zip</code> 53 MB → <code>libapp.so</code> 46 MB + 31 مكتبة أصلية</td></tr>
+<tr><td>الأدوات المستخدمة</td><td><code>androguard 4.1.4</code> (DEX) · <code>strings</code>/grep (<code>libapp.so</code>) · <code>aapt2</code>/<code>apksigner</code> · إضافة Blutter</td></tr>
+<tr><td>الحزمة</td><td><code>ai.mainfunc.genspark.pro</code> — ويدعم أيضًا <code>ai.mainfunc.genspark</code></td></tr>
+<tr><td>النشاط الرئيسي</td><td><code>ai.mainfunc.genspark.MainActivity</code></td></tr>
+<tr><td>versionCode / versionName</td><td><code>29800</code> / <code>2.9.8</code></td></tr>
+<tr><td>minSdk / targetSdk / compileSdk</td><td><code>28</code> / <code>36</code> / <code>37</code></td></tr>
+<tr><td>usesCleartextTraffic</td><td><code>true</code> · <code>networkSecurityConfig = @7f140009</code></td></tr>
+<tr><td>SSL Pinning</td><td><strong>غير مُفعَّل</strong> (<code>setTrustedCertificates=0</code>، <code>sslPinning=0</code>، <code>pinSha256=0</code>، لا بصمات base64‑44)</td></tr>
+<tr><td>Play Core</td><td><code>PlayCoreDialogWrapperActivity</code> فقط — لا وجود لـ<code>play.core.appupdate.*</code></td></tr>
+<tr><td>إعلانات (دليل مانع الإعلانات) <span class="small">(1.4.0)</span></td>
+<td><code>com.google.android.gms.ads</code> (3 مراجع) + <code>INTERSTITIAL</code> + <code>BANNER</code> + <code>admob_app_id</code> + <code>AdvertisingIdClient</code> + <code>beginAdUnitExposure</code></td></tr>
+</table>
+
+<h2>2) موضع منطق التحديث (الحكم الجوهري) — نقطة القرار</h2>
+<p>لا يوجد منطق تحديث إجباري/فوري في الطبقة الأصلية ولا في DEX؛ <strong>كل المنطق في طبقة Dart داخل
+<code>libapp.so</code></strong> (AOT snapshot). النصوص التالية استُخرجت بإزاحاتها:</p>
+<table>
+<tr><th>السلسلة</th><th>الإزاحة</th><th>الحجم</th></tr>
+<tr><td class="mono">A new version of Genspark is available. Update now to get the latest features and fixes.</td><td class="mono">3,807,110</td><td>88 B</td></tr>
+<tr><td class="mono">New version available</td><td class="mono">1,687,018</td><td>21 B</td></tr>
+<tr><td class="mono">mine.appUpdate.dialogTitle / dialogMessage / updateNow / later</td><td class="mono">5,033,623 · 3,739,638 · 4,579,542 · 4,782,441</td><td>26/28/24/20 B</td></tr>
+<tr><td class="mono">forceUpgrade · minAppVersionCode</td><td class="mono">2,301,211 · 2,826,671</td><td>13/17 B</td></tr>
+<tr><td class="mono">SasUpgradeGateSheet · /api/config/new_feature/dialog</td><td class="mono">859,382 · 3,917,020</td><td>19/29 B</td></tr>
+</table>
+<p><strong>نقطة النهاية الحاسمة:</strong> <code>GET /api/config/new_feature/dialog</code> وتُعيد:
+<code>forceUpgrade</code> (bool)، <code>forceUpgradeD</code>، <code>directUpgrade</code>،
+<code>minAppVersionCode</code> (int)، <code>minAppRequireAppVersion</code>، <code>requiresAppVersion</code>. </p>
+<pre>localVersionCode = package_info.versionCode          # 29800
+if (localVersionCode &lt; cfg.minAppVersionCode):
+        if cfg.forceUpgrade: show SasUpgradeGateSheet   # إجباري بلا «لاحقًا»
+        else:                show UpgradePromptWidget   # اختياري فيه «لاحقًا»</pre>
+<p>وجود <code>mine.appUpdate.later</code> يثبت أن الحوار قابل للتأجيل إلا عند <code>forceUpgrade=true</code>.
+فتح المتجر يمرّ عبر قناة Flutter <code>dev.britannio.in_app_review</code>
+(<code>LR8/b-&gt;onMethodCall</code> تحمل <code>openStoreListing</code> وتبني رابط
+<code>play.google.com/store/apps/details?id=</code>)، والاحتياطي <code>Lz5/f-&gt;a(...)</code> ينشئ Intent
+<code>market://details</code>، وقراءة الإصدار في <code>LW8/a</code> و<code>LV8/b</code>.</p>
+
+<div class="box warn">
+<strong>لماذا فشل تعديل <code>libapp.so</code> وحده:</strong>
+<ol>
+<li>النصّ بياناتٌ يعرضها كود مُترجَم، والشرط المُظهر للحوار في تعليمات ARM نفسها.</li>
+<li>تغيير طول أي سلسلة يُزحزح الإزاحات ويُفسد الـsnapshot → كراش.</li>
+<li>لا يمكن «حذف» Widget بتعديل ثنائي آمن.</li>
+</ol>
+الخلاصة: تستهدف نقاط القرار (تزوير الإصدار / إلغاء حقول الفرض / منع فتح المتجر) لا النصوص.
+</div>
+
+<h2>3) لماذا الموديول هو الحل الصحيح</h2>
+<p>تزوير <code>PackageManager.getPackageInfo().versionCode</code> في طبقة Java يُغيّر ما يراه Dart
+(قناة <code>package_info</code> تقرأ الحزمة من <code>PackageManager</code> عبر JNI)، فتصبح
+<code>localVersionCode &lt; minAppVersionCode</code> غير محقّقة دائمًا مهما كان الإصدار — وهذا تجاوز
+محصَّن ضد تغيّر إصدارات التطبيق.</p>
+<table>
+<tr><th>الطريق</th><th>الطبيعة</th><th>الدوام</th><th>المخاطر</th></tr>
+<tr><td>تعديل الخادم (<code>forceUpgrade=false</code>)</td><td>إعداد</td><td>دائم</td><td>يحتاج وصولًا للسيرفر</td></tr>
+<tr><td>تعديل <code>libapp.so</code></td><td>نصّي</td><td>دائم</td><td>لا يُزيل الحوار + خطر كراش</td></tr>
+<tr><td>تعديل مصدر Flutter</td><td>حذف Widget</td><td>دائم</td><td>يحتاج المشروع الكامل + إعادة توقيع</td></tr>
+<tr><td><strong>موديول Xposed/دمج (هذا الموديول)</strong></td><td>اعتراض وقت التشغيل</td><td>دائم طالما مُدمج</td><td>منخفض جدًا (Guard + Kill-Switch)</td></tr>
+</table>
+
+<h2>4) الجديد في 2.0.0 — المحرّك الديناميكي والمناعة</h2>
+<table>
+<tr><th>#</th><th>الميزة</th><th>الملف</th><th>الأثر</th></tr>
+<tr><td>1</td><td><strong>فهرس أسماء الفئات من DEX الهدف</strong> <span class="tag new">جديد</span> — مسح تدفّقي لـ<code>classes*.dex</code> من <code>sourceDir</code> + <code>splitSourceDirs</code>، ثم احتياط <code>DexFile.entries()</code></td><td><code>Discovery.java</code></td><td>اكتشاف بنيوي بدل أسماء ثابتة</td></tr>
+<tr><td>2</td><td><strong>رصد تحميل الفئات (Lazy)</strong> <span class="tag new">جديد</span> — <code>ClassLoader.loadClass</code> + <code>BaseDexClassLoader.findClass</code></td><td><code>Discovery.java</code></td><td>إعادة محاولة فورية عند وصول أي فئة مُهمّة → يعمل مع المحمي/المشوّش</td></tr>
+<tr><td>3</td><td><strong>تثبيت مُؤجَّل متعدّد المرور</strong> <span class="tag new">جديد</span> — 7 مرورات (0/0.4/1.5/4/10/25/60 ثانية)</td><td><code>DeferredInstaller.java</code></td><td>يمسك الفئات التي تُحمَّل بعد الإقلاع</td></tr>
+<tr><td>4</td><td><strong>اكتشاف PackageManager الديناميكي</strong> <span class="tag new">جديد</span> — كل الأصناف المنفِّذة + <code>getInstalledPackages</code>/<code>getApplicationInfo</code>/<code>PackageInfo.getLongVersionCode</code></td><td><code>hooks/PackageManagerDiscoveryHook.java</code></td><td>تزوير الإصدار من كل مسارات القراءة</td></tr>
+<tr><td>5</td><td><strong>اكتشاف Flutter + اعتراض القنوات بـProxy</strong> <span class="tag new">جديد</span> — تغليف <code>setMethodCallHandler</code></td><td><code>hooks/FlutterDiscoveryHook.java</code></td><td>تحييد <code>openStoreListing</code> ورصد البقية بلا كسر أي عقد</td></tr>
+<tr><td>6</td><td><strong>إعادة كتابة <code>package_info</code></strong> <span class="tag new">جديد</span> — <code>Result.success(Map)</code></td><td><code>hooks/FlutterDiscoveryHook.java</code></td><td>تُبطل مقارنة الإصدار حتى داخل Dart</td></tr>
+<tr><td>7</td><td><strong>مُبطِل البوابات العام</strong> <span class="tag new">جديد</span> — اكتشاف بنيوي لأصناف البوابة/الحوار + إغلاق فوري + <code>false</code> لكل استفهام فرض</td><td><code>hooks/UniversalGateHook.java</code></td><td>يغطي بوابات جديدة لم تُحلَّل</td></tr>
+<tr><td>8</td><td><strong>مسح الطبقة الأصلية (قراءة فقط)</strong> <span class="tag new">جديد</span> — <code>/proc/self/maps</code> + الحجم + SHA-256 + عدّ نصوص القرار</td><td><code>hooks/NativeProbeHook.java</code></td><td>دليل ميداني بدل التحليل اليدوي</td></tr>
+<tr><td>9</td><td><strong>تقرير ذاتي JSON</strong> <span class="tag new">جديد</span> — <code>genspark_updatekiller_report.json</code></td><td><code>SelfTest.java</code></td><td>عدد خطّافات كل مكوّن + النتيجة النهائية</td></tr>
+<tr><td>10</td><td><strong>حزم إضافية من الإعدادات</strong> <span class="tag new">جديد</span> — <code>packages: []</code></td><td><code>Config.java</code></td><td>تغطية نسخ أخرى دون إعادة بناء</td></tr>
+<tr><td>11</td><td><strong>تزوير الإصدار عبر مسار ApplicationInfo</strong> <span class="tag fix">تقوية</span></td><td><code>hooks/VersionSpoofHook.java</code></td><td>يغطي قراءة <code>ActivityThread.getApplicationInfo</code></td></tr>
+</table>
+<p class="small">ميزات مُبقاة من 1.2.0–1.5.0: <code>WebViewHook</code>، تزوير مُقوّى، Hot-Reload للإعدادات،
+<code>storeRedirectUrl</code>، <code>killSwitchThreshold</code>، مسجّل أحداث التحديث بملف log، مانع الإعلانات،
+تتبّع Blutter، وجسر الاشتراك <code>SubscriptionBridge</code> (قراءة فقط من خادمك).</p>
+
+<h2>5) الخطّافات الكاملة (15 مكوّنًا) وأعضاء المحرّك</h2>
+<table>
+<tr><th>المكوّن</th><th>الوظيفة</th></tr>
+<tr><td><code>VersionSpoofHook</code></td><td>تزوير versionCode/versionName عبر ApplicationPackageManager + PackageManager + ApplicationInfo + PackageInfo</td></tr>
+<tr><td><code>PackageManagerDiscoveryHook</code> <span class="tag new">2.0</span></td><td>اكتشاف كل تنفيذات PackageManager وربط كل overloads القراءة</td></tr>
+<tr><td><code>FlutterDiscoveryHook</code> <span class="tag new">2.0</span></td><td>اعتراض قنوات Flutter (Proxy) + إعادة كتابة <code>package_info</code></td></tr>
+<tr><td><code>UniversalGateHook</code> <span class="tag new">2.0</span></td><td>إبطال بوابات/حوارات التحديث المكتشَفة بنيويًا</td></tr>
+<tr><td><code>NativeProbeHook</code> <span class="tag new">2.0</span></td><td>مسح <code>libapp.so</code>/<code>libflutter.so</code> وقت التشغيل (قراءة فقط)</td></tr>
+<tr><td><code>ChannelHook</code></td><td>رصد نداءات قنوات Flutter (openStoreListing/checkUpdate/…)</td></tr>
+<tr><td><code>IntentHook</code></td><td>تحويل نيّة المتجر إلى رابط ويب مع الحفاظ على الأعلام (بلا إلغاء دالة void)</td></tr>
+<tr><td><code>WebViewHook</code></td><td>منع روابط المتجر داخل WebView (سلسلة + WebResourceRequest)</td></tr>
+<tr><td><code>HttpHook</code> + <code>json/JsonNeutralizer</code></td><td>تعطيل حقول الفرض في أي ردّ يمرّ عبر okhttp/okio</td></tr>
+<tr><td><code>PrefsHook</code></td><td>تعطيل القيم المخزّنة مؤقتًا التي تُفعّل الحوار (shared_preferences)</td></tr>
+<tr><td><code>DialogHook</code></td><td>مراقبة الحوارات الأصلية (+<code>dialogWatch</code> لجعلها قابلة للإلغاء)</td></tr>
+<tr><td><code>PlayCoreHook</code></td><td>إبطال Play Core In-App Update إن وُجد</td></tr>
+<tr><td><code>NativeHook</code></td><td>رصد <code>loadLibrary</code> و<code>myPid</code> لتشخيص اللقطة AOT</td></tr>
+<tr><td><code>AdsBlocker</code></td><td>تحييد AdMob (AdView/InterstitialAd/RewardedAd/NativeAdView) + نطاقات WebView الإعلانية</td></tr>
+<tr><td><code>BlutterTrace</code></td><td>تتبّع نصوص قرار Blutter داخل Object Pool</td></tr>
+</table>
+<p><strong>أعضاء المحرّك:</strong> <code>HookEntry</code> (نقطة الدخول + جدولة) · <code>Discovery</code> ·
+<code>DeferredInstaller</code> · <code>EnvInfo</code> · <code>SelfTest</code> · <code>Reflect</code> ·
+<code>Guard</code>/<code>Guardian</code> · <code>Config</code> · <code>BuildInfo</code> ·
+<code>UxLog</code> · <code>UpdateEventLogger</code> · <code>SubscriptionBridge</code>.</p>
+
+<h2>6) ضمانات عدم الانهيار</h2>
+<ol>
+<li><strong>Guard:</strong> كل عمل خطّاف داخل <code>try/catch(Throwable)</code> — لا استثناء يصل إلى التطبيق.</li>
+<li><strong>Kill-Switch:</strong> بعد العتبة (افتراضي 20 فشلًا) تُعطَّل كل الخطّافات مع تسجيل تنبيه.</li>
+<li><strong>لا <code>setResult</code> على دوال void:</strong> نتحقّق من نوع الإرجاع، وفي <code>IntentHook</code>
+نُعدّل كائن Intent في مكانه بدل إلغاء الاستدعاء.</li>
+<li><strong>لا افتراض وجود فئة:</strong> غياب Flutter/Play Core/okhttp/إطار الدمج = تخطٍّ صامت.</li>
+<li><strong>لا تعديل لملفات التطبيق</strong> ولا استهلاك شبكة (الاستثناء الوحيد: جسر الاشتراك الاختياري المعطّل افتراضيًا).</li>
+<li><strong>Idempotent:</strong> كل صنف/مهمة تُربط مرة واحدة عبر مجموعات <code>Set</code> — فإعادة المرورات لا تُضاعف الخطّافات.</li>
+</ol>
+
+<h2>7) البناء والتحقق (المسار المستخدم في التسليم)</h2>
+<p>لا يحتاج الموديول أي مستودع خارجي: الـXposed API موجود كاستوب محلي في
+<code>libs/xposed-api82/src</code>. مسار البناء: <code>aapt2 compile → javac → d8 → aapt2 link →
+zip (dex+assets) → zipalign → apksigner</code>.</p>
+<pre>export JAVA_HOME=/path/to/jdk17
+export BT=/path/to/build-tools/34.0.0
+export ANDROID_JAR=/path/to/platforms/android-34/android.jar
+export JAVAC=$JAVA_HOME/bin/javac
+bash scripts/build_apk.sh
+# OK → build/GenSubs-UpdateKiller-v2.0.0.apk</pre>
+<p>مهم: <code>javac</code> يحتاج <code>-encoding UTF-8</code> (التعليقات العربية) والسكربت يتكفّل بذلك،
+ويُحظر استخدام <code>show*/present*</code> داخل تعليقات Javadoc لأن <code>*/</code> يُنهي التعليق.</p>
+<h3>أوامر التحقق</h3>
+<pre>aapt2 dump badging GenSubs-UpdateKiller-v2.0.0.apk | head
+apksigner verify --print-certs --verbose GenSubs-UpdateKiller-v2.0.0.apk
+unzip -p GenSubs-UpdateKiller-v2.0.0.apk assets/xposed_init      # com.genspark.updatekiller.HookEntry
+unzip -o GenSubs-UpdateKiller-v2.0.0.apk classes.dex -d verify/ &amp;&amp; dexdump -f verify/classes.dex | grep 'Class descriptor'</pre>
+
+<h2>8) الدمج بدون روت — LSPatch / NPatch / HKP Patch</h2>
+<h3>LSPatch (سطر أوامر)</h3>
+<pre>lspatch -m patch -o genspark_patched.apk genspark.apk GenSubs-UpdateKiller-v2.0.0.apk
+adb install -r genspark_patched.apk
+adb logcat -s GensparkUpdateKiller</pre>
+<h3>NPatch (جافا)</h3>
+<pre>java -jar NPatch.jar -m GenSubs-UpdateKiller-v2.0.0.apk genspark.apk -o genspark_patched.apk</pre>
+<h3>HKP Patch (واجهة التطبيق)</h3>
+<ol>
+<li>افتح HKP Patch → اختر التطبيق الهدف (Genspark).</li>
+<li>اختر الموديول: <strong>GenSubs UpdateKiller</strong>.</li>
+<li>اضغط <em>Patch</em> ثم ثبّت الـAPK الناتج (أعد التثبيت فوق النسخة الأصلية غير ممكن — يجب إزالة الأصلية أولًا لأن التوقيع يتغير).</li>
+</ol>
+<div class="box">
+<strong>ملاحظة توافق:</strong> الموديول يستخدم واجهة Xposed API 82 (متوفّرة في LSPatch وNPatch وHKP Patch
+وLSPosed)، ويصرّح بـ<code>xposedscope</code> للحزمتين الافتراضيتين. لإضافة حزمة أخرى (نسخة مُعاد تجديدها):
+إمّا عدّل <code>res/values/arrays.xml</code>، أو — دون إعادة بناء — أضفها في
+<code>packages: ["ai.mainfunc.genspark.xxx"]</code> داخل ملف الإعدادات.
+</div>
+
+<h2>9) الإعداد (كل القيم الافتراضية آمنة)</h2>
+<p>المسارات بالترتيب: <code>/data/local/tmp/genspark_updatekiller.json</code> ←
+<code>/sdcard/Download/genspark_updatekiller.json</code> ←
+<code>/sdcard/Android/data/&lt;pkg&gt;/files/genspark_updatekiller.json</code>.
+<code>enabled=false</code> يوقف الموديول بالكامل، والتغيير يُلتقط تلقائيًا (Hot-Reload كل 3 ثوانٍ).</p>
+<pre>{
+  "enabled": true,
+  "spoofVersion": true, "spoofVersionCode": 9999999, "spoofVersionName": "9.99.9",
+  "classScan": true, "scanMaxNames": 250000, "lazyInstall": true,
+  "pmDiscovery": true, "flutterDiscovery": true, "flutterResultRewrite": true,
+  "universalGate": true, "nativeScan": true,
+  "neutralizeJson": true, "blockStoreIntent": true,
+  "storeRedirectUrl": "https://www.genspark.ai/", "blockWebViewStore": true,
+  "prefsHook": true, "dialogWatch": false, "playCore": true, "nativeProbe": true,
+  "verbose": true, "eventLog": true, "adsBlock": true, "blutterTrace": true,
+  "killSwitchThreshold": 20,
+  "keys": ["forceUpgrade","forceUpgradeD","directUpgrade","minAppVersionCode",
+           "minAppRequireAppVersion","requiresAppVersion"],
+  "packages": [],
+  "subscriptionBridge": false, "subscriptionEndpoint": "", "subscriptionToken": ""
+}</pre>
+
+<h2>10) التقارير والتحقق الميداني</h2>
+<table>
+<tr><th>المخرج</th><th>المسار / الأمر</th></tr>
+<tr><td>سجل التشغيل</td><td><code>adb logcat -s GensparkUpdateKiller</code> — يظهر سطر:
+<code>ALL DONE — hooks=N failures=N killSwitch=false verdict=OK pending=[]</code></td></tr>
+<tr><td>تقرير ذاتي JSON <span class="tag new">2.0</span></td><td><code>genspark_updatekiller_report.json</code> في أحد المسارات:
+<code>/data/local/tmp/</code> · خارجي خاص · <code>/data/data/&lt;pkg&gt;/files/</code> · <code>/sdcard/Download/</code> —
+يحوي البيئة والفهرس وعدد خطّافات كل مكوّن والنتيجة (OK / PARTIAL / NO_HOOKS / KILL_SWITCH)</td></tr>
+<tr><td>سجل أحداث التحديث</td><td><code>genspark_updatekiller_events.log</code> — أنواع الأحداث:
+<code>[channel]</code> · <code>[dialog]</code> · <code>[intent]</code> · <code>[http]</code> ·
+<code>[gate]</code> · <code>[native]</code> · <code>[native-scan]</code> · <code>[session]</code> — مع الوقت المحلي بالميلي ثانية</td></tr>
+<tr><td>دليل الطبقة الأصلية <span class="tag new">2.0</span></td><td>سطر <code>[native-scan]</code> يحوي اسم المكتبة + حجمها + SHA-256 + عدّ كل نص قرار —
+يُقارَن بـ<code>blutter_frida.js</code> عند الحاجة</td></tr>
+</table>
+
+<h2>11) الصيانة والتطوير (لا إعادة تحليل)</h2>
+<ul>
+<li><strong>خطّاف جديد:</strong> أنشئ <code>hooks/XxxHook.java</code> فيه
+<code>public static int install(ClassLoader)</code>، ثم أضفه كمهمة في <code>HookEntry.registerTasks</code>
+(وميِّز: أساسية فورية أم ديناميكية مؤجّلة).</li>
+<li><strong>بلا أسماء ثابتة:</strong> استخدم <code>Discovery.classesByName / classesMatching /
+classesImplementing</code> ثم <code>Reflect.hookBySignature / hookWhere / hookByParamNames /
+hookByParamNames</code>.</li>
+<li><strong>لتوسيع النطاق:</strong> <code>BuildInfo.PACKAGE_NAMES</code> أو مفتاح <code>packages</code>.</li>
+<li><strong>لتغيير الإصدار:</strong> عدّل <code>BuildInfo</code> + <code>AndroidManifest.xml</code> +
+<code>res/values/strings.xml</code> + اسم مخرج السكربت.</li>
+<li><strong>عند ظهور حوار جديد:</strong> لا تعدّل الـDEX — اقرأ ملف الأحداث لتعرف أي حدث ظهر، ثم وسّع
+<code>NEUTRALIZE</code>/<code>OBSERVE</code> في <code>FlutterDiscoveryHook</code> أو فئات
+<code>UniversalGateHook</code>، أو أضف مفتاحًا جديدًا في <code>keys</code>.</li>
+</ul>
+
+<h2>12) الملاحظات المؤكَّدة وغير المؤكَّدة</h2>
+<ul>
+<li><strong>مؤكَّد بالتحليل الساكن:</strong> غياب أي منطق تحديث في DEX/الطبقة الأصلية · الإزاحات أعلاه ·
+غياب SSL Pinning · غياب <code>play.core.appupdate.*</code> · وجود AdMob · سلامة بناء وتوقيع الإصدارات 1.1.0 → 1.5.0.</li>
+<li><strong>مؤكَّد آليًا في هذا التسليم:</strong> ترجمة كل المصادر وبناء وتوقيع
+<code>GenSubs-UpdateKiller-v2.0.0.apk</code> + وجود <code>assets/xposed_init</code> والوصف المدمج
++ سلامة الأصناف داخل <code>classes.dex</code> (نتائج الفحص في التقرير المرافق).</li>
+<li><strong>غير مؤكَّد — يحتاج جهازًا حقيقيًا:</strong> نجاح اعتراض الحوار على نسخة مثبّتة فعليًا، وتوقيت
+أول قراءة إصدار قبل بناء الحوار، ونجاح مسح <code>libapp.so</code> آنيًا. تُتحقّق بقراءة سطر
+<code>ALL DONE … verdict=OK</code> وتقرير JSON عند أول تشغيل.</li>
+</ul>
+
+<div class="box warn">
+⚠️ <strong>تحذير قانوني:</strong> استخدم هذا الموديول على تطبيق تملكه أو لديك إذن صريح بتعديله فقط.
+توزيع نسخ معدّلة من تطبيقات الغير يخالف سياسات Google Play وقوانين حقوق النشر.
+</div>
+
+<p class="footer-note">GenSubs UpdateKiller v2.0.0 (build 200) — ملف مرجعي تقني · يُغني عن إعادة التحليل ·
+يُنقل مع المشروع في مجلد <code>docs/</code>.</p>
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "enabled": true,
+  "spoofVersion": true,
+  "spoofVersionCode": 9999999,
+  "spoofVersionName": "9.99.9",
+
+  "classScan": true,
+  "scanMaxNames": 250000,
+  "lazyInstall": true,
+  "pmDiscovery": true,
+  "flutterDiscovery": true,
+  "flutterResultRewrite": true,
+  "universalGate": true,
+  "nativeScan": true,
+
+  "neutralizeJson": true,
+  "blockStoreIntent": true,
+  "storeRedirectUrl": "https://www.genspark.ai/",
+  "blockWebViewStore": true,
+  "prefsHook": true,
+  "dialogWatch": false,
+  "playCore": true,
+  "nativeProbe": true,
+  "verbose": true,
+  "eventLog": true,
+  "adsBlock": true,
+  "blutterTrace": true,
+
+  "killSwitchThreshold": 20,
+
+  "keys": [
+    "forceUpgrade",
+    "forceUpgradeD",
+    "directUpgrade",
+    "minAppVersionCode",
+    "minAppRequireAppVersion",
+    "requiresAppVersion"
+  ],
+
+  "packages": [],
+
+  "subscriptionBridge": true,
+  "subscriptionEndpoint": "",
+  "subscriptionToken": "",
+  "subscriptionForceActive": true,
+  "subscriptionPlan": "premium",
+  "subscriptionDays": 365,
+  "subscriptionUserId": "local"
+}

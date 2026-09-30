@@ -1,0 +1,43 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.genspark.updatekiller'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.genspark.updatekiller"
+        minSdk 21
+        targetSdk 34
+        versionCode 150
+        versionName "1.5.0"
+        // لا نوارد أي مكتبة من تطبيق الهدف: كل شيء بالانعكاس
+    }
+
+    // نُضمّن استبوب Xposed المحلي كمصدر ترجمة (compileOnly عمليًا)
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java', '../../libs/xposed-api82/src']
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            debuggable false
+        }
+        debug { }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packaging {
+        resources.excludes += ['META-INF/*']
+    }
+}
+
+dependencies {
+    // لا تبعيات زمن تشغيل: فئات Xposed تُوفَّرها البيئة المضيفة (LSPatch/NPatch/LSPosed)
+}

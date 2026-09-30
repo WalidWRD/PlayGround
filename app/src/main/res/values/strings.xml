@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GenSubs UpdateKiller</string>
+
+    <!--
+      الوصف البيلت-إن: يظهر داخل مدير الموديولات (LSPatch / NPatch / HKP Patch / LSPosed)
+      وفي معلومات التطبيق، ويُطبع كذلك في سجل التشغيل.
+    -->
+    <string name="module_description">GenSubs UpdateKiller v2.0.1 (build 201)
+
+■ التطبيق المُستهدف: Genspark — ai.mainfunc.genspark.pro (ويدعم ai.mainfunc.genspark + أي حزمة تضيفها في packages)
+■ الإصدار الذي بُني عليه التحليل: versionName 2.9.8 / versionCode 29800 (minSdk 28, targetSdk 36)
+■ البيئة: LSPatch / NPatch / HKP Patch و LSPosed — بدون روت، ويصلح للتطبيقات المضغوطة والمحمية والمشوّشة (R8/ProGuard).
+
+■ المحرّك (جديد 2.0.0): lpparam.classLoader + فهرس أسماء الفئات من داخل DEX الهدف + مطابقة بنيوية (اسم/لمحات/أنواع مُعدّات) وربط كل الـoverloads — لا أسماء فئات أو دوال ثابتة، ويعمل على الإصدارات الأعلى والأقل.
+■ التثبيت المرن: مرورات مُؤجَّلة (0/0.4/1.5/4/10/25/60 ثانية) + إعادة محاولة فورية عند تحميل كل فئة مُهمّة → يصمد في التطبيقات المضغوطة والمحمية التي تُحمّل فئاتها متأخّرًا.
+
+■ الميزات:
+1) تعطيل التحديث الإجباري (Forced Update) وحوار التحديث الفوري/الاختياري معًا.
+2) تزوير رقم واسم الإصدار عبر كل تنفيذات PackageManager المُكتشَفة ديناميكيًا + مسار ApplicationInfo + PackageInfo، فتُبطل شرط الحد الأدنى للإصدار من كل مسارات القراءة.
+3) إعادة كتابة خرائط package_info القادمة من قناة Flutter (version/buildNumber/versionCode) → تزوير إصدار يعمل حتى داخل Dart.
+4) اعتراض قنوات Flutter عبر Proxy: تحييد نداءات المتجر (openStoreListing) وتمرير كل ما عداها كما هو بلا كسر أي عقد.
+5) تعطيل ميداني/نصّي لحقول القرار في أي ردّ JSON (forceUpgrade → false، minAppVersionCode → 0، minAppRequireAppVersion → \"\").
+6) مُبطِل بوابات التحديث العام: يكتشف أصناف البوابة/الحوار بنيويًا ويُغلقها فور عرضها ويُعيد false لكل استفهام فرض — لا يعتمد على أي مفتاح أو نصّ.
+7) تعطيل القيم المخزّنة مؤقتًا التي تُفعّل الحوار (shared_preferences).
+8) تحويل زر «حدّث الآن» إلى رابط ويب بدل متجر Play دون أي استثناء، ومنع روابط المتجر داخل WebView.
+9) إبطال Play Core In-App Update إن استخدمته نسخة أخرى.
+10) مانع إعلانات: تحييد AdMob (AdView/InterstitialAd/RewardedAd/NativeAdView) ومنع نطاقات إعلانية داخل WebView.
+11) مسح الطبقة الأصلية وقت التشغيل (قراءة فقط): يقرأ /proc/self/maps ويحسب الحجم وSHA-256 وعدد ظهور نصوص قرار التحديث داخل libapp.so/libflutter.so.
+12) تسجيل أحداث التحديث مع الوقت المحلي بالميلي ثانية + تقرير ذاتي JSON يوضّح لكل مكوّن عدد الخطّافات والنتيجة (OK / PARTIAL / NO_HOOKS / KILL_SWITCH).
+13) إعدادات Hot-Reload دون إعادة تشغيل التطبيق، ورابط تحويل متجر قابل للتخصيص، وعتبة Kill-Switch قابلة للضبط.
+14) تصحيح الاشتراك بنجاح (v2.0.1): جسر ACTIVE فوري عند subscriptionForceActive=true + تسويف مفاتيح الاشتراك في HTTP/قنوات Flutter/الفوترة/التفضيلات.
+
+■ الأمان ضد الكراش: كل عمل خطّاف مُلفّف في Guard؛ أي استثناء يُسجَّل ويُتجاهل، مع مفتاح إيقاف تلقائي (Kill-Switch). لا يُعدّل الموديول ملفات التطبيق ولا يستهلك شبكة (ما عدا جسر الاشتراك الاختياري).
+
+■ الإعداد (اختياري): /data/local/tmp/genspark_updatekiller.json أو /sdcard/Download/genspark_updatekiller.json — مفتاح enabled=false يوقف الموديول بالكامل، وكل القيم الافتراضية آمنة.
+
+■ السجل: logcat -s GensparkUpdateKiller (يظهر: ALL DONE — hooks=N failures=N killSwitch=false verdict=OK pending=[]) + ملف genspark_updatekiller_report.json.</string>
+</resources>

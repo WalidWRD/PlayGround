@@ -1,0 +1,9 @@
+// مشروع Genspark UpdateKiller — لا يحتاج أي مستودع خارجي للـXposed API
+// (يُبنى من استبوب محلي في libs/xposed-api82/src لإتاحة البناء دون اتصال).
+buildscript {
+    repositories { google(); mavenCentral() }
+    dependencies { classpath 'com.android.tools.build:gradle:8.5.2' }
+}
+allprojects {
+    repositories { google(); mavenCentral() }
+}
