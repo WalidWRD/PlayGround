@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NPatch — مولّد وحدات فتح الاشتراكات VIP / Pro / Premium</title>
+<style>
+:root{--bg:#0b1020;--card:#141b33;--line:#263054;--txt:#eef2ff;--mut:#a5b0d0;--acc:#38bdf8;--acc2:#a78bfa;--ok:#22c55e}
+*{box-sizing:border-box}html,body{overflow-x:hidden;max-width:100%}body{margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:radial-gradient(1200px 600px at 80% -10%,#1e2a5a 0%,var(--bg) 55%) fixed,var(--bg);color:var(--txt);width:100%}
+header{padding:36px 20px 18px;max-width:1080px;margin:0 auto;width:100%}
+.badge{display:inline-block;background:#13203f;border:1px solid var(--line);color:var(--acc);padding:6px 12px;border-radius:999px;font-size:13px}
+h1{font-size:clamp(26px,4vw,44px);margin:14px 0 8px;line-height:1.3}
+p.lead{color:var(--mut);font-size:17px;line-height:1.9;margin:0}
+main{max-width:1080px;width:100%;margin:0 auto;padding:10px 20px 60px;display:grid;gap:16px;overflow-x:hidden}
+.grid{display:grid;gap:16px;min-width:0}@media(min-width:900px){.grid.cols2{grid-template-columns:1fr 1fr}.grid.cols3{grid-template-columns:repeat(3,1fr)}}
+.grid>*{min-width:0;overflow:hidden}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0;max-width:100%;overflow:hidden}
+.card h2{margin:0 0 10px;font-size:19px}.card h3{margin:14px 0 8px;font-size:16px;color:var(--acc)}
+.card p,.card li{color:#d6ddf5;font-size:14.5px;line-height:1.9}
+ol,ul{margin:8px 0;padding-inline-start:20px}
+code,kbd{font-family:Consolas,Menlo,monospace;background:#0a0f24;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:13px;color:#bfe9ff}
+pre{background:#080d1f;border:1px solid var(--line);border-radius:12px;padding:14px;overflow:auto;direction:ltr;text-align:left;font-size:12.8px;line-height:1.7;color:#d8e6ff;max-height:420px;max-width:100%;white-space:pre}
+label{display:block;font-size:13.5px;color:var(--mut);margin:10px 0 6px}
+input,select,textarea{width:100%;background:#0a0f24;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit}
+textarea{min-height:90px;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+button{cursor:pointer;border:0;border-radius:10px;padding:11px 16px;font-size:14.5px;font-weight:700}
+.btn{background:linear-gradient(90deg,var(--acc),var(--acc2));color:#06121f}
+.btn2{background:#1d2749;color:var(--txt);border:1px solid var(--line)}
+.hint{font-size:12.5px;color:var(--mut)}.ok{color:var(--ok);font-size:13px}
+footer{max-width:1080px;width:100%;margin:0 auto;padding:0 20px 40px;color:var(--mut);font-size:13px;line-height:1.9}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.tab{background:#1d2749;border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:8px 14px;font-size:13.5px}
+.tab.active{background:var(--acc);color:#06121f;border-color:transparent}
+.note{border-inline-start:4px solid var(--acc);background:#0e1732;padding:10px 12px;border-radius:8px;font-size:13.5px;color:#cfe3ff}
+</style>
+</head>
+<body>
+<header>
+<span class="badge">NPatch • بدون روت • Integrated Mode • v1.0.2+</span>
+<h1>مطوّر وحدات NPatch لفتح الاشتراكات المميزة</h1>
+<p class="lead">دليل عملي + مولّد برومبت + قوالب Java جاهزة للبناء: تحليل التطبيق، تحديد دوال التحقق، كتابة الـ Hook، الدمج في NPatch. للاستخدام الشخصي / التعليمي فقط.</p>
+<div class="row">
+<button class="btn" onclick="document.getElementById('gen').scrollIntoView({behavior:'smooth'})">ولّد البرومبت الآن</button>
+<button class="btn2" onclick="document.getElementById('code').scrollIntoView({behavior:'smooth'})">عرض كود MainHook.java</button>
+</div>
+</header>
+<main>
+<div class="grid cols3">
+<div class="card"><h2>١. التحليل الأولي</h2><ul><li>فكك بـ <code>Jadx</code> / <code>APKTool</code></li><li>ابحث في <code>AndroidManifest.xml</code> عن <code>BILLING</code> و <code>Purchases</code></li><li>حدد المكتبة: Google Play Billing / RevenueCat / مخصصة</li></ul></div>
+<div class="card"><h2>٢. الأكواد المستهدفة</h2><ul><li><code>isVip isPro isPremium isSubscribed</code></li><li><code>checkSubscription verifyPurchase</code></li><li><code>Purchase SkuDetails BillingClient</code></li><li>مثال 4XVR: <code>Main4XActivity.IsMP()</code> → ‏<code>true</code></li></ul></div>
+<div class="card"><h2>٣. الدمج والتثبيت</h2><ul><li>ابنِ APK الوحدة ثم <code>Embed Modules</code></li><li>فعّل <code>sigBypass</code> عند الحاجة</li><li>تحقق يدويًا — لا تعتمد على إشعار النجاح</li></ul></div>
+</div>
+<div class="card" id="gen">
+<h2>مولّد البرومبت الاحترافي</h2>
+<p>أدخل اسم التطبيق ليُخصص البرومبت والكود تلقائيًا.</p>
+<div class="grid cols2">
+<div>
+<label>اسم حزمة التطبيق (package)</label>
+<input id="pkg" value="com.target.app">
+<label>اسم الـ Activity / الكلاس</label>
+<input id="cls" value="com.target.app.MainActivity">
+<label>اسم دالة التحقق</label>
+<input id="mth" value="isPremium">
+<label>مكتبة الفوترة</label>
+<select id="lib"><option>Google Play Billing</option><option>RevenueCat</option><option>مكتبة مخصصة</option></select>
+<div class="row"><button class="btn" id="buildBtn">توليد</button><button class="btn2" id="copyBtn">نسخ البرومبت</button><span class="ok" id="msg"></span></div>
+<p class="hint">يعمل محليًا بالكامل — لا يُرسل أي شيء للخارج.</p>
+</div>
+<div>
+<label>البرومبت المولّد</label>
+<textarea id="out" readonly></textarea>
+</div>
+</div>
+</div>
+<div class="grid cols2">
+<div class="card" id="code">
+<h2>MainHook.java — قالب جاهز</h2>
+<div class="tabs"><button class="tab active" data-t="billing">Google Billing</button><button class="tab" data-t="revenue">RevenueCat</button><button class="tab" data-t="generic">عام isVip</button></div>
+<pre id="codeView"></pre>
+<div class="row"><button class="btn2" id="copyCode">نسخ الكود</button></div>
+<h3>AndroidManifest.xml للوحدة</h3>
+<pre>&lt;manifest package="com.npatch.breaker"&gt;
+  &lt;application&gt;
+    &lt;meta-data android:name="xposedmodule" android:value="true"/&gt;
+    &lt;meta-data android:name="xposeddescription" android:value="NPatch VIP unlocker - personal/educational use only"/&gt;
+    &lt;meta-data android:name="xposedminversion" android:value="93"/&gt;
+  &lt;/application&gt;
+&lt;/manifest&gt;</pre>
+</div>
+<div class="card">
+<h2>خطوات البناء والدمج</h2>
+<ol>
+<li>أنشئ مشروع Java/Kotlin جديد وأضف <code>Xposed API</code>.</li>
+<li>الصق <code>MainHook.java</code> وحدد <code>IXposedHookLoadPackage</code>.</li>
+<li>ابنِ <code>app-debug.apk</code> للوحدة.</li>
+<li>في مدير NPatch: اختر التطبيق الهدف ← <code>Integrated Mode</code> ← <code>Embed Modules</code> ← اختر وحدتك.</li>
+<li>فعّل <code>sigBypass</code> إذا فشل التثبيت بسبب التوقيع.</li>
+<li>ثبّت الناتج وتحقق من قائمة التطبيقات يدويًا.</li>
+</ol>
+<div class="note">تشفير الأسماء؟ ابحث في السلاسل النصية (Strings) عن <code>vip / premium / subscribe</code> ثم تتبع التدفق (Flow Analysis) للوصول للدالة الحقيقية. تجنّب الـ Hook المتكرر الثقيل حتى لا ينهار التطبيق.</div>
+<h3>أمثلة Hook إضافية</h3>
+<pre> // RevenueCat: Purchases.getCustomerInfo
+XposedHelpers.findAndHookMethod(
+  "com.revenuecat.purchases.Purchases",
+  lpparam.classLoader, "getCustomerInfo",
+  new XC_MethodHook() {
+    @Override protected void afterHookedMethod(MethodHookParam p) {
+      // لفّ النتيجة بكائن entitlements يمنح premium
+    }
+  });
+
+// Google Billing: BillingClient.queryPurchasesAsync
+XposedHelpers.findAndHookMethod(
+  "com.android.billingclient.api.BillingClientImpl",
+  lpparam.classLoader, "queryPurchasesAsync",
+  String.class, PurchasesResponseListener.class,
+  new XC_MethodReplacement() {
+    @Override protected Object replaceHookedMethod(MethodHookParam p) {
+      // أعد قائمة مشتريات وهمية ناجحة
+      return null;
+    }
+  });</pre>
+</div>
+</div>
+<div class="card"><h2>حدود أخلاقية</h2><p>هذه الوحدة مخصصة للاستخدام الشخصي أو التعليمي فقط، ولا يجوز استخدامها لأغراض تجارية أو الإضرار بالمطورين. ادعم التطبيقات التي تستفيد منها بشراء الاشتراك الرسمي عندما تستطيع.</p></div>
+</main>
+<footer>NPatch مبني على LSPosed / LSPatch — يعمل بدون روت عبر دمج الوحدة داخل APK. صفحة ثابتة للعرض والتوثيق.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const templates={
+billing:lp=>`import de.robv.android.xposed.IXposedHookLoadPackage;\nimport de.robv.android.xposed.XC_MethodHook;\nimport de.robv.android.xposed.XposedHelpers;\nimport de.robv.android.xposed.callbacks.XC_LoadPackage;\n\n// Educational / personal use only\npublic class MainHook implements IXposedHookLoadPackage {\n  @Override public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lp) {\n    if (!lp.packageName.equals("${lp.pkg}")) return;\n    // 1) Direct flag: ${lp.cls}.${lp.mth}() -> true\n    try {\n      XposedHelpers.findAndHookMethod("${lp.cls}", lp.classLoader, "${lp.mth}",\n        new XC_MethodHook() {\n          @Override protected void afterHookedMethod(MethodHookParam p) { p.setResult(true); }\n        });\n    } catch (Throwable t) { /* keep stable, do not crash host */ }\n    // 2) Google Play Billing bypass (${lp.lib})\n    try {\n      XposedHelpers.findAndHookMethod("com.android.billingclient.api.BillingClientImpl",\n        lp.classLoader, "isFeatureSupported", String.class,\n        new XC_MethodHook() {\n          @Override protected void afterHookedMethod(MethodHookParam p) { /* force SUPPORTED */ }\n        });\n    } catch (Throwable t) {}\n  }\n}`,
+revenue:lp=>`import de.robv.android.xposed.IXposedHookLoadPackage;\nimport de.robv.android.xposed.XC_MethodHook;\nimport de.robv.android.xposed.XposedHelpers;\nimport de.robv.android.xposed.callbacks.XC_LoadPackage;\n\n// Educational / personal use only - RevenueCat example\npublic class MainHook implements IXposedHookLoadPackage {\n  @Override public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lp) {\n    if (!lp.packageName.equals("${lp.pkg}")) return;\n    XposedHelpers.findAndHookMethod("${lp.cls}", lp.classLoader, "${lp.mth}",\n      new XC_MethodHook() {\n        @Override protected void afterHookedMethod(MethodHookParam p) { p.setResult(true); }\n      });\n    // Hook RevenueCat CustomerInfo entitlements here;\n    // wrap result so activeEntitlements contains "premium".\n  }\n}`,
+generic:lp=>`import de.robv.android.xposed.IXposedHookLoadPackage;\nimport de.robv.android.xposed.XC_MethodHook;\nimport de.robv.android.xposed.XposedHelpers;\nimport de.robv.android.xposed.callbacks.XC_LoadPackage;\n\n// Pattern from 4XVR Breaker: Main4XActivity.IsMP() -> true\npublic class MainHook implements IXposedHookLoadPackage {\n  @Override public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lp) {\n    if (!lp.packageName.equals("${lp.pkg}")) return;\n    for (String m : new String[]{"isVip","isPro","isPremium","isSubscribed","checkSubscription"}) {\n      try {\n        XposedHelpers.findAndHookMethod("${lp.cls}", lp.classLoader, m,\n          new XC_MethodHook() {\n            @Override protected void afterHookedMethod(MethodHookParam p) { p.setResult(true); }\n          });\n      } catch (Throwable ignored) {}\n    }\n  }\n}`};
+let cur='billing';
+function vals(){return{pkg:$('pkg').value.trim()||'com.target.app',cls:$('cls').value.trim()||'com.target.app.MainActivity',mth:$('mth').value.trim()||'isPremium',lib:$('lib').value};}
+function render(){const v=vals();$('codeView').textContent=templates[cur](v);}
+function buildPrompt(){const v=vals();return `الدور: خبير أندرويد + Reverse Engineering + Xposed/NPatch (بدون روت).\nالهدف: وحدة NPatch تفتح VIP/Pro/Premium في ${v.pkg} عبر Hook ${v.cls}.${v.mth}() لتعيد true، مع دعم ${v.lib}.\nالمطلوب:\n1) تحليل Jadx/APKTool + Manifest (BILLING/Purchases).\n2) تحديد isVip/isPro/isPremium/isSubscribed/checkSubscription.\n3) كود MainHook.java كامل (IXposedHookLoadPackage + findAndHookMethod + afterHookedMethod setResult(true)) + مثال RevenueCat و Google Billing.\n4) Manifest الوحدة + خطوات Integrated Mode / Embed Modules + sigBypass + ملاحظة أخلاقية.\nالحزمة: ${v.pkg} | الكلاس: ${v.cls} | الدالة: ${v.mth} | المكتبة: ${v.lib}`;}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');cur=b.dataset.t;render();});
+$('buildBtn').onclick=()=>{$('out').value=buildPrompt();$('msg').textContent='تم التوليد ✓';};
+$('copyBtn').onclick=async()=>{if(!$('out').value)$('out').value=buildPrompt();try{await navigator.clipboard.writeText($('out').value);$('msg').textContent='تم النسخ ✓';}catch(e){$('out').select();document.execCommand('copy');$('msg').textContent='تم النسخ ✓';}};
+$('copyCode').onclick=async()=>{try{await navigator.clipboard.writeText($('codeView').textContent);}catch(e){}};
+['pkg','cls','mth'].forEach(id=>$(id).addEventListener('input',render));
+$('lib').addEventListener('change',render);
+$('out').value=buildPrompt();render();
+</script>
+</body>
+</html>
