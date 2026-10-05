@@ -1,0 +1,73 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:2:1-31:12
+INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:2:1-31:12
+INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:2:1-31:12
+INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:2:1-31:12
+	package
+		INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:2:11-69
+application
+ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:4:5-30:19
+INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:4:5-30:19
+	android:extractNativeLibs
+		INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml
+	android:label
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:5:9-41
+	android:hasCode
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:6:9-31
+meta-data#xposedmodule
+ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:8:9-10:36
+	android:value
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:10:13-33
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:9:13-40
+meta-data#xposeddescription
+ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:11:9-13:58
+	android:value
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:13:13-55
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:12:13-45
+meta-data#xposedminversion
+ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:14:9-16:34
+	android:value
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:16:13-31
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:15:13-44
+meta-data#xposedscope
+ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:17:9-19:47
+	android:value
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:19:13-44
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:18:13-39
+activity#com.ashnapatch.xposed.SettingsActivity
+ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:21:9-29:20
+	android:label
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:23:13-45
+	android:exported
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:24:13-36
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:22:13-45
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:25:13-28:29
+action#android.intent.action.MAIN
+ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:26:17-69
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:26:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:27:17-77
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:27:27-74
+uses-sdk
+INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml
+INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml

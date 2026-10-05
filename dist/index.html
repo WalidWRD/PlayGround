@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AshnaAI Patch v1.0.0 — موديول Xposed</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: system-ui, "Segoe UI", Tahoma, Arial, sans-serif; margin: 0; background: #f6f7f9; color: #1a1d21; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 32px 20px 64px; }
+  .card { background: #fff; border: 1px solid #e3e6ea; border-radius: 12px; padding: 24px; margin: 16px 0; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  h1 { font-size: 28px; margin: 0 0 8px; }
+  .ver { display: inline-block; background: #0b6e4f; color: #fff; border-radius: 999px; padding: 2px 12px; font-size: 14px; }
+  ul { line-height: 1.9; }
+  .btn { display: inline-block; margin: 6px 8px 6px 0; padding: 10px 18px; border-radius: 8px; background: #0b6e4f; color: #fff; text-decoration: none; }
+  .btn.alt { background: #334155; }
+  code { background: #eef1f4; padding: 1px 6px; border-radius: 6px; direction: ltr; display: inline-block; }
+  footer { color: #6b7280; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <span class="ver">v1.0.0</span>
+    <h1>AshnaAI Patch — موديول Xposed احترافي</h1>
+    <p>للتطبيق: <strong>AshnaAI</strong> <code>ai.ashna.mobile</code> (نسخة التحليل 1.0.6 — متوافق مع الأعلى والأقل).</p>
+  </div>
+  <div class="card">
+    <h2>الميزات</h2>
+    <ul>
+      <li>تعطيل حوار التحديث الإجباري / الفوري (WebView + Play In-App Updates + expo-updates).</li>
+      <li>كتم الرسائل التحذيرية المزعجة (تطبيق / مشغّل) مع قائمة بيضاء لشاشات الدخول و OTP.</li>
+      <li>حجب الإعلانات (اعتراض WebViewClient + حقن JS + تعطيل loadAd/showAd إن وُجدت).</li>
+      <li>حماية من الكراشات: كل هوك معزول داخل try/catch ولا يرمي استثناء أبداً.</li>
+      <li>بحث بالانعكاس عبر <code>lpparam.classLoader</code> — يعمل مع LSPosed / LSPatch / NPatch / HKP بدون روت.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>تحميل الموديول (APK)</h2>
+    <p>
+      <a class="btn" href="AshnaAIPatch-v1.0.0-release.apk">تحميل نسخة Release</a>
+      <a class="btn alt" href="AshnaAIPatch-v1.0.0-debug.apk">تحميل نسخة Debug</a>
+    </p>
+    <p>الحزمة: <code>com.ashnapatch.xposed</code> — يتطلب تفعيله على <code>ai.ashna.mobile</code> من مدير LSPosed أو عبر باتش LSPatch.</p>
+  </div>
+  <div class="card">
+    <h2>الوصف المدمج (يظهر في مدير الموديولات وسجل التشغيل)</h2>
+    <p>محدَّث v1.0.0 — هوك Play In-App Updates بالانعكاس + إخفاء حوار التحديث داخل WebView + فلترة AlertDialog/Toast + اعتراض نطاقات الإعلانات + توافق كامل بدون روت.</p>
+  </div>
+  <footer>تحليل الحزمة محفوظ في <code>AshnaAIPatch/ANALYSIS_CACHED.md</code> — لا حاجة لإعادة التحليل مع كل بناء.</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AshnaAI Patch v1.4.0</string>
+    <string name="xposed_description">AshnaAI Patch v1.4.0 | للتطبيق: AshnaAI (ai.ashna.mobile) إصدار 1.0.6 وما فوق/تحت — الميزات: (1) تعطيل حوار التحديث الإجباري/الفوري (WebView SPA-proof + كل حملات Play + expo-updates)، (2) كتم التحذيرات بمرشّح موحّد + Toast لأندرويد 12+ مع قائمة بيضاء للدخول/OTP، (3) حجب الإعلانات (WebViewClient + loadUrl + حقن JS + قوائم مستخدم مخصصة)، (4) شاشة تحكم بمفاتيح وقوائم حيّة + تشخيص شبكي قراءة فقط + بطاقة اشتراك محلية (تذكير يدوي وزر فتح رسمي — لا قراءة ولا تعديل للخادم) — متوافق LSPosed/LSPatch/NPatch/HKP بدون روت، بحث بالانعكاس عبر lpparam.classLoader — سجل التشغيل يطبع الميزات عند الإقلاع.</string>
+</resources>

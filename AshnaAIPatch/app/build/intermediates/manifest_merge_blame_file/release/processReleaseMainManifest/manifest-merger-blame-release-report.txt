@@ -1,0 +1,64 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.ashnapatch.xposed"
+4    android:versionCode="5"
+5    android:versionName="1.4.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <application
+11-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:4:5-30:19
+12        android:extractNativeLibs="false"
+13        android:hasCode="true"
+13-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:6:9-31
+14        android:label="@string/app_name" >
+14-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:5:9-41
+15        <meta-data
+15-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:8:9-10:36
+16            android:name="xposedmodule"
+16-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:9:13-40
+17            android:value="true" />
+17-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:10:13-33
+18        <meta-data
+18-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:11:9-13:58
+19            android:name="xposeddescription"
+19-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:12:13-45
+20            android:value="@string/xposed_description" />
+20-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:13:13-55
+21        <meta-data
+21-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:14:9-16:34
+22            android:name="xposedminversion"
+22-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:15:13-44
+23            android:value="82" />
+23-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:16:13-31
+24        <meta-data
+24-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:17:9-19:47
+25            android:name="xposedscope"
+25-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:18:13-39
+26            android:value="ai.ashna.mobile" />
+26-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:19:13-44
+27
+28        <activity
+28-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:21:9-29:20
+29            android:name="com.ashnapatch.xposed.SettingsActivity"
+29-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:22:13-45
+30            android:exported="true"
+30-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:24:13-36
+31            android:label="@string/app_name" >
+31-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:23:13-45
+32            <intent-filter>
+32-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:25:13-28:29
+33                <action android:name="android.intent.action.MAIN" />
+33-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:26:17-69
+33-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:26:25-66
+34
+35                <category android:name="android.intent.category.LAUNCHER" />
+35-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:27:17-77
+35-->/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/AndroidManifest.xml:27:27-74
+36            </intent-filter>
+37        </activity>
+38    </application>
+39
+40</manifest>

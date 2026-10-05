@@ -1,0 +1,48 @@
+{
+    "logs": [
+        {
+            "outputFile": "/home/runner/.gradle/daemon/9.8.0/com.ashnapatch.xposed.app-debug-4:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "2,4",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,192",
+                        "endColumns": "57,627",
+                        "endOffsets": "108,815"
+                    },
+                    "to": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,113",
+                        "endColumns": "57,627",
+                        "endOffsets": "108,736"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.ashnapatch.xposed.app-debug-4:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "/home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "2,4",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,192",
+                        "endColumns": "57,640",
+                        "endOffsets": "108,828"
+                    },
+                    "to": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,113",
+                        "endColumns": "57,640",
+                        "endOffsets": "108,749"
+                    }
+                }
+            ]
+        }
+    ]
+}

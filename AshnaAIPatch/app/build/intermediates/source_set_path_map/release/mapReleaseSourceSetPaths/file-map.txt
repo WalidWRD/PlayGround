@@ -1,0 +1,7 @@
+com.ashnapatch.xposed.app-pngs-0 /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/build/generated/res/pngs/release
+com.ashnapatch.xposed.app-resValues-1 /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/build/generated/res/resValues/release
+com.ashnapatch.xposed.app-packageReleaseResources-2 /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/build/intermediates/incremental/release/packageReleaseResources/merged.dir
+com.ashnapatch.xposed.app-packageReleaseResources-3 /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/build/intermediates/incremental/release/packageReleaseResources/stripped.dir
+com.ashnapatch.xposed.app-release-4 /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/build/intermediates/merged_res/release/mergeReleaseResources
+com.ashnapatch.xposed.app-main-5 /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/main/res
+com.ashnapatch.xposed.app-release-6 /home/runner/work/PlayGround/PlayGround/AshnaAIPatch/app/src/release/res
