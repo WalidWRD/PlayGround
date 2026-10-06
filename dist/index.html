@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تحليل تطبيق com.anime.day — AppHookGenerator v2.0</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--line:#334155;--txt:#f1f5f9;--mut:#94a3b8;--acc:#22d3ee;--grn:#34d399;--amb:#fbbf24;--red:#f87171}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+header{padding:28px 20px 18px;max-width:1100px;margin:0 auto}
+.badge{display:inline-block;background:#164e63;color:var(--acc);border:1px solid #155e75;border-radius:999px;padding:4px 12px;font-size:13px;margin-bottom:10px}
+h1{margin:.2em 0;font-size:clamp(22px,4vw,34px)}p.sub{color:var(--mut);margin:.3em 0 0}
+.grid{max-width:1100px;margin:0 auto;padding:10px 20px 40px;display:grid;gap:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card b{font-size:28px;display:block}.card span{color:var(--mut);font-size:13px}
+.card small{display:block;color:var(--mut);margin-top:6px;line-height:1.6}
+section.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+h2{margin:0 0 8px;font-size:19px}h3{margin:16px 0 6px;font-size:15px;color:var(--acc)}
+p,li{line-height:1.9;font-size:14.5px}ul{margin:6px 0;padding-inline-start:20px}
+code{background:#0b1220;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:12.5px;direction:ltr;display:inline-block}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+th,td{border:1px solid var(--line);padding:8px;text-align:right}th{background:#0b1220}
+.bar{height:8px;background:#0b1220;border-radius:99px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--grn))}
+.mono{direction:ltr;text-align:left;font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+.foot{color:var(--mut);font-size:12.5px;text-align:center;padding:0 20px 34px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:10px}
+.kv div{background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px}
+.kv b{color:var(--acc)}
+</style>
+</head>
+<body>
+<header>
+<div class="badge">AppHookGenerator v2.0 — تقرير تحليل ثابت</div>
+<h1>تحليل تطبيق <span dir="ltr">com.anime.day</span></h1>
+<p class="sub">المصدر: <code>AppHookGeneratorfiles.zip</code> — التاريخ 2026-10-06 22:34:54 — إجمالي الكلاسات: <b>16028</b> — الديكس: <code>base.apk</code></p>
+<div class="kv">
+<div>الحزمة: <b dir="ltr">com.anime.day</b></div>
+<div>الهوك: <b dir="ltr">com.app.hook.HookEntry</b> attached</div>
+<div>التقرير: <b dir="ltr">analysis-report.txt (3679 سطر)</b></div>
+<div>اللوج: <b>4 أسطر — كتابة التقرير ناجحة</b></div>
+</div>
+</header>
+<div class="grid">
+<div class="cards">
+<div class="card"><b>3528</b><span>ADS — إعلانات (22%)</span><small>AppLovin ‏2204 + Unity Ads ‏1191</small><div class="bar"><i style="width:22%"></i></div></div>
+<div class="card"><b>70</b><span>FEATURES — اشتراكات وفوترة</span><small>SubscriptionActivity + Google Play Billing عبر Unity</small><div class="bar"><i style="width:8%"></i></div></div>
+<div class="card"><b>33</b><span>UPDATE — تحديث/خصوصية</span><small>Unity Privacy + Play ModuleInstall</small><div class="bar"><i style="width:5%"></i></div></div>
+<div class="card"><b>5</b><span>DIALOGS — حوارات</span><small>حوارات نظام فقط، لا Paywall مخصص</small><div class="bar"><i style="width:3%"></i></div></div>
+<div class="card"><b>27</b><span>OTHER — دعم</span><small>Firebase / GMS / Conscrypt / Parcelable</small><div class="bar"><i style="width:4%"></i></div></div>
+</div>
+
+<section class="panel">
+<h2>1) الخلاصة التنفيذية</h2>
+<p>التطبيق <b>مشغّل إعلانات ثقيل + اشتراكات</b>. حوالي <b>22% من الكلاسات (3528/16028)</b> تخص الإعلانات، أغلبها <b>AppLovin MAX</b> (‏2204) و<b>Unity Ads</b> (‏1191). قسم الميزات (70) يكشف <code>SubscriptionActivity</code> و<code>SubscriptionPlan</code> مع جسر فوترة Google Play عبر Unity ‏(v6/v8‏) — أي تحقيق دخل مزدوج: إعلانات + اشتراك. لا توجد كلاسات حوارات مخصصة للدفع (5 فقط للنظام)، وقسم التحديث (33) أغلبه Unity Privacy وModuleInstall وليس منطق تحديث ذاتي خطير.</p>
+</section>
+
+<section class="panel">
+<h2>2) الإعلانات ADS — 3528 كلاس</h2>
+<table>
+<tr><th>المكتبة</th><th>العدد</th><th>ملاحظة</th></tr>
+<tr><td dir="ltr">com.applovin.impl</td><td>1897</td><td>قلب AppLovin MAX (مبهم A0..U3)</td></tr>
+<tr><td dir="ltr">com.unity3d.ads</td><td>1114</td><td>Unity Ads core + domain</td></tr>
+<tr><td dir="ltr">com.applovin.exoplayer2</td><td>120</td><td>مشغّل فيديو الإعلانات</td></tr>
+<tr><td dir="ltr">com.applovin.mediation</td><td>100</td><td>MaxAd, MaxReward, Waterfall, Debugger</td></tr>
+<tr><td dir="ltr">com.iab.omid</td><td>89</td><td>قياس الرؤية OMID</td></tr>
+<tr><td dir="ltr">com.unity3d.services</td><td>77</td><td>خدمات Unity (تخزين/فوترة)</td></tr>
+<tr><td dir="ltr">com.applovin.sdk / adview</td><td>70</td><td>AppLovinAdView, Interstitial, Communicator</td></tr>
+<tr><td dir="ltr">com.google.android / firebase</td><td>28</td><td>ربط إعلانات Google/Firebase</td></tr>
+</table>
+<h3>أمثلة</h3>
+<p><code>com.applovin.mediation.MaxRewardedAdListener</code> <code>com.applovin.adview.AppLovinInterstitialAd</code> <code>com.applovin.mediation.MaxAdWaterfallInfo</code> <code>com.unity3d.ads.core.domain.SendPrivacyUpdateRequest</code></p>
+</section>
+
+<section class="panel">
+<h2>3) الميزات FEATURES — 70 كلاس (الأهم للاستهداف)</h2>
+<ul>
+<li>تطبيق الأنمي نفسه: <code>com.anime.day.Activity.SubscriptionActivity</code> + <code>com.anime.day.Models.SubscriptionPlan</code> — شاشة اشتراك ونموذج خطة.</li>
+<li>فوترة Unity: <code>StoreBilling</code> + <code>BillingClientAdapter/Bridge (v6, v8)</code> + <code>QueryProductDetails / QueryPurchases / ProductDetailsBridge</code> — تكامل Google Play Billing الكامل.</li>
+<li>أعلام الميزات: <code>gatewayprotocol.v1...FeatureFlags</code> + <code>NativeConfigurationOuterClass$FeatureFlags</code> — تحكم عن بعد بالميزات.</li>
+</ul>
+<h3>الاستنتاج</h3>
+<p>أفضل سطح للهوك: <b>إخفاء الإعلانات عبر MaxAdListener / Interstitial</b>، و<b>فتح الاشتراك عبر SubscriptionActivity أو جسر BillingClient (إرجاع PurchasesResult ناجح)</b>، و<b>تثبيت FeatureFlags</b>.</p>
+</section>
+
+<section class="panel">
+<h2>4) التحديث UPDATE — 33 والحوارات DIALOGS — 5</h2>
+<p><b>UPDATE:</b> لا يوجد محدّث ذاتي. ‏15 كلاس Unity للخصوصية/الحملات (<code>SendPrivacyUpdateRequest</code>، ‏<code>updateCampaignState</code>) + ‏8 بروتو <code>PrivacyUpdateRequest/Response</code> + ‏3 لـ Play <code>ModuleInstallStatusUpdate</code> + مستمعي الشراء. طبيعي لتطبيق Unity.</p>
+<p><b>DIALOGS:</b> خمسة فقط — <code>AlertDialogLayout</code>، ‏<code>DialogTitle</code>، ‏<code>RatingCompat</code>، ‏<code>ErrorDialogFragment</code> — أي لا Paywall مخصص مكتشف بالاسم؛ منطق الدفع غالباً داخل <code>SubscriptionActivity</code>.</p>
+<h3>OTHER — 27</h3>
+<p class="mono">GmsVersion, PlatformVersion, DynamiteModule$VersionPolicy, LibraryVersion, Conscrypt$Version, SafeParcelable$VersionField, ScionConversionEvent — مكتبات دعم/قياس، غير مثيرة.</p>
+</section>
+
+<section class="panel">
+<h2>5) اللوج والسلامة</h2>
+<p class="mono">22:34:54 [I] Loading legacy module com.app.hook<br>22:34:54 [I] &nbsp;&nbsp;Loading class com.app.hook.HookEntry<br>22:34:54 [I] AppHookGen: attached to com.anime.day | AppHookGenerator v2.0<br>22:34:54 [I] AppHookGen: analysis report written: /sdcard/.../analysis-report.txt</p>
+<p>الهوك التصق بنجاح وكتب التقرير. لا مؤشرات خبيثة صريحة في الأسماء (لا C2 ولا تشفير مخصص) — المخاطر المعتادة هنا هي <b>التتبع الإعلاني (AppLovin/Unity/IAB)</b> و<b>الفوترة</b>، وتُعالج بأذونات الشبكة وحظر المتتبعات.</p>
+</section>
+</div>
+<div class="foot">صفحة ثابتة مولّدة من ملفات AppHookGenerator — تُعرض على المنفذ 3000 وتُستخدم للتحقق البصري (desktop + mobile).</div>
+</body>
+</html>
