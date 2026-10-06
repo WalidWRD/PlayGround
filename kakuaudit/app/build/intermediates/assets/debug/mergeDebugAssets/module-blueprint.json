@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "3.0",
+  "module": "KakuAudit Observe",
+  "moduleVersion": "3.1.1",
+  "note": "Precomputed analysis blueprint. Loaded at runtime so the module does NOT re-scan/re-analyze from scratch on every launch. Regenerate only when targeting new app versions — see ANALYSIS_AND_RESULTS.md.",
+  "billingCandidates": [
+    "com.android.billingclient.api.BillingClient",
+    "com.android.billingclient.api.PurchasesUpdatedListener",
+    "com.android.vending.billing.IInAppBillingService"
+  ],
+  "billingMethodPattern": "(?i)(purchase|quer|license|entitle|subscri|consum|acknowledge)",
+  "activityCandidates": [
+    "android.app.Activity",
+    "androidx.activity.ComponentActivity"
+  ],
+  "activityMethods": ["onCreate", "onResume", "onPause", "onDestroy"],
+  "webViewCandidates": [
+    "android.webkit.WebView",
+    "androidx.webkit.WebViewCompat"
+  ],
+  "webViewMethodPattern": "(?i)(loadUrl|loadData|onPage|shouldOverride)",
+  "runtimeClass": "java.lang.Runtime",
+  "httpCandidates": [
+    "java.net.HttpURLConnection",
+    "com.android.okhttp.internal.huc.HttpURLConnectionImpl"
+  ],
+  "httpMethodPattern": "(?i)(connect|getResponseCode|getRequestMethod)",
+  "okhttpCandidates": [
+    "okhttp3.OkHttpClient",
+    "okhttp3.Request",
+    "com.squareup.okhttp.OkHttpClient"
+  ],
+  "okhttpMethodPattern": "(?i)(newCall|execute|enqueue)",
+  "limits": {
+    "maxHooksPerClass": 25,
+    "maxQueueItems": 10000,
+    "sampleRate": 0.25,
+    "maxSingleEventBytes": 65536
+  },
+  "storageOrder": ["MEDIASTORE", "LEGACY_FILESYSTEM", "APP_PRIVATE_FALLBACK"]
+}

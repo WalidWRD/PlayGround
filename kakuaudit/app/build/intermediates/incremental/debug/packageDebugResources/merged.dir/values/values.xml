@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KakuAudit Observe</string>
+    <string name="module_desc">KakuAudit Observe v3.1.1 — مراقبة وتوثيق فقط (OBSERVE_ONLY). يعمل على أي تطبيق يختاره المستخدم بدون روت (LSPatch/NPatch/HKPatch). هوك انعكاسي متعدد الإصدارات، آمن ضد الكراشات (reentrancy-guard)، يدعم التطبيقات المضغوطة/المحمية. مراقب Native معطّل افتراضيًا.</string>
+</resources>

@@ -1,0 +1,89 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.kakuaudit.observe"
+4    android:versionCode="311"
+5    android:versionName="3.1.1" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <!-- No root required. Storage is resolved at runtime: MediaStore / SAF / legacy / app-private. -->
+12    <uses-permission
+12-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:5:5-107
+13        android:name="android.permission.READ_EXTERNAL_STORAGE"
+13-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:5:22-77
+14        android:maxSdkVersion="32" />
+14-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:5:78-104
+15    <!-- WRITE_EXTERNAL_STORAGE only effective pre-Q; kept for legacy fallback devices. -->
+16    <uses-permission
+16-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:7:5-108
+17        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+17-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:7:22-78
+18        android:maxSdkVersion="28" />
+18-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:7:79-105
+19
+20    <application
+20-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:9:5-42:19
+21        android:debuggable="true"
+21-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:11:9-35
+22        android:extractNativeLibs="false"
+23        android:label="KakuAudit Observe" >
+23-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:10:9-42
+24        <meta-data
+24-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:13:9-15:36
+25            android:name="xposedmodule"
+25-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:14:13-40
+26            android:value="true" />
+26-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:15:13-33
+27        <!-- Embedded description: version + features + target. Shown in module manager. -->
+28        <meta-data
+28-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:17:9-19:590
+29            android:name="xposeddescription"
+29-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:18:13-45
+30            android:value="KakuAudit Observe v3.1.1 (KakuAudit v3 OBSERVE_ONLY). يعمل على: أي تطبيق يختاره المستخدم (scope) بدون روت عبر LSPatch/NPatch/HKPatch. الميزات: هوك انعكاسي عبر lpparam.classLoader بدون أسماء ثابتة (إصدارات أعلى/أقل)؛ حماية من الكراشات (عزل كل هوك + reentrancy-guard + kill-switch)؛ مراقب Native معطّل افتراضيًا ويُفعّل من kakuaudit-config.json؛ دعم المضغوطة/المحمية (PROTECTED_OR_UNAVAILABLE بدون كسر)؛ مراقبو License/Entitlement/Subscription + Activity/WebView/Network (ميتاداتا فقط)؛ تخزين MediaStore/SAF/app-private + blueprint محفوظ يغني عن إعادة التحليل." />
+30-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:19:13-587
+31        <meta-data
+31-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:20:9-22:34
+32            android:name="xposedminversion"
+32-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:21:13-44
+33            android:value="93" />
+33-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:22:13-31
+34        <!-- LSPosed / LSPatch scope: loaded per target package only, no system-wide injection. -->
+35        <meta-data
+35-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:24:9-26:43
+36            android:name="xposedscope"
+36-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:25:13-39
+37            android:value=" multiload " />
+37-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:26:13-40
+38
+39        <activity
+39-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:28:9-36:20
+40            android:name="com.kakuaudit.observe.MainActivity"
+40-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:29:13-62
+41            android:exported="true"
+41-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:31:13-36
+42            android:label="KakuAudit Observe v3.1.1" >
+42-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:30:13-53
+43            <intent-filter>
+43-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:32:13-35:29
+44                <action android:name="android.intent.action.MAIN" />
+44-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:33:17-69
+44-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:33:25-66
+45
+46                <category android:name="android.intent.category.LAUNCHER" />
+46-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:34:17-77
+46-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:34:27-74
+47            </intent-filter>
+48        </activity>
+49
+50        <provider
+51            android:name="com.kakuaudit.observe.KakuAuditInitProvider"
+51-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:39:13-71
+52            android:authorities="com.kakuaudit.observe.kakuaudit-init"
+52-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:40:13-66
+53            android:exported="false" />
+53-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:41:13-37
+54    </application>
+55
+56</manifest>

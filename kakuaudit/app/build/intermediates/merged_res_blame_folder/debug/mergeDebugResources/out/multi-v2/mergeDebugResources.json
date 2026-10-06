@@ -1,0 +1,48 @@
+{
+    "logs": [
+        {
+            "outputFile": "/home/runner/.gradle/daemon/9.8.0/com.kakuaudit.observe.app-debug-4:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "-1,2",
+                        "startColumns": "-1,4",
+                        "startOffsets": "-1,71",
+                        "endColumns": "-1,248",
+                        "endOffsets": "-1,315"
+                    },
+                    "to": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,110",
+                        "endColumns": "54,248",
+                        "endOffsets": "105,354"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.kakuaudit.observe.app-debug-4:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "-1,2",
+                        "startColumns": "-1,4",
+                        "startOffsets": "-1,71",
+                        "endColumns": "-1,297",
+                        "endOffsets": "-1,364"
+                    },
+                    "to": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,110",
+                        "endColumns": "54,297",
+                        "endOffsets": "105,403"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KakuAudit v3 — موديول المراقبة OBSERVE_ONLY</title>
+<style>
+:root{color-scheme:dark light}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,"Segoe UI",Tahoma,Arial,sans-serif;background:#0f1420;color:#e8edf5;line-height:1.7}
+header{background:linear-gradient(135deg,#1b2a4a,#0e5a4a);padding:48px 24px;text-align:center}
+header h1{margin:0 0 8px;font-size:clamp(24px,4vw,40px)}
+header p{margin:4px 0;opacity:.9}
+.badge{display:inline-block;background:#22c55e;color:#04120a;font-weight:700;border-radius:999px;padding:4px 14px;margin:6px 2px;font-size:14px}
+main{max-width:960px;margin:0 auto;padding:24px}
+.card{background:#182034;border:1px solid #2a3a5c;border-radius:14px;padding:20px;margin:16px 0}
+.card h2{margin-top:0;color:#7dd3fc}
+code{background:#0b1120;border:1px solid #2a3a5c;border-radius:6px;padding:2px 8px;direction:ltr;display:inline-block}
+pre{background:#0b1120;border:1px solid #2a3a5c;border-radius:10px;padding:14px;overflow:auto;direction:ltr;text-align:left}
+ul{padding-inline-start:20px}
+footer{text-align:center;opacity:.7;padding:24px;font-size:13px}
+a{color:#7dd3fc}
+</style>
+</head>
+<body>
+<header>
+<div class="badge">OBSERVE_ONLY — بدون تجاوز</div>
+<div class="badge">بدون روت: LSPatch / NPatch / HKPatch</div>
+<h1>KakuAudit v3 — موديول المراقبة الاحترافي</h1>
+<p>يتعامل مع الإصدارات الأعلى والأقل عبر <code>lpparam.classLoader</code> والبحث بالانعكاس بدل الأسماء الثابتة</p>
+<p>ويوثّق التطبيقات المضغوطة والمحمية دون كسرها — تقارير أدلة فقط</p>
+</header>
+<main>
+<section class="card">
+<h2>ما يفعله الموديول</h2>
+<ul>
+<li>اكتشاف سلوكي بالانعكاس عبر <code>lpparam.classLoader</code> — لا تواقيع ثابتة لإصدار واحد</li>
+<li>مراقبون للترخيص والاستحقاق والاشتراك (metadata فقط، بدون قيم خام)</li>
+<li>مراقبة Activity و WebView والمكتبات الأصلية والشبكة (method / status / timing فقط)</li>
+<li>التطبيقات المضغوطة تُسجَّل <code>PROTECTED_OR_UNAVAILABLE</code> وتستمر المراقبة</li>
+<li>تخزين متوافق: MediaStore ثم SAF ثم legacy ثم app-private مع <code>requestedRoot</code> مقابل <code>actualRoot</code></li>
+<li>تقارير كاملة: <code>manifest / runtime.jsonl / timeline / blueprints / protection-analysis / validation / report.html</code></li>
+</ul>
+</section>
+<section class="card">
+<h2>حدود السلامة</h2>
+<ul>
+<li>لا تعديل وسائط، لا تزوير، لا إعادة تشغيل، لا كسر تثبيت الشهادات</li>
+<li>التنقيح (redaction) قبل الحفظ — الأسرار لا تُصدَّر أبدًا</li>
+<li>الثقة بالأدلة فقط؛ الاسم وحده = <code>DISCOVERY_HINT ≤ 0.24</code></li>
+<li>أي مسار تجاوز = <code>UNSUPPORTED_OBSERVATION</code> مع مواصلة آمنة</li>
+</ul>
+</section>
+<section class="card">
+<h2>البناء والاختبار</h2>
+<pre>./gradlew :app:testDebugUnitTest   # Redactor / Confidence / PathSafety / EventBus
+./gradlew :app:assembleDebug       # APK للباتش المحلي بدون روت</pre>
+<p>المصدر: <code>kakuaudit/</code> داخل هذا المشروع. التفاصيل الكاملة في <a href="https://github.com/WalidWRD/PlayGround">المستودع</a>.</p>
+</section>
+<section class="card" id="status">
+<h2>الحالة</h2>
+<p>الخادم يعمل — هذه صفحة النشر الثابتة من <code>dist/index.html</code>.</p>
+<p>المواصفة: <code>kakuAudit_improved_v3 (spec 3.0.0)</code> — وضع <code>OBSERVE_ONLY</code>.</p>
+</section>
+</main>
+<footer>KakuAudit v3.0.0 — مراقبة وتوثيق فقط · LSPatch / NPatch / HKPatch (App) بدون روت</footer>
+</body>
+</html>

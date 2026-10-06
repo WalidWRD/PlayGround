@@ -1,0 +1,2 @@
+com.kakuaudit.observe:string/module_desc = 0x7f010001
+com.kakuaudit.observe:string/app_name = 0x7f010000

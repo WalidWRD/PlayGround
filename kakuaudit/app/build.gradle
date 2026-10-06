@@ -1,0 +1,36 @@
+plugins {
+    id("com.android.application")
+}
+
+android {
+    namespace = "com.kakuaudit.observe"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.kakuaudit.observe"
+        minSdk = 24
+        targetSdk = 34
+        versionCode = 311
+        versionName = "3.1.1"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        debug {
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // Real Xposed API for the true XC_MethodHook subclass (compileOnly: provided
+    // at runtime by LSPosed / LSPatch / NPatch / HKPatch, never bundled).
+    // JVM unit tests never load the bridge class (HookKit loads it reflectively
+    // only when the API is present on device).
+    compileOnly("de.robv.android.xposed:api:82")
+    testImplementation("junit:junit:4.13.2")
+}

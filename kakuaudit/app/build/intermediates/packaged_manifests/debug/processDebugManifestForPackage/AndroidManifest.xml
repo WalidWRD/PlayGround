@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.kakuaudit.observe"
+    android:versionCode="311"
+    android:versionName="3.1.1" >
+
+    <uses-sdk
+        android:minSdkVersion="24"
+        android:targetSdkVersion="34" />
+
+    <!-- No root required. Storage is resolved at runtime: MediaStore / SAF / legacy / app-private. -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <!-- WRITE_EXTERNAL_STORAGE only effective pre-Q; kept for legacy fallback devices. -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <application
+        android:debuggable="true"
+        android:extractNativeLibs="false"
+        android:label="KakuAudit Observe" >
+        <meta-data
+            android:name="xposedmodule"
+            android:value="true" />
+        <!-- Embedded description: version + features + target. Shown in module manager. -->
+        <meta-data
+            android:name="xposeddescription"
+            android:value="KakuAudit Observe v3.1.1 (KakuAudit v3 OBSERVE_ONLY). يعمل على: أي تطبيق يختاره المستخدم (scope) بدون روت عبر LSPatch/NPatch/HKPatch. الميزات: هوك انعكاسي عبر lpparam.classLoader بدون أسماء ثابتة (إصدارات أعلى/أقل)؛ حماية من الكراشات (عزل كل هوك + reentrancy-guard + kill-switch)؛ مراقب Native معطّل افتراضيًا ويُفعّل من kakuaudit-config.json؛ دعم المضغوطة/المحمية (PROTECTED_OR_UNAVAILABLE بدون كسر)؛ مراقبو License/Entitlement/Subscription + Activity/WebView/Network (ميتاداتا فقط)؛ تخزين MediaStore/SAF/app-private + blueprint محفوظ يغني عن إعادة التحليل." />
+        <meta-data
+            android:name="xposedminversion"
+            android:value="93" />
+        <!-- LSPosed / LSPatch scope: loaded per target package only, no system-wide injection. -->
+        <meta-data
+            android:name="xposedscope"
+            android:value=" multiload " />
+
+        <activity
+            android:name="com.kakuaudit.observe.MainActivity"
+            android:exported="true"
+            android:label="KakuAudit Observe v3.1.1" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="com.kakuaudit.observe.KakuAuditInitProvider"
+            android:authorities="com.kakuaudit.observe.kakuaudit-init"
+            android:exported="false" />
+    </application>
+
+</manifest>

@@ -1,0 +1,7 @@
+com.kakuaudit.observe.app-pngs-0 /home/runner/work/PlayGround/PlayGround/kakuaudit/app/build/generated/res/pngs/debug
+com.kakuaudit.observe.app-resValues-1 /home/runner/work/PlayGround/PlayGround/kakuaudit/app/build/generated/res/resValues/debug
+com.kakuaudit.observe.app-packageDebugResources-2 /home/runner/work/PlayGround/PlayGround/kakuaudit/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.kakuaudit.observe.app-packageDebugResources-3 /home/runner/work/PlayGround/PlayGround/kakuaudit/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.kakuaudit.observe.app-debug-4 /home/runner/work/PlayGround/PlayGround/kakuaudit/app/build/intermediates/merged_res/debug/mergeDebugResources
+com.kakuaudit.observe.app-debug-5 /home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/debug/res
+com.kakuaudit.observe.app-main-6 /home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/res
