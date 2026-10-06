@@ -1,7 +1,7 @@
 {
   "schemaVersion": "3.0",
   "module": "KakuAudit Observe",
-  "moduleVersion": "3.1.1",
+  "moduleVersion": "3.1.2",
   "note": "Precomputed analysis blueprint. Loaded at runtime so the module does NOT re-scan/re-analyze from scratch on every launch. Regenerate only when targeting new app versions — see ANALYSIS_AND_RESULTS.md.",
   "billingCandidates": [
     "com.android.billingclient.api.BillingClient",

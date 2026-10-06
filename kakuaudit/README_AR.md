@@ -63,6 +63,14 @@ kakuaudit/
 ./gradlew :app:assembleDebug       # APK للباتش المحلي
 ```
 
+## أين أجد ملفات التحليل؟ (v3.1.2)
+
+1. افتح التطبيق المُرقّع واستخدمه ~دقيقتين (نافذتا كتابة: بعد 20 ثانية و90 ثانية).
+2. ابحث أولًا في: `Download/KakuAudit/<package>/<version>/<session>/`.
+3. إن لم تجدها، افتح **سجل LSPosed** وابحث عن `[KakuAudit]` — سطر `flush-w1 DONE dir=...`
+   يخبرك بالمسار الفعلي (عام أو خاص داخل التطبيق + عدد الملفات المصدّرة عبر `exported=`).
+4. كل مرحلة مسجلة: `install-start` ← `observers-installed` ← `ctx-ok` ← `flush-w1/w2 DONE`.
+
 ## السلامة
 
 - البيانات الوصفية فقط قبل الحفظ (redaction-first).

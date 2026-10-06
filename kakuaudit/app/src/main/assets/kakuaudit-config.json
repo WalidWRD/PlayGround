@@ -1,6 +1,6 @@
 {
   "schemaVersion": "3.0",
-  "moduleVersion": "3.1.1",
+  "moduleVersion": "3.1.2",
   "note": "Per-observer kill-switches. If a target app crashes, disable observers one by one (native first) without rebuilding logic — edit, repatch, relaunch.",
   "observers": {
     "StoreObserver": true,

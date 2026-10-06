@@ -16,7 +16,7 @@
         <!-- Embedded description: version + features + target. Shown in module manager. -->
         <meta-data
             android:name="xposeddescription"
-            android:value="KakuAudit Observe v3.1.1 (KakuAudit v3 OBSERVE_ONLY). يعمل على: أي تطبيق يختاره المستخدم (scope) بدون روت عبر LSPatch/NPatch/HKPatch. الميزات: هوك انعكاسي عبر lpparam.classLoader بدون أسماء ثابتة (إصدارات أعلى/أقل)؛ حماية من الكراشات (عزل كل هوك + reentrancy-guard + kill-switch)؛ مراقب Native معطّل افتراضيًا ويُفعّل من kakuaudit-config.json؛ دعم المضغوطة/المحمية (PROTECTED_OR_UNAVAILABLE بدون كسر)؛ مراقبو License/Entitlement/Subscription + Activity/WebView/Network (ميتاداتا فقط)؛ تخزين MediaStore/SAF/app-private + blueprint محفوظ يغني عن إعادة التحليل." />
+            android:value="KakuAudit Observe v3.1.2 (KakuAudit v3 OBSERVE_ONLY). يعمل على: أي تطبيق يختاره المستخدم (scope) بدون روت عبر LSPatch/NPatch/HKPatch. الميزات: هوك انعكاسي عبر lpparam.classLoader بدون أسماء ثابتة (إصدارات أعلى/أقل)؛ حماية من الكراشات (عزل كل هوك + reentrancy-guard + kill-switch)؛ مراقب Native معطّل افتراضيًا ويُفعّل من kakuaudit-config.json؛ دعم المضغوطة/المحمية (PROTECTED_OR_UNAVAILABLE بدون كسر)؛ مراقبو License/Entitlement/Subscription + Activity/WebView/Network (ميتاداتا فقط)؛ تخزين Download عام وإلا خاص + تصدير MediaStore؛ انتظار السياق حتى 120ث + نافذتا كتابة + سجل تشخيصي؛ blueprint محفوظ يغني عن إعادة التحليل." />
         <meta-data
             android:name="xposedminversion"
             android:value="93" />
@@ -27,7 +27,7 @@
 
         <activity
             android:name="com.kakuaudit.observe.MainActivity"
-            android:label="KakuAudit Observe v3.1.1"
+            android:label="KakuAudit Observe v3.1.2"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -49,9 +49,9 @@ ADDED from /home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/Androi
 	android:name
 		ADDED from /home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:14:13-40
 meta-data#xposeddescription
-ADDED from /home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:17:9-19:590
+ADDED from /home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:17:9-19:655
 	android:value
-		ADDED from /home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:19:13-587
+		ADDED from /home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:19:13-652
 	android:name
 		ADDED from /home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:18:13-45
 meta-data#xposedminversion

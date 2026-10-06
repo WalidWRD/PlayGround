@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.kakuaudit.observe.observers.BlueprintStoreTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-06T12:45:58.386Z" hostname="runnervm8df0l" time="0.002">
+<testsuite name="com.kakuaudit.observe.observers.BlueprintStoreTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-06T17:19:34.214Z" hostname="runnervmmprz5" time="0.003">
   <properties/>
-  <testcase name="registryListsObservers" classname="com.kakuaudit.observe.observers.BlueprintStoreTest" time="0.0"/>
+  <testcase name="registryListsObservers" classname="com.kakuaudit.observe.observers.BlueprintStoreTest" time="0.001"/>
   <testcase name="parsesCandidatesAndFallsBack" classname="com.kakuaudit.observe.observers.BlueprintStoreTest" time="0.001"/>
   <testcase name="configSwitches" classname="com.kakuaudit.observe.observers.BlueprintStoreTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>

@@ -23,12 +23,18 @@ public final class SessionManager {
                           StorageRouter.Resolution storage) {
         this.packageName = PathSafety.normalizeSegment(pkg, "unknown");
         this.version = PathSafety.normalizeSegment(ver == null ? "0" : ver, "0");
-        this.sessionId = PathSafety.newSessionId();
-        this.startedAt = KakuClock.utcNowIso();
         this.storage = storage;
-        File base = storage.sessionDir != null ? storage.sessionDir.getParentFile()
-                : new File(ctx.getFilesDir(), "KakuAudit/" + packageName + "/" + version);
-        this.sessionDir = new File(base, sessionId);
+        // v3.1.2: sessionDir comes fully resolved from StorageRouter (which embeds
+        // pkg/ver/session). sessionId is the dir name — single source of truth.
+        if (storage.sessionDir != null) {
+            this.sessionDir = storage.sessionDir;
+            this.sessionId = storage.sessionDir.getName();
+        } else {
+            this.sessionId = PathSafety.newSessionId();
+            this.sessionDir = new File(ctx.getFilesDir(),
+                    "KakuAudit/" + packageName + "/" + version + "/" + sessionId);
+        }
+        this.startedAt = KakuClock.utcNowIso();
         this.lockFile = new File(sessionDir, ".lock");
     }
 

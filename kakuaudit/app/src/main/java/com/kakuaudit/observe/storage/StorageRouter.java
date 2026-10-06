@@ -4,103 +4,163 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 
+import com.kakuaudit.observe.core.PathSafety;
 import com.kakuaudit.observe.core.VersionCompat;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Spec §7: MediaStore (Q+) -> SAF -> legacy -> app-private fallback.
+ * Spec §7: public Download (full pkg/ver/session path) -&gt; app-private
+ * staging + MediaStore export so files are visible in Download on Q+.
  * Rootless: no shell, no /data access. Records requestedRoot vs actualRoot.
  * Writability is proven by tmp-file round-trip, never File.canWrite() alone.
+ *
+ * v3.1.2 fix: tryLegacy previously returned &lt;Download&gt;/KakuAudit without
+ * the session subtree (SessionManager then built the session in the wrong
+ * parent), and MEDIASTORE resolution had sessionDir=null so files landed
+ * invisibly in app-private with no log telling the user where.
  */
 public final class StorageRouter {
 
-    public enum Mechanism { MEDIASTORE, SAF, LEGACY_FILESYSTEM, APP_PRIVATE_FALLBACK }
+    public enum Mechanism {
+        PUBLIC_DOWNLOAD, APP_PRIVATE_STAGED, APP_PRIVATE_UNWRITABLE
+    }
 
     public static final class Resolution {
         public final Mechanism mechanism;
         public final String requestedRoot = "/storage/emulated/0/Download/KakuAudit";
+        /** Absolute dir where session files were (or will be) written. */
         public final String actualRoot;
-        public final File sessionDir;   // null when MediaStore-only (streamed)
+        public final File sessionDir;
+        /** App-private staging dir (always set; used as fallback + export source). */
+        public final File stagingDir;
+        /** Relative MediaStore path for export, e.g. Download/KakuAudit/pkg/ver/sess. */
+        public final String exportRelPath;
         public final boolean writable;
         public final int apiLevel;
         public final String diagnostic;
-        public Resolution(Mechanism m, String actual, File dir, boolean w, String d) {
-            mechanism = m; actualRoot = actual; sessionDir = dir; writable = w;
+        public Resolution(Mechanism m, String actual, File dir, File staging,
+                          String exportRel, boolean w, String d) {
+            mechanism = m; actualRoot = actual; sessionDir = dir;
+            stagingDir = staging; exportRelPath = exportRel; writable = w;
             apiLevel = VersionCompat.apiLevel(); diagnostic = d;
         }
     }
 
     private StorageRouter() {}
 
-    /** Resolve + prove writability with a uniquely-named tmp file round-trip. */
-    public static Resolution resolve(Context ctx, String pkg, String version, String sessionId) {
-        String safePkg = pkg == null ? "unknown" : pkg;
-        String rel = "Download/KakuAudit/" + safePkg + "/" + version + "/" + sessionId;
+    /**
+     * Resolve the session dir: public Download full path when really writable,
+     * else app-private staging (MediaStore export happens after writeAll).
+     */
+    public static Resolution resolve(Context ctx, String pkg, String version,
+                                     String sessionId) {
+        String p = PathSafety.normalizeSegment(pkg, "unknown");
+        String v = PathSafety.normalizeSegment(version == null ? "0" : version, "0");
+        String s = PathSafety.normalizeSegment(sessionId, "session");
 
-        // 1) Q+ public Download via MediaStore — preferred, no permission needed for own files.
-        if (VersionCompat.atLeast(29)) {
-            Resolution r = tryMediaStore(ctx, rel);
-            if (r != null && r.writable) return r;
+        File staging = new File(ctx.getFilesDir(), "KakuAudit/" + p + "/" + v + "/" + s);
+        String exportRel = "Download/KakuAudit/" + p + "/" + v + "/" + s;
+
+        File pub = publicSessionDir(p, v, s);
+        if (pub != null && proveWritable(pub)) {
+            return new Resolution(Mechanism.PUBLIC_DOWNLOAD,
+                    pub.getAbsolutePath(), pub, staging, exportRel, true,
+                    "public-download-writable");
         }
-        // 2) Legacy direct FS where still permitted (pre-Q or app-private).
-        Resolution legacy = tryLegacy(rel);
-        if (legacy.writable) return legacy;
-        // 3) Fallback: app-private staging + explicit export op. Never silent.
-        File priv = new File(ctx.getFilesDir(), "KakuAudit/" + safePkg + "/" + version + "/" + sessionId);
-        boolean ok = proveWritable(priv);
-        return new Resolution(Mechanism.APP_PRIVATE_FALLBACK, priv.getAbsolutePath(), priv, ok,
-                ok ? "staged-app-private-export-required" : "app-private-unwritable");
+        boolean ok = proveWritable(staging);
+        return new Resolution(
+                ok ? Mechanism.APP_PRIVATE_STAGED : Mechanism.APP_PRIVATE_UNWRITABLE,
+                staging.getAbsolutePath(), ok ? staging : null, staging, exportRel, ok,
+                ok ? "staged-app-private-export-pending" : "app-private-unwritable");
     }
 
-    private static Resolution tryLegacy(String rel) {
+    /** Full public path: &lt;Download&gt;/KakuAudit/pkg/ver/session. Null when unavailable. */
+    private static File publicSessionDir(String p, String v, String s) {
         try {
-            File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            File dir = new File(root, "KakuAudit");
-            // rel already contains Download/...; rebuild under it:
-            // keep it simple: <Download>/KakuAudit/<pkg>/<ver>/<sess> is handled by caller path.
-            boolean ok = proveWritable(dir);
-            return new Resolution(Mechanism.LEGACY_FILESYSTEM, dir.getAbsolutePath(), dir, ok,
-                    ok ? "legacy-writable" : "legacy-not-writable");
+            File root = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS);
+            if (root == null) return null;
+            return new File(root, "KakuAudit/" + p + "/" + v + "/" + s);
         } catch (Throwable t) {
-            return new Resolution(Mechanism.LEGACY_FILESYSTEM, "UNAVAILABLE", null, false,
-                    "legacy-exception:" + t.getClass().getSimpleName());
+            return null;
         }
     }
 
-    private static Resolution tryMediaStore(Context ctx, String relPath) {
+    /**
+     * Copy session files into public Download via MediaStore (Q+) so they are
+     * visible even when staging was app-private. Returns exported file count.
+     * Never throws.
+     */
+    public static int exportToDownloads(Context ctx, Resolution res) {
+        if (ctx == null || res == null || res.sessionDir == null) return 0;
+        if (!VersionCompat.atLeast(29)) return 0;
+        // Already public: nothing to export.
+        if (res.mechanism == Mechanism.PUBLIC_DOWNLOAD) return 0;
+        File dir = res.sessionDir;
+        File[] files;
         try {
-            ContentResolver cr = ctx.getContentResolver();
-            ContentValues cv = new ContentValues();
-            String name = ".kaku-probe-" + System.nanoTime();
-            cv.put(MediaStore.Downloads.DISPLAY_NAME, name);
-            cv.put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream");
-            if (VersionCompat.atLeast(29)) {
-                cv.put(MediaStore.Downloads.RELATIVE_PATH, relPath);
-            }
-            Uri uri = cr.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, cv);
-            if (uri == null) return null;
-            try (OutputStream os = cr.openOutputStream(uri)) {
-                if (os == null) { cr.delete(uri, null, null); return null; }
-                os.write("probe".getBytes());
-                os.flush();
-            }
-            cr.delete(uri, null, null);
-            // MediaStore has no File dir; session files stream individually.
-            // actualRoot records the logical collection instead of a File path.
-            return new Resolution(Mechanism.MEDIASTORE, "mediastore:" + relPath, null, true, "mediastore-probe-ok");
+            files = dir.listFiles();
         } catch (Throwable t) {
-            return new Resolution(Mechanism.MEDIASTORE, "UNAVAILABLE", null, false,
-                    "mediastore-exception:" + t.getClass().getSimpleName());
+            return 0;
+        }
+        if (files == null || files.length == 0) return 0;
+        int exported = 0;
+        for (File f : files) {
+            try {
+                if (!f.isFile() || f.getName().startsWith(".")
+                        || f.getName().endsWith(".tmp")) continue;
+                if (insertOne(ctx, res.exportRelPath, f)) exported++;
+            } catch (Throwable ignore) { /* per-file isolation */ }
+        }
+        return exported;
+    }
+
+    private static boolean insertOne(Context ctx, String relPath, File src) {
+        ContentResolver cr;
+        try {
+            cr = ctx.getContentResolver();
+        } catch (Throwable t) {
+            return false;
+        }
+        String mime = src.getName().endsWith(".html") ? "text/html"
+                : src.getName().endsWith(".json") || src.getName().endsWith(".jsonl")
+                ? "application/json" : "application/octet-stream";
+        ContentValues cv = new ContentValues();
+        cv.put(MediaStore.Downloads.DISPLAY_NAME, src.getName());
+        cv.put(MediaStore.Downloads.MIME_TYPE, mime);
+        cv.put(MediaStore.Downloads.RELATIVE_PATH, relPath);
+        Uri uri;
+        try {
+            uri = cr.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, cv);
+        } catch (Throwable t) {
+            return false;
+        }
+        if (uri == null) return false;
+        try (OutputStream os = cr.openOutputStream(uri);
+             InputStream in = new FileInputStream(src)) {
+            if (os == null) {
+                try { cr.delete(uri, null, null); } catch (Throwable ignore) {}
+                return false;
+            }
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) > 0) os.write(buf, 0, n);
+            os.flush();
+            return true;
+        } catch (Throwable t) {
+            try { cr.delete(uri, null, null); } catch (Throwable ignore) {}
+            return false;
         }
     }
 
-    /** Real round-trip: mkdirs -> write unique tmp -> read -> delete. */
+    /** Real round-trip: mkdirs -&gt; write unique tmp -&gt; read -&gt; delete. */
     public static boolean proveWritable(File dir) {
         try {
             if (dir == null) return false;
@@ -118,12 +178,11 @@ public final class StorageRouter {
         }
     }
 
-    /** API for SAF user-picked tree (persisted URI). Kept reflective for minSdk safety. */
+    /** API for SAF user-picked tree (persisted URI). Kept for future use. */
     public static boolean persistSafPermission(Context ctx, Uri treeUri) {
         try {
             int flags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
                     | android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
-            // takePersistableUriPermission exists since 19; guarded call.
             ctx.getContentResolver().takePersistableUriPermission(treeUri, flags);
             return true;
         } catch (Throwable t) {

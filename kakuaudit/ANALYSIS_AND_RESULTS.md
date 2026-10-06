@@ -42,3 +42,8 @@
 
 `manifest / analysis / runtime.jsonl / timeline / module-blueprint / subscription-blueprint / server-verification / protection-analysis / native-libraries / crashes / version-diff / validation / report.html / analysis-complete.json` + `index.json` العام.
 الفشل في أي تحقق = `PARTIAL` مع السبب الدقيق، ولا كتابة فوق جلسات سابقة أبدًا.
+
+## 6) سجل الإصلاحات
+
+- **v3.1.1**: `XC_MethodHook` كلاس مجرد لا يقبل `Proxy` (الهوكات لم تكن تتركب) ← `XposedHookBridge` حقيقي؛ حارس reentrancy؛ `NativeNetObserver` معطّل افتراضيًا عبر `kakuaudit-config.json`.
+- **v3.1.2 (إصلاح "لا توجد ملفات")**: `handleLoadPackage` يسبق `Application.onCreate` فكان `ctx == null` يلغي الكتابة نهائيًا ← انتظار السياق حتى 120ث؛ `tryLegacy` كان يعيد مسارًا ناقصًا و`MEDIASTORE` بـ`sessionDir=null` ← مسار عام كامل أو خاص + تصدير MediaStore؛ كتابة واحدة بعد 15ث ← نافذتان (20ث + 90ث) مع `INSTALL_MARKER`؛ كل مرحلة تُسجّل في سجل LSPosed (`install-start / ctx-ok / flush-w1 DONE dir=...`).

@@ -1,8 +1,8 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.kakuaudit.observe"
-4    android:versionCode="311"
-5    android:versionName="3.1.1" >
+4    android:versionCode="312"
+5    android:versionName="3.1.2" >
 6
 7    <uses-sdk
 8        android:minSdkVersion="24"
@@ -38,11 +38,11 @@
 26-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:15:13-33
 27        <!-- Embedded description: version + features + target. Shown in module manager. -->
 28        <meta-data
-28-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:17:9-19:590
+28-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:17:9-19:655
 29            android:name="xposeddescription"
 29-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:18:13-45
-30            android:value="KakuAudit Observe v3.1.1 (KakuAudit v3 OBSERVE_ONLY). يعمل على: أي تطبيق يختاره المستخدم (scope) بدون روت عبر LSPatch/NPatch/HKPatch. الميزات: هوك انعكاسي عبر lpparam.classLoader بدون أسماء ثابتة (إصدارات أعلى/أقل)؛ حماية من الكراشات (عزل كل هوك + reentrancy-guard + kill-switch)؛ مراقب Native معطّل افتراضيًا ويُفعّل من kakuaudit-config.json؛ دعم المضغوطة/المحمية (PROTECTED_OR_UNAVAILABLE بدون كسر)؛ مراقبو License/Entitlement/Subscription + Activity/WebView/Network (ميتاداتا فقط)؛ تخزين MediaStore/SAF/app-private + blueprint محفوظ يغني عن إعادة التحليل." />
-30-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:19:13-587
+30            android:value="KakuAudit Observe v3.1.2 (KakuAudit v3 OBSERVE_ONLY). يعمل على: أي تطبيق يختاره المستخدم (scope) بدون روت عبر LSPatch/NPatch/HKPatch. الميزات: هوك انعكاسي عبر lpparam.classLoader بدون أسماء ثابتة (إصدارات أعلى/أقل)؛ حماية من الكراشات (عزل كل هوك + reentrancy-guard + kill-switch)؛ مراقب Native معطّل افتراضيًا ويُفعّل من kakuaudit-config.json؛ دعم المضغوطة/المحمية (PROTECTED_OR_UNAVAILABLE بدون كسر)؛ مراقبو License/Entitlement/Subscription + Activity/WebView/Network (ميتاداتا فقط)؛ تخزين Download عام وإلا خاص + تصدير MediaStore؛ انتظار السياق حتى 120ث + نافذتا كتابة + سجل تشخيصي؛ blueprint محفوظ يغني عن إعادة التحليل." />
+30-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:19:13-652
 31        <meta-data
 31-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:20:9-22:34
 32            android:name="xposedminversion"
@@ -63,7 +63,7 @@
 40-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:29:13-62
 41            android:exported="true"
 41-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:31:13-36
-42            android:label="KakuAudit Observe v3.1.1" >
+42            android:label="KakuAudit Observe v3.1.2" >
 42-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:30:13-53
 43            <intent-filter>
 43-->/home/runner/work/PlayGround/PlayGround/kakuaudit/app/src/main/AndroidManifest.xml:32:13-35:29
