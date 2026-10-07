@@ -11,9 +11,9 @@ public final class ModuleInfo {
 
     public static final String MODULE_ID      = "LOKTV-HOOK-PRO";
     public static final String MODULE_NAME    = "LOKTV Hook Pro";
-    public static final String VERSION        = "2.1.0";
-    public static final int    VERSION_CODE   = 210;
-    public static final String BUILD_TAG      = "2026.10.07-r2";
+    public static final String VERSION        = "2.1.1";
+    public static final int    VERSION_CODE   = 211;
+    public static final String BUILD_TAG      = "2026.10.07-r3";
     public static final String AUTHOR         = "LOKTV Hook Pro Project";
 
     /** Primary target + aliases (multi-version tolerant matching). */
@@ -55,7 +55,7 @@ public final class ModuleInfo {
 
     /** Short description embedded in the module manager (Arabic, updated). */
     public static final String DESCRIPTION_AR =
-            "LOKTV Hook Pro v2.1.0 | موديول هوك احترافي لتطبيق LOKTV (com.novan.morpha). "
+            "LOKTV Hook Pro v2.1.1 | موديول هوك احترافي لتطبيق LOKTV (com.novan.morpha). "
           + "يفتح VIP (مع تقوية المستوى وتاريخ الانتهاء)، يمنع التحديث الإجباري "
           + "(isSkipUpdate=true و isForceUpdate/hasUpdate=false)، يفعّل المجموعة والفيديو، "
           + "يزيل النوافذ والإعلانات العائمة والبانر والمكافآت، يحجب التحليلات والتتبع، "
@@ -67,7 +67,7 @@ public final class ModuleInfo {
 
     /** Short description embedded in the module manager (English, updated). */
     public static final String DESCRIPTION_EN =
-            "LOKTV Hook Pro v2.1.0 | Professional hook module for LOKTV (com.novan.morpha). "
+            "LOKTV Hook Pro v2.1.1 | Professional hook module for LOKTV (com.novan.morpha). "
           + "Unlocks VIP (boolean + level/expiry hardening), blocks forced updates "
           + "(isSkipUpdate=true, isForceUpdate/hasUpdate=false), enables collection & video, "
           + "removes popups/floating/banner/reward ads, disables trackers, bypasses "

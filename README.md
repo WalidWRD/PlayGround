@@ -17,11 +17,12 @@
 - 🌍 [Create with OMGithub](https://omgithub.com).
 <!-- omgithub:readme:end -->
 
-## LOKTV Hook Pro v2.1.0 (210)
+## LOKTV Hook Pro v2.1.1 (211)
 
 موديول هوك احترافي لتطبيق LOKTV (`com.novan.morpha`) — يعمل عبر **NPatch / LSPatch / HKP بدون روت**.
 
-- **APK:** `dist/LOKTV-Hook-Pro-v2.1.0.apk` (~33KB، توقيع v1+v2+v3، 40 classes)
+- **APK:** `dist/LOKTV-Hook-Pro-v2.1.1.apk` (~33KB، توقيع v1+v2+v3)
+- **إصلاح v2.1.1:** استبعاد stubs الـ Xposed من الـ dex (كانت تُبطل الهوكات بصمت) + اسم APK تلقائي من المانيفست
 - **التحليل المعتمد:** `docs/ANALYSIS-v2.1.0.md` (يغني عن إعادة التحليل)
 - **الوصف المدمج:** `ModuleInfo.DESCRIPTION_AR/DESCRIPTION_EN` + `xposeddescription` في المانيفست + بانر سجل التشغيل
 - **الميزات (17):** VIP + منع التحديث الإجباري + المجموعة + الفيديو + النوافذ + تحييد التعديل/روت/محاكي/بصمة + تجاوز VPN + تعطيل العائم + الدوران + فاحص dex (boolean/int/long) + دعم المضغوط + درع كراشات + سجل + إعدادات ساخنة + **F15 حجب إعلانات + F16 تعطيل تتبع + F17 كتم حوارات التحديث**

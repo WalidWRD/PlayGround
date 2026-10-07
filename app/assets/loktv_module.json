@@ -1,9 +1,9 @@
 {
   "module_id": "LOKTV-HOOK-PRO",
   "module_name": "LOKTV Hook Pro",
-  "version": "2.1.0",
-  "version_code": 210,
-  "build_tag": "2026.10.07-r2",
+  "version": "2.1.1",
+  "version_code": 211,
+  "build_tag": "2026.10.07-r3",
   "min_sdk": 21,
   "target_sdk": 34,
   "entry_point": "com.loktv.hook.LokTvHook",
