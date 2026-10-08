@@ -41,6 +41,21 @@ public final class HookRegistry {
         return sHooked.size();
     }
 
+    /**
+     * v3.1.0: idempotence for legacy installer invocation. The v1-style
+     * void installers (isVip/isDisable/...) self-install hooks when CALLED;
+     * calling them twice would stack duplicate hooks. Returns true only for
+     * the first call per key.
+     */
+    private static final Set<String> sInvoked = new HashSet<String>();
+
+    public static synchronized boolean markInvokedIfNew(String key) {
+        if (key == null) return false;
+        if (sInvoked.contains(key)) return false;
+        sInvoked.add(key);
+        return true;
+    }
+
     private static String key(Method m) {
         try {
             StringBuilder sb = new StringBuilder();

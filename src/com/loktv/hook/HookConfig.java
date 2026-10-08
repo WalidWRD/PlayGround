@@ -30,6 +30,8 @@ public final class HookConfig {
     public boolean hideVipUi        = true;
     public boolean vipItem          = true;
     public boolean licenseBypass    = true;
+    /** v3.1.0: invoke v1-style void installers (they self-install hooks). */
+    public boolean legacyInvoke     = true;
     /** -1 = keep app behaviour, 0 = portrait, 1 = landscape */
     public int     rotation         = -1;
     public boolean debugVerbose     = false;
@@ -78,6 +80,7 @@ public final class HookConfig {
         c.hideVipUi       = bool(map, "hide_vip_ui", c.hideVipUi);
         c.vipItem         = bool(map, "vip_item", c.vipItem);
         c.licenseBypass   = bool(map, "license_bypass", c.licenseBypass);
+        c.legacyInvoke    = bool(map, "legacy_invoke", c.legacyInvoke);
         c.debugVerbose    = bool(map, "debug", c.debugVerbose);
         try {
             String r = map.get("rotation");
@@ -93,6 +96,16 @@ public final class HookConfig {
         String v = m.get(k);
         if (v == null) return def;
         return v.equals("1") || v.equals("true") || v.equals("on") || v.equals("yes") || v.equals("enabled");
+    }
+
+    /** v3.1.0: absolute config path for the log (tells the user which file to edit). */
+    public static String pathOf(Context ctx, String pkg) {
+        try {
+            File f = file(ctx, pkg);
+            return f == null ? "null" : f.getAbsolutePath();
+        } catch (Throwable t) {
+            return "unknown";
+        }
     }
 
     private static File file(Context ctx, String pkg) {
@@ -115,7 +128,7 @@ public final class HookConfig {
             w.write("vip=1\nskip_update=1\nvalid_collection=1\nvideo_data=1\n");
             w.write("disable_popup=1\nanti_detect=1\nanti_vpn=1\nfloating_view=1\n");
             w.write("generic_scanner=1\nads_block=1\ntracker_block=1\nupdate_dialog=1\n");
-            w.write("hide_vip_ui=1\nvip_item=1\nlicense_bypass=1\n");
+            w.write("hide_vip_ui=1\nvip_item=1\nlicense_bypass=1\nlegacy_invoke=1\n");
             w.write("# rotation: -1 keep app default, 0 portrait, 1 landscape\n");
             w.write("rotation=-1\ndebug=0\n");
             w.flush();

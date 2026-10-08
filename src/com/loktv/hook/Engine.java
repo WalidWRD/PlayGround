@@ -24,6 +24,7 @@ public final class Engine {
             Log.init(ctx, pkg);
             Log.banner();
             Log.i("apply() start | pkg=" + pkg + " | cl=" + (cl == null ? "null" : cl.getClass().getName()));
+            Log.i("config: " + HookConfig.pathOf(ctx, pkg) + " | log: " + Log.path());
 
             final HookConfig cfg = HookConfig.load(ctx, pkg);
             final int[] counters = new int[]{0, 0};
@@ -44,45 +45,48 @@ public final class Engine {
                 }
             };
 
+            step("F21 legacy installer invoke", new Step() {
+                public void run() { Features.legacyInstallers(cl, cfg, counter); }
+            }, counters);
             step("F01-F05 user status", new Step() {
                 public void run() { Features.userStatus(cl, cfg, counter); }
-            });
+            }, counters);
             step("F06 tamper detection", new Step() {
                 public void run() { Features.antiDetect(cl, cfg, counter); }
-            });
+            }, counters);
             step("F07 anti-vpn", new Step() {
                 public void run() { Features.antiVpn(cl, cfg, counter); }
-            });
+            }, counters);
             step("F08 floating view", new Step() {
                 public void run() { Features.floatingView(cl, cfg, counter); }
-            });
+            }, counters);
             step("F09 rotation", new Step() {
                 public void run() { Features.rotation(cl, cfg, counter); }
-            });
+            }, counters);
             step("F10 generic dex scanner", new Step() {
                 public void run() { Features.genericScanner(cl, cfg, counter); }
-            });
+            }, counters);
             step("F15 ads & splash block", new Step() {
                 public void run() { Features.adsBlock(cl, cfg, counter); }
-            });
+            }, counters);
             step("F16 tracker block", new Step() {
                 public void run() { Features.trackerBlock(cl, cfg, counter); }
-            });
+            }, counters);
             step("F17 update dialog block", new Step() {
                 public void run() { Features.updateDialogBlock(cl, cfg, counter); }
-            });
+            }, counters);
             step("F18 hide VIP purchase UI", new Step() {
                 public void run() { Features.hideVipUi(cl, cfg, counter); }
-            });
+            }, counters);
             step("F19 VipItem unlock", new Step() {
                 public void run() { Features.vipItemUnlock(cl, cfg, counter); }
-            });
+            }, counters);
             step("F20 license/store-redirect bypass", new Step() {
                 public void run() { Features.licenseBypass(cl, cfg, counter); }
-            });
+            }, counters);
             step("F12 crash guard", new Step() {
                 public void run() { counters[0] += Features.crashGuard(); }
-            });
+            }, counters);
 
             Log.i("apply() done | pass=" + passOf() + " | hooks=" + counters[0] + " | skipped=" + counters[1]
                     + " | unique=" + HookRegistry.size()
@@ -101,6 +105,17 @@ public final class Engine {
 
     private interface Step {
         void run();
+    }
+
+    private static void step(String label, Step s, int[] counters) {
+        int before = counters[0];
+        try {
+            s.run();
+        } catch (Throwable t) {
+            Log.w("step failed: " + label + " :: " + Log.describe(t));
+        }
+        // v3.1.0: per-feature delta is always logged (field diagnostics).
+        Log.i(label + " => +" + (counters[0] - before) + " hooks");
     }
 
     private static void step(String label, Step s) {

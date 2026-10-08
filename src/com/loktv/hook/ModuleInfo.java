@@ -11,9 +11,9 @@ public final class ModuleInfo {
 
     public static final String MODULE_ID      = "LOKTV-HOOK-PRO";
     public static final String MODULE_NAME    = "LOKTV Hook Pro";
-    public static final String VERSION        = "3.0.0";
-    public static final int    VERSION_CODE   = 300;
-    public static final String BUILD_TAG      = "2026.10.08-r2";
+    public static final String VERSION        = "3.1.0";
+    public static final int    VERSION_CODE   = 310;
+    public static final String BUILD_TAG      = "2026.10.08-r3";
     public static final String AUTHOR         = "LOKTV Hook Pro Project";
 
     /** Module supported Android range (mirrors manifest min/targetSdk). */
@@ -68,17 +68,18 @@ public final class ModuleInfo {
             "F17 Forced-update/notice dialog suppressor",
             "F18 VIP purchase UI hider (BuyVip/VipCard/pay dialogs)",
             "F19 VipItem unlock hardening (boolean+level+expiry)",
-            "F20 License/store-redirect bypass (anti Play-Store bounce)"
+            "F20 License/store-redirect bypass (anti Play-Store bounce)",
+            "F21 Legacy installer invoker (void isVip/isDisable/... are CALLED, not neutered)"
     };
 
     /** Short description for the module manager (Arabic, concise). */
     public static final String DESCRIPTION_AR =
-            "LOKTV Hook Pro v3.0.0 | هوك LOKTV: VIP + منع التحديث + حجب إعلانات/تتبع. "
+            "LOKTV Hook Pro v3.1.0 | هوك LOKTV: VIP + منع التحديث + حجب إعلانات/تتبع. "
           + "يعمل على أي إصدار/حزمة عبر NPatch و LSPatch و HKP بدون روت. أندرويد 5.0–14.";
 
     /** Short description for the module manager (English, concise). */
     public static final String DESCRIPTION_EN =
-            "LOKTV Hook Pro v3.0.0 | LOKTV hook: VIP + no forced update + ads/trackers off. "
+            "LOKTV Hook Pro v3.1.0 | LOKTV hook: VIP + no forced update + ads/trackers off. "
           + "Any version/package via NPatch, LSPatch, HKP, no root. Android 5.0-14.";
 
     /** Compact one-liner used in the runtime log header. */

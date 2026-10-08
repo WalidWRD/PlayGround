@@ -1,9 +1,9 @@
 {
   "module_id": "LOKTV-HOOK-PRO",
   "module_name": "LOKTV Hook Pro",
-  "version": "3.0.0",
-  "version_code": 300,
-  "build_tag": "2026.10.08-r2",
+  "version": "3.1.0",
+  "version_code": 310,
+  "build_tag": "2026.10.08-r3",
   "min_sdk": 21,
   "target_sdk": 34,
   "entry_point": "com.loktv.hook.LokTvHook",
@@ -33,9 +33,10 @@
     {"id": "F17", "name": "Update dialog block", "hook": "showUpdate/showNotice/dialog -> no-op/false"},
     {"id": "F18", "name": "VIP purchase UI hider", "hook": "BuyVip/VipCard/VipPay classes: show/display -> no-op, gates -> false"},
     {"id": "F19", "name": "VipItem unlock", "hook": "VipItem#isVip* -> true, level -> 9999, expiry -> far-future"},
-    {"id": "F20", "name": "License/store-redirect bypass", "hook": "isLicensed/checkLicense -> true, openPlayStore/rateApp -> no-op"}
+    {"id": "F20", "name": "License/store-redirect bypass", "hook": "isLicensed/checkLicense -> true, openPlayStore/rateApp -> no-op"},
+    {"id": "F21", "name": "Legacy installer invoker", "hook": "void isVip/isDisable/isVipItem/init -> INVOKE (idempotent)"}
   ],
   "config_file": "loktv_hook.conf",
-  "config_keys": ["vip","skip_update","valid_collection","video_data","disable_popup","anti_detect","anti_vpn","floating_view","generic_scanner","ads_block","tracker_block","update_dialog","hide_vip_ui","vip_item","license_bypass","rotation","debug"],
+  "config_keys": ["vip","skip_update","valid_collection","video_data","disable_popup","anti_detect","anti_vpn","floating_view","generic_scanner","ads_block","tracker_block","update_dialog","hide_vip_ui","vip_item","license_bypass","legacy_invoke","rotation","debug"],
   "log_file": "loktv_hook.log"
 }

@@ -32,8 +32,68 @@ public final class Features {
             "com.novan.morpha", "com.novan"
     };
 
+    /**
+     * v3.1.0: v1-style VOID installers. Smali evidence: isVip/isSkipUpdate/
+     * isValidCollection/isVideoDataEnabled/DisableSomePopup/isDisable/isVipItem/
+     * init/init2/Load are "()V" methods that SELF-INSTALL the real hooks when
+     * CALLED. Replacing them with no-op (as v2.x did) DISABLES the feature.
+     * So: INVOKE void installers, REPLACE boolean gates. These exact names
+     * are also skipped in every generic replace loop.
+     */
+    private static final String[] INSTALLER_NAMES = {
+            "isvip", "isskipupdate", "isvalidcollection", "isvideodataenabled",
+            "disablesomepopup", "isdisable", "isvipitem", "init", "init2", "load"
+    };
+
+    private static boolean isInstallerName(String lower) {
+        if (lower == null) return false;
+        for (String k : INSTALLER_NAMES) {
+            if (lower.equals(k)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * v3.1.0: third-party ad SDK packages. The v3.0.0 field report
+     * ("no crash, but ads not blocked") was caused by scanning ONLY the
+     * target package: real ad SDKs live in THEIR OWN packages, so the
+     * prefix scan found novan classes and the unfiltered fallback never
+     * fired. These prefixes are scanned alongside the target package.
+     */
+    private static final String[] AD_SDK_PREFIXES = {
+            "com.google.android.gms.ads", "com.google.ads",
+            "com.facebook.ads", "com.facebook.audience",
+            "com.unity3d.ads", "com.applovin", "com.inmobi",
+            "com.mopub", "com.bytedance.sdk.openadsdk", "com.vungle",
+            "com.ironsource", "com.amazon.device.ads", "com.smaato",
+            "com.mintegral", "com.appnext", "com.chartboost",
+            "com.tapjoy", "com.adcolony",
+            "com.huawei.hms.ads", "com.xiaomi.ad",
+            "com.qq.e", "com.baidu.mobads"
+    };
+
+    /** v3.1.0: third-party analytics/tracker SDK packages (same reason). */
+    private static final String[] TRACKER_SDK_PREFIXES = {
+            "com.umeng", "com.appsflyer", "com.adjust",
+            "com.tencent.bugly", "com.bugly", "com.flurry",
+            "com.google.firebase",
+            "com.google.android.gms.analytics",
+            "com.google.android.gms.measurement",
+            "com.sensorsdata", "com.growingio", "com.talkingdata",
+            "com.yandex.metrica", "com.amplitude", "com.mixpanel",
+            "com.branch", "com.onesignal", "com.igexin",
+            "com.huawei.hms.analytics", "com.xiaomi.mipush",
+            "com.vivo.push", "com.heytap", "com.oppo.push",
+            "com.meizu.push", "io.sentry"
+    };
+
     // ------------------------------------------------------------------ F01-F05
 
+    /**
+     * v3.1.0 rework: each gate is EITHER a boolean (replace -> true) OR a
+     * void installer (INVOKE it now - it self-installs the real hooks).
+     * v2.x replaced void installers with no-op, which DISABLED the feature.
+     */
     public static int userStatus(ClassLoader cl, HookConfig cfg, Counter c) {
         int n = 0;
         Class<?> cls = Reflect.firstClass(cl, CLS_USER_STATUS);
@@ -44,9 +104,9 @@ public final class Features {
         }
         c.ok("UserStatus = " + cls.getName());
 
-        if (cfg.vip)             n += forceTrue(cls, "isVip", c);
+        if (cfg.vip)             n += gateTrue(cls, "isVip", c);
         if (cfg.skipUpdate) {
-            n += forceTrue(cls, "isSkipUpdate", c);
+            n += gateTrue(cls, "isSkipUpdate", c);
             // v2.1.0: force-update gates have inverted polarity -> must be FALSE
             n += forceFalseAnyName(cls, c,
                     "isForceUpdate", "isNeedUpdate", "needUpdate",
@@ -54,9 +114,9 @@ public final class Features {
                     "isMustUpdate", "shouldForceUpdate");
             n += noopAnyName(cls, c, "checkUpdate", "checkForUpdate", "requestUpdate");
         }
-        if (cfg.validCollection) n += forceTrue(cls, "isValidCollection", c);
-        if (cfg.videoData)       n += forceTrue(cls, "isVideoDataEnabled", c);
-        if (cfg.disablePopup)    n += noop(cls, "DisableSomePopup", c);
+        if (cfg.validCollection) n += gateTrue(cls, "isValidCollection", c);
+        if (cfg.videoData)       n += gateTrue(cls, "isVideoDataEnabled", c);
+        if (cfg.disablePopup)    n += gateNoop(cls, "DisableSomePopup", c);
         // v2.1.0: numeric VIP level / expiry hardening (best effort)
         if (cfg.vip) {
             n += forceIntIfPresent(cls, c,
@@ -84,6 +144,7 @@ public final class Features {
             try { ms = cls.getDeclaredMethods(); } catch (Throwable t) { continue; }
             for (Method m : ms) {
                 String nm = safeLower(m.getName());
+                if (isInstallerName(nm)) continue; // v3.1.0: never neuter installers
                 if (!contains(KEYS, nm)) continue;
                 if (Reflect.isAbstract(m)) continue;
                 if (Reflect.returnsBoolean(m)) n += replace(m, Boolean.FALSE, c);
@@ -147,10 +208,19 @@ public final class Features {
         for (String cn : CLS_FLOATING) {
             Class<?> cls = Reflect.findClass(cl, cn);
             if (cls == null) continue;
+            // v3.1.0: isDisable()V is an installer - INVOKE it, don't neuter it.
+            try {
+                Method inst = Reflect.methodNoArg(cls, "isDisable");
+                if (inst != null && Reflect.returnsVoid(inst) && invokeInstaller(inst, c) > 0) {
+                    c.ok("FloatingView neutralised = " + cls.getName());
+                    continue;
+                }
+            } catch (Throwable ignored) {}
             try {
                 for (Method m : cls.getDeclaredMethods()) {
                     if (Reflect.isAbstract(m)) continue;
                     String nm = safeLower(m.getName());
+                    if (isInstallerName(nm)) continue;
                     if (nm.contains("disable") || nm.contains("show") || nm.contains("add")
                             || nm.contains("create") || nm.contains("start")) {
                         n += replace(m, null, c);
@@ -164,9 +234,17 @@ public final class Features {
             Class<?> fb = ClassScanner.bySimpleName(cl, "FloatingView", PKG_PREFIXES);
             if (fb != null && Reflect.findClass(cl, CLS_FLOATING[0]) == null
                     && Reflect.findClass(cl, CLS_FLOATING[1]) == null) {
+                try {
+                    Method inst = Reflect.methodNoArg(fb, "isDisable");
+                    if (inst != null && Reflect.returnsVoid(inst) && invokeInstaller(inst, c) > 0) {
+                        c.ok("FloatingView neutralised (fallback) = " + fb.getName());
+                        return n;
+                    }
+                } catch (Throwable ignored) {}
                 for (Method m : fb.getDeclaredMethods()) {
                     if (Reflect.isAbstract(m)) continue;
                     String nm = safeLower(m.getName());
+                    if (isInstallerName(nm)) continue;
                     if (nm.contains("disable") || nm.contains("show") || nm.contains("add")
                             || nm.contains("create") || nm.contains("start")) {
                         n += replace(m, null, c);
@@ -243,6 +321,7 @@ public final class Features {
             for (Method m : ms) {
                 if (Reflect.isAbstract(m) || !Reflect.isNoArg(m)) continue;
                 String nm = safeLower(m.getName());
+                if (isInstallerName(nm)) continue; // v3.1.0: installers are invoked, not replaced
                 if (nm.startsWith("set") || nm.startsWith("add") || nm.startsWith("remove")) continue;
                 if (Reflect.returnsBoolean(m)) {
                     if (contains(POSITIVE, nm)) n += replace(m, Boolean.TRUE, c);
@@ -268,11 +347,12 @@ public final class Features {
 
     // ------------------------------------------------------------------ F15
 
-    /** F15 - ads / splash / banner / reward / interstitial neutralizer. */
+    /** F15 - ads / splash / banner / reward / interstitial neutralizer.
+     *  v3.1.0: scans target package AND third-party ad SDK packages. */
     public static int adsBlock(ClassLoader cl, HookConfig cfg, Counter c) {
         if (!cfg.adsBlock) return 0;
         int n = 0;
-        List<Class<?>> all = ClassScanner.classes(cl, PKG_PREFIXES, 8000);
+        List<Class<?>> all = ClassScanner.classes(cl, join(PKG_PREFIXES, AD_SDK_PREFIXES), 8000);
         for (Class<?> cls : all) {
             String cn = safeLower(cls.getName());
             boolean adClass = cn.contains("ad") || cn.contains("splash")
@@ -290,13 +370,17 @@ public final class Features {
                 try {
                     if (Reflect.returnsBoolean(m) && Reflect.isNoArg(m)) {
                         if (nm.startsWith("show") || nm.startsWith("should")
-                                || nm.startsWith("is") || nm.startsWith("has")
-                                || nm.startsWith("need") || nm.contains("show")) {
+                                || nm.startsWith("can") || nm.startsWith("is")
+                                || nm.startsWith("has") || nm.startsWith("need")
+                                || nm.contains("show")) {
                             n += replace(m, Boolean.FALSE, c);
                         }
                     } else if (Reflect.returnsVoid(m)) {
                         if (nm.startsWith("show") || nm.startsWith("load")
-                                || nm.startsWith("display") || nm.startsWith("present")) {
+                                || nm.startsWith("display") || nm.startsWith("present")
+                                || nm.startsWith("init") || nm.startsWith("start")
+                                || nm.startsWith("play") || nm.startsWith("request")
+                                || nm.startsWith("fetch")) {
                             n += replace(m, null, c);
                         }
                     } else if (Reflect.returnsString(m) && Reflect.isNoArg(m)) {
@@ -313,18 +397,26 @@ public final class Features {
 
     // ------------------------------------------------------------------ F16
 
-    /** F16 - analytics / tracker disabler (perf + privacy, never breaks app). */
+    /** F16 - analytics / tracker disabler (perf + privacy, never breaks app).
+     *  v3.1.0: scans target package AND third-party tracker SDK packages,
+     *  plus a method-name heuristic for track/report verbs anywhere scanned. */
     public static int trackerBlock(ClassLoader cl, HookConfig cfg, Counter c) {
         if (!cfg.trackerBlock) return 0;
         int n = 0;
-        List<Class<?>> all = ClassScanner.classes(cl, PKG_PREFIXES, 8000);
+        List<Class<?>> all = ClassScanner.classes(cl, join(PKG_PREFIXES, TRACKER_SDK_PREFIXES), 8000);
         for (Class<?> cls : all) {
             String cn = safeLower(cls.getName());
             boolean tr = cn.contains("umeng") || cn.contains("analytics")
                     || cn.contains("tracker") || cn.contains("appsflyer")
                     || cn.contains("bugly") || cn.contains("flurry")
                     || cn.contains("adjust") || cn.contains("firebase")
-                    || cn.contains("crashreport") || cn.contains("monitor");
+                    || cn.contains("crashreport") || cn.contains("monitor")
+                    || cn.contains("sensorsdata") || cn.contains("growingio")
+                    || cn.contains("talkingdata") || cn.contains("metrica")
+                    || cn.contains("amplitude") || cn.contains("mixpanel")
+                    || cn.contains("branch") || cn.contains("onesignal")
+                    || cn.contains("igexin") || cn.contains("sentry")
+                    || cn.contains("mipush") || cn.contains("push");
             if (!tr) continue;
             Method[] ms;
             try { ms = cls.getDeclaredMethods(); } catch (Throwable t) { continue; }
@@ -335,13 +427,29 @@ public final class Features {
                         String nm = safeLower(m.getName());
                         if (nm.startsWith("track") || nm.startsWith("report")
                                 || nm.startsWith("log") || nm.startsWith("send")
-                                || nm.startsWith("init") || nm.startsWith("on")) {
+                                || nm.startsWith("record") || nm.startsWith("init")
+                                || nm.startsWith("on")) {
                             n += replace(m, null, c);
                         }
                     } else if (Reflect.returnsBoolean(m) && Reflect.isNoArg(m)) {
                         n += replace(m, Boolean.FALSE, c);
                     }
                 } catch (Throwable ignored) {}
+            }
+        }
+        // v3.1.0: verb heuristic across scanned packages (catches trackers
+        // living inside the target package under neutral names).
+        for (Class<?> cls : all) {
+            Method[] ms;
+            try { ms = cls.getDeclaredMethods(); } catch (Throwable t) { continue; }
+            for (Method m : ms) {
+                if (Reflect.isAbstract(m) || !Reflect.returnsVoid(m)) continue;
+                String nm = safeLower(m.getName());
+                if (nm.startsWith("trackevent") || nm.startsWith("logevent")
+                        || nm.startsWith("sendevent") || nm.startsWith("recordevent")
+                        || nm.startsWith("reportevent")) {
+                    try { n += replace(m, null, c); } catch (Throwable ignored) {}
+                }
             }
         }
         return n;
@@ -559,10 +667,103 @@ public final class Features {
 
     // ------------------------------------------------------------------ helpers
 
-    private static int forceTrue(Class<?> cls, String method, Counter c) {
+    /**
+     * v3.1.0 smart gate: boolean method -> replace with TRUE;
+     * void method (v1-style installer) -> INVOKE it now (idempotent via
+     * HookRegistry); anything else -> skip with a log.
+     */
+    private static int gateTrue(Class<?> cls, String method, Counter c) {
         Method m = Reflect.methodNoArg(cls, method);
         if (m == null) { c.fail(cls.getSimpleName() + "#" + method + " not found", null); return 0; }
-        return replace(m, Boolean.TRUE, c);
+        if (Reflect.returnsBoolean(m)) return replace(m, Boolean.TRUE, c);
+        if (Reflect.returnsVoid(m)) return invokeInstaller(m, c);
+        c.fail(cls.getSimpleName() + "#" + method + " unexpected return type", null);
+        return 0;
+    }
+
+    /** v3.1.0 smart no-op: void installer -> INVOKE; boolean -> FALSE; else replace null. */
+    private static int gateNoop(Class<?> cls, String method, Counter c) {
+        Method m = Reflect.methodNoArg(cls, method);
+        if (m == null) { c.fail(cls.getSimpleName() + "#" + method + " not found", null); return 0; }
+        if (Reflect.returnsVoid(m)) return invokeInstaller(m, c);
+        if (Reflect.returnsBoolean(m)) return replace(m, Boolean.FALSE, c);
+        return replace(m, null, c);
+    }
+
+    /**
+     * Invokes a v1-style void installer (it self-installs the real hooks).
+     * Idempotent across Engine passes via HookRegistry. Never throws.
+     */
+    private static int invokeInstaller(final Method m, Counter c) {
+        try {
+            String key;
+            try {
+                key = m.getDeclaringClass().getName() + "#" + m.getName();
+            } catch (Throwable t) {
+                return 0;
+            }
+            if (!HookRegistry.markInvokedIfNew(key)) return 0;
+            m.invoke(null);
+            c.ok("invoked installer " + m.getDeclaringClass().getSimpleName() + "#" + m.getName());
+            return 1;
+        } catch (Throwable t) {
+            c.fail("installer failed " + m.getName(), t);
+            return 0;
+        }
+    }
+
+    /**
+     * F21 - invokes every known v1-style void installer found in the dex.
+     * Runs FIRST so the original self-installed hooks exist before our
+     * Xposed hooks complement them. Missing classes fail silently.
+     */
+    public static int legacyInstallers(ClassLoader cl, HookConfig cfg, Counter c) {
+        if (!cfg.legacyInvoke) return 0;
+        int n = 0;
+        n += invokeClassInstallers(cl,
+                new String[]{"com.novan.morpha.UserStatus", "com.novan.UserStatus"},
+                "UserStatus",
+                new String[]{"isVip", "isSkipUpdate", "isValidCollection",
+                        "isVideoDataEnabled", "DisableSomePopup"}, c);
+        n += invokeClassInstallers(cl,
+                new String[]{"com.novan.morpha.FloatingView", "com.novan.FloatingView"},
+                "FloatingView",
+                new String[]{"isDisable"}, c);
+        n += invokeClassInstallers(cl,
+                new String[]{"com.novan.morpha.VipItem", "com.novan.VipItem"},
+                "VipItem",
+                new String[]{"isVipItem"}, c);
+        n += invokeClassInstallers(cl,
+                new String[]{"com.novan.morpha.HideBuyVip", "com.novan.HideBuyVip"},
+                "HideBuyVip",
+                new String[]{"init"}, c);
+        n += invokeClassInstallers(cl,
+                new String[]{"com.novan.morpha.HideVipCard", "com.novan.HideVipCard"},
+                "HideVipCard",
+                new String[]{"init"}, c);
+        n += invokeClassInstallers(cl,
+                new String[]{"com.novan.morpha.ReplaceVipString", "com.novan.ReplaceVipString"},
+                "ReplaceVipString",
+                new String[]{"init", "init2"}, c);
+        return n;
+    }
+
+    private static int invokeClassInstallers(ClassLoader cl, String[] fastPath,
+            String simpleName, String[] methods, Counter c) {
+        int n = 0;
+        try {
+            Class<?> cls = Reflect.firstClass(cl, fastPath);
+            if (cls == null) cls = ClassScanner.bySimpleName(cl, simpleName, PKG_PREFIXES);
+            if (cls == null) return 0;
+            for (String name : methods) {
+                try {
+                    Method m = Reflect.methodNoArg(cls, name);
+                    if (m == null || !Reflect.returnsVoid(m)) continue;
+                    n += invokeInstaller(m, c);
+                } catch (Throwable ignored) {}
+            }
+        } catch (Throwable ignored) {}
+        return n;
     }
 
     private static int forceFalseAnyName(Class<?> cls, String[] names, Counter c) {
@@ -649,6 +850,16 @@ public final class Features {
             if (k != null && name.contains(k)) return true;
         }
         return false;
+    }
+
+    /** Concatenates two prefix arrays (null-safe). */
+    private static String[] join(String[] a, String[] b) {
+        int na = a == null ? 0 : a.length;
+        int nb = b == null ? 0 : b.length;
+        String[] out = new String[na + nb];
+        for (int i = 0; i < na; i++) out[i] = a[i];
+        for (int i = 0; i < nb; i++) out[na + i] = b[i];
+        return out;
     }
 
     private static String safeLower(String s) {

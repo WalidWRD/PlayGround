@@ -85,10 +85,15 @@ if [ ! -f "$KS" ]; then
   echo "[+] keystore generated"
 fi
 "$BT/zipalign" -f -p 4 "$OUT/unsigned.apk" "$OUT/aligned.apk"
+"$BT/zipalign" -c -p 4 "$OUT/aligned.apk" \
+  || { echo "[!] FATAL: APK not page-aligned, refusing to sign" >&2; exit 1; }
+echo "[+] align check ok"
 "$BT/apksigner" sign --ks "$KS" --ks-pass pass:loktv123 --key-pass pass:loktv123 \
                 --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
                 --v4-signing-enabled false \
                 --out "$DIST/$APK_NAME" "$OUT/aligned.apk"
 "$BT/apksigner" verify --print-certs "$DIST/$APK_NAME" | head -4
+echo "[*] cert SHA-256 (must match previous install, else uninstall first):"
+"$BT/apksigner" verify --print-certs "$DIST/$APK_NAME" 2>/dev/null | grep -i 'SHA-256' | head -1
 ls -lh "$DIST/$APK_NAME"
 echo "[✓] BUILD COMPLETE"
