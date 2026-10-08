@@ -5,6 +5,6 @@ public interface IXposedHookZygoteInit {
 
     class StartupParam {
         public String modulePath;
-        public boolean startsSystemServer;
+        public String startsSystemServer;
     }
 }

@@ -11,9 +11,9 @@ public final class ModuleInfo {
 
     public static final String MODULE_ID      = "LOKTV-HOOK-PRO";
     public static final String MODULE_NAME    = "LOKTV Hook Pro";
-    public static final String VERSION        = "3.2.0";
-    public static final int    VERSION_CODE   = 320;
-    public static final String BUILD_TAG      = "2026.10.08-r4";
+    public static final String VERSION        = "3.2.1";
+    public static final int    VERSION_CODE   = 321;
+    public static final String BUILD_TAG      = "2026.10.08-r5";
     public static final String AUTHOR         = "LOKTV Hook Pro Project";
 
     /** Module supported Android range (mirrors manifest min/targetSdk). */
