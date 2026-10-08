@@ -1,20 +1,24 @@
 package com.loktv.hook;
 
 /**
- * Central metadata for the module v2.1.0.
- * The embedded description below is what the module manager (LSPatch / NPatch / HKP /
- * LSPosed) reads from AndroidManifest (xposeddescription) and what is printed to the
- * runtime log at every launch. Update VERSION/VERSION_CODE/BUILD_TAG on each release
- * so the manager, the log banner and docs/ANALYSIS stay in sync.
+ * Central metadata for the module v3.0.0.
+ * DESCRIPTION_* are intentionally SHORT: the module manager shows them in a
+ * small box. The full feature list lives in the runtime log banner.
+ * Update VERSION/VERSION_CODE/BUILD_TAG on each release so the manager,
+ * the log banner and docs/ANALYSIS stay in sync.
  */
 public final class ModuleInfo {
 
     public static final String MODULE_ID      = "LOKTV-HOOK-PRO";
     public static final String MODULE_NAME    = "LOKTV Hook Pro";
-    public static final String VERSION        = "2.1.1";
-    public static final int    VERSION_CODE   = 211;
-    public static final String BUILD_TAG      = "2026.10.07-r3";
+    public static final String VERSION        = "3.0.0";
+    public static final int    VERSION_CODE   = 300;
+    public static final String BUILD_TAG      = "2026.10.08-r2";
     public static final String AUTHOR         = "LOKTV Hook Pro Project";
+
+    /** Module supported Android range (mirrors manifest min/targetSdk). */
+    public static final String ANDROID_MIN    = "5.0 (API 21)";
+    public static final String ANDROID_TARGET = "14 (API 34)";
 
     /** Primary target + aliases (multi-version tolerant matching). */
     public static final String TARGET_PACKAGE = "com.novan.morpha";
@@ -23,6 +27,17 @@ public final class ModuleInfo {
             "com.novan",
             "morpha",
             "novan"
+    };
+
+    /**
+     * v3.0.0: dex-signature classes. When the package name is renamed
+     * (clone builds), detection falls back to these — any hit = target.
+     */
+    public static final String[] SIGNATURE_CLASSES = {
+            "com.novan.morpha.UserStatus",
+            "com.novan.morpha.AntiVPN",
+            "com.novan.morpha.VipItem",
+            "com.novan.morpha.LoadConfig"
     };
 
     /** Supported loader frameworks. */
@@ -44,38 +59,27 @@ public final class ModuleInfo {
             "F08 Floating view (overlay ads) disabler + obfuscation fallback",
             "F09 Screen rotation controller (off / portrait / landscape)",
             "F10 Dex-wide scanner (boolean/int/long, survives renaming & obfuscation)",
-            "F11 Packed / protected APK support (attachBaseContext+onCreate+retry)",
+            "F11 Packed/protected APK + package-agnostic dex-signature detection",
             "F12 Crash-guard: isolated steps + full-stack hook-origin check",
             "F13 File + logcat runtime log with applied/failed counters",
             "F14 Hot configuration (key=value, no re-patch, validated rotation)",
             "F15 Ads/splash/banner/reward/interstitial block",
             "F16 Analytics/tracker disabler (perf + privacy)",
-            "F17 Forced-update/notice dialog suppressor"
+            "F17 Forced-update/notice dialog suppressor",
+            "F18 VIP purchase UI hider (BuyVip/VipCard/pay dialogs)",
+            "F19 VipItem unlock hardening (boolean+level+expiry)",
+            "F20 License/store-redirect bypass (anti Play-Store bounce)"
     };
 
-    /** Short description embedded in the module manager (Arabic, updated). */
+    /** Short description for the module manager (Arabic, concise). */
     public static final String DESCRIPTION_AR =
-            "LOKTV Hook Pro v2.1.1 | موديول هوك احترافي لتطبيق LOKTV (com.novan.morpha). "
-          + "يفتح VIP (مع تقوية المستوى وتاريخ الانتهاء)، يمنع التحديث الإجباري "
-          + "(isSkipUpdate=true و isForceUpdate/hasUpdate=false)، يفعّل المجموعة والفيديو، "
-          + "يزيل النوافذ والإعلانات العائمة والبانر والمكافآت، يحجب التحليلات والتتبع، "
-          + "يتجاوز كشف VPN/Proxy والتعديل والروت والمحاكي والبصمة. "
-          + "يعمل بالانعكاس Reflection + فاحص dex شامل (boolean/int/long) فيدعم الإصدارات "
-          + "الأعلى والأقل والتطبيقات المضغوطة/المحمية عبر NPatch و LSPatch و HKP بدون روت. "
-          + "حماية كاملة من الكراشات (خطوات معزولة + فحص مصدر الاستثناء) + سجل تشغيل "
-          + "+ إعدادات ساخنة قابلة للتطوير والصيانة.";
+            "LOKTV Hook Pro v3.0.0 | هوك LOKTV: VIP + منع التحديث + حجب إعلانات/تتبع. "
+          + "يعمل على أي إصدار/حزمة عبر NPatch و LSPatch و HKP بدون روت. أندرويد 5.0–14.";
 
-    /** Short description embedded in the module manager (English, updated). */
+    /** Short description for the module manager (English, concise). */
     public static final String DESCRIPTION_EN =
-            "LOKTV Hook Pro v2.1.1 | Professional hook module for LOKTV (com.novan.morpha). "
-          + "Unlocks VIP (boolean + level/expiry hardening), blocks forced updates "
-          + "(isSkipUpdate=true, isForceUpdate/hasUpdate=false), enables collection & video, "
-          + "removes popups/floating/banner/reward ads, disables trackers, bypasses "
-          + "VPN/proxy/tamper/root/emulator/signature checks. "
-          + "Reflection + dex-wide scanner (boolean/int/long) => works on higher & lower "
-          + "versions and packed/protected APKs via NPatch, LSPatch and HKP with no root. "
-          + "Full crash-guard (isolated steps + origin check), runtime log, hot config, "
-          + "maintainable architecture (see docs/ANALYSIS-v2.1.0.md).";
+            "LOKTV Hook Pro v3.0.0 | LOKTV hook: VIP + no forced update + ads/trackers off. "
+          + "Any version/package via NPatch, LSPatch, HKP, no root. Android 5.0-14.";
 
     /** Compact one-liner used in the runtime log header. */
     public static String oneLiner() {
@@ -93,6 +97,8 @@ public final class ModuleInfo {
         sb.append("  target: ").append(TARGET_PACKAGE).append("\n");
         sb.append("  min app version: ").append(MIN_APP_VERSION)
           .append("   max: ").append(MAX_APP_VERSION).append("\n");
+        sb.append("  module android: ").append(ANDROID_MIN)
+          .append(" -> ").append(ANDROID_TARGET).append("\n");
         sb.append("  loader: ").append(FRAMEWORKS).append("\n");
         sb.append("  features:\n");
         for (String f : FEATURES) sb.append("    - ").append(f).append("\n");

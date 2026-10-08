@@ -87,6 +87,7 @@ fi
 "$BT/zipalign" -f -p 4 "$OUT/unsigned.apk" "$OUT/aligned.apk"
 "$BT/apksigner" sign --ks "$KS" --ks-pass pass:loktv123 --key-pass pass:loktv123 \
                 --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
+                --v4-signing-enabled false \
                 --out "$DIST/$APK_NAME" "$OUT/aligned.apk"
 "$BT/apksigner" verify --print-certs "$DIST/$APK_NAME" | head -4
 ls -lh "$DIST/$APK_NAME"

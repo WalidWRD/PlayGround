@@ -37,11 +37,18 @@ public final class LokTvHook implements IXposedHookLoadPackage, IXposedHookZygot
         try {
             if (lpparam == null) return;
             String pkg = safePackage(lpparam);
-            if (!isTarget(pkg)) return;
-
-            XposedBridge.log(LOG_TAG + " | target detected: " + pkg);
-
             final ClassLoader baseLoader = safeClassLoader(lpparam);
+
+            // v3.0.0: two-stage detection. Fast path = package alias.
+            // Fallback = dex signature (works on renamed/cloned packages).
+            boolean byAlias = isTarget(pkg);
+            boolean bySig = false;
+            if (!byAlias) bySig = isTargetBySignature(baseLoader);
+            if (!byAlias && !bySig) return;
+
+            XposedBridge.log(LOG_TAG + " | target detected: " + pkg
+                    + (bySig ? " [by dex-signature]" : " [by package]"));
+
             Engine.apply(baseLoader, pkg, null);
 
             installApplicationHook(pkg);
@@ -133,6 +140,23 @@ public final class LokTvHook implements IXposedHookLoadPackage, IXposedHookZygot
             String a = alias.toLowerCase();
             if (lower.equals(a) || lower.contains(a)) return true;
         }
+        return false;
+    }
+
+    /**
+     * v3.0.0: package-agnostic fallback. If the vendor (or a clone) renames
+     * the package, the alias check fails — but the dex still ships the same
+     * signature classes. Four cheap Class.forName probes decide. Never throws.
+     */
+    public static boolean isTargetBySignature(ClassLoader cl) {
+        if (cl == null) return false;
+        try {
+            for (String cn : ModuleInfo.SIGNATURE_CLASSES) {
+                try {
+                    if (cn != null && Reflect.findClass(cl, cn) != null) return true;
+                } catch (Throwable ignored) {}
+            }
+        } catch (Throwable ignored) {}
         return false;
     }
 

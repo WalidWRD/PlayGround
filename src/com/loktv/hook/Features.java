@@ -378,6 +378,153 @@ public final class Features {
         return n;
     }
 
+    // ------------------------------------------------------------------ F18
+
+    /** F18 - hides in-app VIP purchase UI (BuyVip / VipCard / pay dialogs).
+     *  Only touches classes whose name mentions vip+buy/card/pay/dialog, and
+     *  only show/display/present (void->no-op) or should/show/is/has/need
+     *  (boolean->false) gates. Never touches generic View methods. */
+    public static int hideVipUi(ClassLoader cl, HookConfig cfg, Counter c) {
+        if (!cfg.hideVipUi) return 0;
+        int n = 0;
+        List<Class<?>> all = ClassScanner.classes(cl, PKG_PREFIXES, 8000);
+        for (Class<?> cls : all) {
+            String cn = safeLower(cls.getName());
+            boolean vipUi = cn.contains("buyvip") || cn.contains("vipcard")
+                    || cn.contains("vippay") || cn.contains("payvip")
+                    || cn.contains("vipdialog") || cn.contains("vippopup");
+            if (!vipUi) continue;
+            Method[] ms;
+            try { ms = cls.getDeclaredMethods(); } catch (Throwable t) { continue; }
+            for (Method m : ms) {
+                if (Reflect.isAbstract(m)) continue;
+                String nm = safeLower(m.getName());
+                try {
+                    if (Reflect.returnsVoid(m)) {
+                        if (nm.startsWith("show") || nm.startsWith("display")
+                                || nm.startsWith("present") || nm.startsWith("popup")
+                                || nm.startsWith("open") || nm.startsWith("load")) {
+                            n += replace(m, null, c);
+                        }
+                    } else if (Reflect.returnsBoolean(m) && Reflect.isNoArg(m)) {
+                        if (nm.startsWith("should") || nm.startsWith("show")
+                                || nm.startsWith("is") || nm.startsWith("has")
+                                || nm.startsWith("need") || nm.contains("visible")) {
+                            n += replace(m, Boolean.FALSE, c);
+                        }
+                    }
+                } catch (Throwable ignored) {}
+            }
+        }
+        return n;
+    }
+
+    // ------------------------------------------------------------------ F19
+
+    /** F19 - VipItem unlock hardening (com.novan.morpha.VipItem#isVipItem).
+     *  Fast path on the known class, then a name-heuristic fallback.
+     *  Boolean vip gates -> true, int level/coin -> 9999, long expiry -> far-future. */
+    public static int vipItemUnlock(ClassLoader cl, HookConfig cfg, Counter c) {
+        if (!cfg.vipItem) return 0;
+        int n = 0;
+        Class<?> cls = Reflect.firstClass(cl,
+                "com.novan.morpha.VipItem", "com.novan.VipItem");
+        if (cls == null) cls = ClassScanner.bySimpleName(cl, "VipItem", PKG_PREFIXES);
+        if (cls != null) {
+            c.ok("VipItem = " + cls.getName());
+            try {
+                for (Method m : cls.getDeclaredMethods()) {
+                    if (Reflect.isAbstract(m) || !Reflect.isNoArg(m)) continue;
+                    String nm = safeLower(m.getName());
+                    try {
+                        if (Reflect.returnsBoolean(m)) {
+                            if (nm.contains("vip") || nm.contains("premium")
+                                    || nm.contains("paid") || nm.contains("unlock")) {
+                                n += replace(m, Boolean.TRUE, c);
+                            }
+                        } else if (Reflect.returnsInt(m)) {
+                            if (nm.contains("vip") || nm.contains("level")
+                                    || nm.contains("coin") || nm.contains("point")) {
+                                n += replace(m, Integer.valueOf(9999), c);
+                            }
+                        } else if (Reflect.returnsLong(m)) {
+                            if (nm.contains("expire") || nm.contains("vip")
+                                    || nm.contains("coin")) {
+                                n += replace(m, Long.valueOf(4102444800000L), c);
+                            }
+                        }
+                    } catch (Throwable ignored) {}
+                }
+            } catch (Throwable ignored) {}
+        }
+        // fallback: any vipitem-ish class the fast path missed
+        for (Class<?> k : ClassScanner.classes(cl, PKG_PREFIXES, 8000)) {
+            String cn = safeLower(k.getName());
+            if (!cn.contains("vipitem")) continue;
+            if (cls != null && k.getName().equals(cls.getName())) continue;
+            try {
+                for (Method m : k.getDeclaredMethods()) {
+                    if (Reflect.isAbstract(m) || !Reflect.isNoArg(m)) continue;
+                    if (!Reflect.returnsBoolean(m)) continue;
+                    String nm = safeLower(m.getName());
+                    if (nm.contains("vip") || nm.contains("premium") || nm.contains("unlock")) {
+                        n += replace(m, Boolean.TRUE, c);
+                    }
+                }
+            } catch (Throwable ignored) {}
+        }
+        return n;
+    }
+
+    // ------------------------------------------------------------------ F20
+
+    /** F20 - license / store-redirect neutralizer (anti "mental ke Play Store").
+     *  Licensed/paid gates -> TRUE (we hold a license); void store openers
+     *  (openPlayStore/rateApp/goMarket...) -> no-op so the app can never
+     *  bounce the user to the Play Store. Pairip flavor included. */
+    public static int licenseBypass(ClassLoader cl, HookConfig cfg, Counter c) {
+        if (!cfg.licenseBypass) return 0;
+        int n = 0;
+        List<Class<?>> all = ClassScanner.classes(cl, PKG_PREFIXES, 8000);
+        for (Class<?> cls : all) {
+            Method[] ms;
+            try { ms = cls.getDeclaredMethods(); } catch (Throwable t) { continue; }
+            for (Method m : ms) {
+                if (Reflect.isAbstract(m)) continue;
+                String nm = safeLower(m.getName());
+                boolean licMethod = nm.contains("license") || nm.contains("licence")
+                        || nm.contains("pairip");
+                boolean storeOpener = nm.contains("openplaystore") || nm.contains("openmarket")
+                        || nm.contains("gotomarket") || nm.contains("rateapp")
+                        || nm.contains("openshop") || nm.contains("openstore");
+                if (!licMethod && !storeOpener) continue;
+                try {
+                    if (storeOpener && Reflect.returnsVoid(m)) {
+                        n += replace(m, null, c);
+                    } else if (Reflect.returnsBoolean(m) && Reflect.isNoArg(m)) {
+                        if (nm.contains("islicensed") || nm.contains("haslicense")
+                                || nm.contains("isregistered") || nm.contains("isactivated")
+                                || nm.contains("checklicense") || nm.contains("verifylicense")) {
+                            n += replace(m, Boolean.TRUE, c);
+                        } else if (nm.contains("unlicensed") || nm.contains("invalidlicense")) {
+                            n += replace(m, Boolean.FALSE, c);
+                        }
+                    } else if (Reflect.returnsVoid(m) && licMethod) {
+                        if (nm.startsWith("check") || nm.startsWith("verify")
+                                || nm.startsWith("validate")) {
+                            n += replace(m, null, c);
+                        }
+                    } else if (Reflect.returnsString(m) && Reflect.isNoArg(m) && licMethod) {
+                        if (nm.contains("url") || nm.contains("key") || nm.contains("id")) {
+                            n += replace(m, "", c);
+                        }
+                    }
+                } catch (Throwable ignored) {}
+            }
+        }
+        return n;
+    }
+
     // ------------------------------------------------------------------ F12
 
     /** F12 - installs a last-resort guard so a hook failure can never kill the app. */
@@ -480,12 +627,14 @@ public final class Features {
 
     private static int replace(final Method m, final Object value, Counter c) {
         try {
+            if (HookRegistry.alreadyHooked(m)) return 0;
             XposedBridge.hookMethod(m, new XC_MethodReplacement() {
                 @Override
                 protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
                     return value;
                 }
             });
+            HookRegistry.markHooked(m);
             c.ok("hooked " + m.getDeclaringClass().getSimpleName() + "#" + m.getName() + " -> " + value);
             return 1;
         } catch (Throwable t) {

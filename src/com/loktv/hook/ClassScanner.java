@@ -23,6 +23,13 @@ public final class ClassScanner {
     private static final java.util.Map<Integer, List<String>> sNamesCache =
             new java.util.HashMap<Integer, List<String>>();
 
+    /** v2.2.0: cache of loaded target classes per ClassLoader, so the
+     *  10 feature scans in one apply() share a single Class.forName pass. */
+    private static final java.util.Map<Integer, List<Class<?>>> sClassesCache =
+            new java.util.HashMap<Integer, List<Class<?>>>();
+    private static final java.util.Map<Integer, String> sClassesKey =
+            new java.util.HashMap<Integer, String>();
+
     /** All class names shipped in the APK dex files. Never throws. */
     public static List<String> names(ClassLoader cl) {
         if (cl != null) {
@@ -74,8 +81,41 @@ public final class ClassScanner {
 
     /** Loads classes whose fully-qualified name starts with one of the prefixes.
      *  Falls back to an unfiltered scan when the prefix scan is empty
-     *  (obfuscated builds), capped by the same limit. */
+     *  (obfuscated builds), capped by the same limit.
+     *  v2.2.0: results are cached per (loader, prefixes, limit). */
     public static List<Class<?>> classes(ClassLoader cl, String[] prefixes, int limit) {
+        if (cl != null) {
+            String ck = cacheKey(prefixes, limit);
+            synchronized (sClassesCache) {
+                Integer id = Integer.valueOf(System.identityHashCode(cl));
+                List<Class<?>> cached = sClassesCache.get(id);
+                String oldKey = sClassesKey.get(id);
+                if (cached != null && ck.equals(oldKey)) return cached;
+            }
+        }
+        List<Class<?>> out = loadClasses(cl, prefixes, limit);
+        if (cl != null) {
+            synchronized (sClassesCache) {
+                if (sClassesCache.size() < 8) {
+                    Integer id = Integer.valueOf(System.identityHashCode(cl));
+                    sClassesCache.put(id, out);
+                    sClassesKey.put(id, cacheKey(prefixes, limit));
+                }
+            }
+        }
+        return out;
+    }
+
+    private static String cacheKey(String[] prefixes, int limit) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(limit).append('|');
+        if (prefixes != null) {
+            for (String p : prefixes) sb.append(p == null ? "?" : p).append(',');
+        }
+        return sb.toString();
+    }
+
+    private static List<Class<?>> loadClasses(ClassLoader cl, String[] prefixes, int limit) {
         List<Class<?>> out = new ArrayList<Class<?>>();
         List<String> all = names(cl);
         for (String n : all) {

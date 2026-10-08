@@ -1,9 +1,9 @@
 {
   "module_id": "LOKTV-HOOK-PRO",
   "module_name": "LOKTV Hook Pro",
-  "version": "2.1.1",
-  "version_code": 211,
-  "build_tag": "2026.10.07-r3",
+  "version": "3.0.0",
+  "version_code": 300,
+  "build_tag": "2026.10.08-r2",
   "min_sdk": 21,
   "target_sdk": 34,
   "entry_point": "com.loktv.hook.LokTvHook",
@@ -11,6 +11,8 @@
   "target_aliases": ["com.novan.morpha", "com.novan", "morpha", "novan"],
   "frameworks": ["LSPatch", "NPatch", "HKP-Patch", "LSPosed", "EdXposed"],
   "requires_root": false,
+  "detection": "package-alias + dex-signature (package-agnostic)",
+  "signature_classes": ["com.novan.morpha.UserStatus", "com.novan.morpha.AntiVPN", "com.novan.morpha.VipItem", "com.novan.morpha.LoadConfig"],
   "features": [
     {"id": "F01", "name": "VIP / Premium unlock", "hook": "UserStatus#isVip -> true + level 9999 / expiry far-future"},
     {"id": "F02", "name": "Skip forced update", "hook": "isSkipUpdate -> true; isForceUpdate/hasUpdate/needUpdate -> false"},
@@ -22,15 +24,18 @@
     {"id": "F08", "name": "Floating overlay disabler", "hook": "FloatingView#* -> no-op + simple-name fallback"},
     {"id": "F09", "name": "Screen rotation controller", "hook": "GetRotation#* -> configured value"},
     {"id": "F10", "name": "Dex-wide class scanner", "hook": "boolean/int/long heuristic resolver"},
-    {"id": "F11", "name": "Packed APK support", "hook": "attachBaseContext/onCreate loader capture + delayed retry"},
+    {"id": "F11", "name": "Packed APK + signature detection", "hook": "attachBaseContext/onCreate + retry; dex-signature fallback for renamed packages"},
     {"id": "F12", "name": "Crash guard", "hook": "isolated steps + full-stack origin check"},
     {"id": "F13", "name": "Runtime log", "hook": "logcat + app-private file"},
     {"id": "F14", "name": "Hot configuration", "hook": "loktv_hook.conf key=value (validated)"},
     {"id": "F15", "name": "Ads/splash/banner/reward block", "hook": "ad gates -> false, show/load -> no-op"},
     {"id": "F16", "name": "Tracker disabler", "hook": "analytics/track/report/log -> no-op"},
-    {"id": "F17", "name": "Update dialog block", "hook": "showUpdate/showNotice/dialog -> no-op/false"}
+    {"id": "F17", "name": "Update dialog block", "hook": "showUpdate/showNotice/dialog -> no-op/false"},
+    {"id": "F18", "name": "VIP purchase UI hider", "hook": "BuyVip/VipCard/VipPay classes: show/display -> no-op, gates -> false"},
+    {"id": "F19", "name": "VipItem unlock", "hook": "VipItem#isVip* -> true, level -> 9999, expiry -> far-future"},
+    {"id": "F20", "name": "License/store-redirect bypass", "hook": "isLicensed/checkLicense -> true, openPlayStore/rateApp -> no-op"}
   ],
   "config_file": "loktv_hook.conf",
-  "config_keys": ["vip","skip_update","valid_collection","video_data","disable_popup","anti_detect","anti_vpn","floating_view","generic_scanner","ads_block","tracker_block","update_dialog","rotation","debug"],
+  "config_keys": ["vip","skip_update","valid_collection","video_data","disable_popup","anti_detect","anti_vpn","floating_view","generic_scanner","ads_block","tracker_block","update_dialog","hide_vip_ui","vip_item","license_bypass","rotation","debug"],
   "log_file": "loktv_hook.log"
 }

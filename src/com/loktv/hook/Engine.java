@@ -6,21 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Orchestrates every feature, isolates failures and reports a summary.
- *  v2.1.0: supports re-apply on a different ClassLoader (packed apps deliver
- *  a stub loader first, then the real one in attachBaseContext/onCreate). */
+ *  v2.1.x: supports re-apply on a different ClassLoader (packed apps deliver
+ *  a stub loader first, then the real one in attachBaseContext/onCreate).
+ *  v2.2.0: same-loader re-apply allowed for late dex (HookRegistry dedups). */
 public final class Engine {
 
     private static final Object LOCK = new Object();
-    private static final java.util.Set<Integer> sAppliedLoaders =
-            new java.util.HashSet<Integer>();
+    private static int sApplies = 0;
     private static final int MAX_APPLIES = 3;
 
     public static void apply(final ClassLoader cl, final String pkg, final Context ctx) {
-        final int id = System.identityHashCode(cl);
         synchronized (LOCK) {
-            if (cl != null && sAppliedLoaders.contains(Integer.valueOf(id))) return;
-            if (sAppliedLoaders.size() >= MAX_APPLIES) return;
-            sAppliedLoaders.add(Integer.valueOf(id));
+            if (sApplies >= MAX_APPLIES) return;
+            sApplies++;
         }
         try {
             Log.init(ctx, pkg);
@@ -73,15 +71,31 @@ public final class Engine {
             step("F17 update dialog block", new Step() {
                 public void run() { Features.updateDialogBlock(cl, cfg, counter); }
             });
+            step("F18 hide VIP purchase UI", new Step() {
+                public void run() { Features.hideVipUi(cl, cfg, counter); }
+            });
+            step("F19 VipItem unlock", new Step() {
+                public void run() { Features.vipItemUnlock(cl, cfg, counter); }
+            });
+            step("F20 license/store-redirect bypass", new Step() {
+                public void run() { Features.licenseBypass(cl, cfg, counter); }
+            });
             step("F12 crash guard", new Step() {
                 public void run() { counters[0] += Features.crashGuard(); }
             });
 
-            Log.i("apply() done | hooks=" + counters[0] + " | skipped=" + counters[1]
+            Log.i("apply() done | pass=" + passOf() + " | hooks=" + counters[0] + " | skipped=" + counters[1]
+                    + " | unique=" + HookRegistry.size()
                     + " | classes scanned=" + ClassScanner.names(cl).size());
             if (!failures.isEmpty()) Log.i("skipped list: " + failures);
         } catch (Throwable t) {
             Log.e("apply() fatal (contained)", t);
+        }
+    }
+
+    private static int passOf() {
+        synchronized (LOCK) {
+            return sApplies;
         }
     }
 

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.loktv.hook"
-    android:versionCode="211"
-    android:versionName="2.1.1">>
+    android:versionCode="300"
+    android:versionName="3.0.0">
 
     <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="34" />
 
     <!-- Xposed/LSPatch/NPatch/HKP module metadata -->
     <application
-        android:label="LOKTV Hook Pro v2.1.1"
+        android:label="LOKTV Hook Pro v3.0.0"
         android:hasCode="true"
         android:allowBackup="false"
         android:extractNativeLibs="true">
 
         <meta-data android:name="xposedmodule" android:value="true" />
         <meta-data android:name="xposeddescription"
-            android:value="LOKTV Hook Pro v2.1.1 | موديول هوك احترافي لـ LOKTV (com.novan.morpha): يفتح VIP مع تقوية المستوى/الانتهاء، يمنع التحديث الإجباري، يفعّل المجموعة والفيديو، يزيل النوافذ والإعلانات العائمة والبانر، يحجب التتبع، يتجاوز VPN والتعديل/الروت. انعكاس + فاحص dex شامل يدعم الأعلى والأقل والمضغوط/المحمي عبر NPatch و LSPatch و HKP بدون روت. ضد الكراشات + سجل + إعدادات ساخنة قابلة للتطوير." />
+            android:value="LOKTV Hook Pro v3.0.0 | هوك LOKTV: VIP + منع التحديث + حجب إعلانات/تتبع. أي إصدار/حزمة عبر NPatch و LSPatch و HKP بدون روت. أندرويد 5.0–14." />
         <meta-data android:name="xposedminversion" android:value="82" />
         <meta-data android:name="xposedscope"
             android:resource="@array/xposedscope" />

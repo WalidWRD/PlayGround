@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LOKTV Hook Pro v2.1.1 — موديول احترافي بدون روت</title>
+<title>LOKTV Hook Pro v3.0.0 — موديول احترافي بدون روت</title>
 <style>
 :root{--bg:#0b1020;--card:#151d33;--acc:#ffb020;--tx:#eef2ff;--mut:#9aa7c7}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,"Segoe UI",Tahoma,Arial;background:var(--bg);color:var(--tx)}
@@ -23,16 +23,16 @@ ol,ul{line-height:2}footer{margin-top:40px;color:var(--mut);font-size:13px}
 <body>
 <div class="wrap">
 <div class="hero">
-<div class="badge">v2.1.1 (211) — 2026.10.07-r3 — بدون روت</div>
+<div class="badge">v3.0.0 (300) — 2026.10.08-r2 — بدون روت</div>
 <h1>LOKTV Hook Pro — موديول هوك احترافي لـ LOKTV</h1>
-<p class="mut">الهدف: <code>com.novan.morpha</code> — يعمل عبر <b>NPatch / LSPatch / HKP</b> بدون روت — انعكاس Reflection + فاحص dex شامل — يدعم الإصدارات الأعلى والأقل والتطبيقات المضغوطة/المحمية — ضد الكراشات + سجل + إعدادات ساخنة.</p>
+<p class="mut">الهدف: <code>أي حزمة ببصمة morpha (الأصلية com.novan.morpha)</code> — يعمل عبر <b>NPatch / LSPatch / HKP</b> بدون روت — انعكاس Reflection + فاحص dex شامل — يدعم الإصدارات الأعلى والأقل والتطبيقات المضغوطة/المحمية — ضد الكراشات + سجل + إعدادات ساخنة.</p>
 <p>
-<a class="btn" href="LOKTV-Hook-Pro-v2.1.1.apk">⬇ تحميل APK v2.1.1 (~33KB)</a>
+<a class="btn" href="LOKTV-Hook-Pro-v3.0.0.apk">⬇ تحميل APK v2.1.1 (~33KB)</a>
 <a class="btn ghost" href="https://github.com/WalidWRD/PlayGround">المصدر على GitHub</a>
 </p>
 <p class="mut">التوقيع: v1+v2+v3 — الدخول: <code>com.loktv.hook.LokTvHook</code> — xposedminversion 82 — minSdk 21 / targetSdk 34</p>
 </div>
-<h2>✨ الميزات (17)</h2>
+<h2>✨ الميزات (20) + كشف بأي حزمة</h2>
 <div class="grid">
 <div class="card"><b>F01</b> فتح VIP مع تقوية المستوى (9999) وتاريخ الانتهاء</div>
 <div class="card"><b>F02</b> منع التحديث الإجباري (isSkipUpdate=true / Force=false)</div>
@@ -48,11 +48,14 @@ ol,ul{line-height:2}footer{margin-top:40px;color:var(--mut);font-size:13px}
 <div class="card"><b>F13–F14</b> سجل ملفي + إعدادات ساخنة</div>
 <div class="card"><b>F15 جديد</b> حجب إعلانات/سplash/بانر/مكافآت</div>
 <div class="card"><b>F16 جديد</b> تعطيل تحليلات/تتبع (أداء + خصوصية)</div>
-<div class="card"><b>F17 جديد</b> كتم حوارات التحديث/التنبيهات</div>
+<div class="card"><b>F17</b> كتم حوارات التحديث/التنبيهات</div>
+<div class="card"><b>F18 جديد</b> إخفاء واجهات شراء VIP</div>
+<div class="card"><b>F19 جديد</b> تقوية VipItem (boolean+level+expiry)</div>
+<div class="card"><b>F20 جديد</b> منع الارتداد لـ Play Store + الترخيص</div>
 </div>
 <h2>🛠 التركيب بدون روت</h2>
 <ol>
-<li>ثبّت <code>LOKTV-Hook-Pro-v2.1.1.apk</code> على الجهاز.</li>
+<li>ثبّت <code>LOKTV-Hook-Pro-v3.0.0.apk</code> على الجهاز.</li>
 <li>افتح NPatch / LSPatch / HKP واختر تطبيق الهدف الأصلي.</li>
 <li>اختر الموديول من القائمة ثم ابدأ الترقيع.</li>
 <li>احذف الأصلية وثبّت المرقعة.</li>
@@ -60,12 +63,12 @@ ol,ul{line-height:2}footer{margin-top:40px;color:var(--mut);font-size:13px}
 <li>للتحكم: حرّر <code>loktv_hook.conf</code> في مجلد files ثم أعد التشغيل.</li>
 </ol>
 <h2>⚙ الإعدادات الساخنة</h2>
-<p><code>vip=1 skip_update=1 valid_collection=1 video_data=1 disable_popup=1 anti_detect=1 anti_vpn=1 floating_view=1 generic_scanner=1 ads_block=1 tracker_block=1 update_dialog=1 rotation=-1 debug=0</code></p>
+<p><code>vip=1 skip_update=1 valid_collection=1 video_data=1 disable_popup=1 anti_detect=1 anti_vpn=1 floating_view=1 generic_scanner=1 ads_block=1 tracker_block=1 update_dialog=1 hide_vip_ui=1 vip_item=1 license_bypass=1 rotation=-1 debug=0</code></p>
 <h2>📄 التحليل والنتائج</h2>
-<p>المرجع المعتمد للبناء والصيانة (يغني عن إعادة التحليل): <code>docs/ANALYSIS-v2.1.0.md</code> في المصدر — يوثق الاستخراج، الإصلاحات، المعمارية القابلة للتطوير، وخطوات التحقق.</p>
+<p>المرجع المعتمد للبناء والصيانة (يغني عن إعادة التحليل): <code>docs/ANALYSIS-v3.0.0.md</code> في المصدر — يوثق الاستخراج، الإصلاحات، المعمارية القابلة للتطوير، وخطوات التحقق.</p>
 <h2>🧩 للمطورين</h2>
 <p>لإضافة ميزة: دالة في <code>Features.java</code> + مفتاح في <code>HookConfig.java</code> + استدعاء في <code>Engine.java</code> + سطر في <code>ModuleInfo.FEATURES</code>. البناء: <code>bash build.sh</code> واحد.</p>
-<footer>LOKTV Hook Pro v2.1.1 [LOKTV-HOOK-PRO] — LSPatch / NPatch / HKP-Patch / LSPosed / EdXposed (no root required) — min app 1.0.0 / max unlimited.</footer>
+<footer>LOKTV Hook Pro v3.0.0 [LOKTV-HOOK-PRO] — LSPatch / NPatch / HKP-Patch / LSPosed / EdXposed (no root required) — min app 1.0.0 / max unlimited.</footer>
 </div>
 </body>
 </html>
