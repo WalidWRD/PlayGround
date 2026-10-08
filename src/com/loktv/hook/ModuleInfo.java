@@ -11,9 +11,9 @@ public final class ModuleInfo {
 
     public static final String MODULE_ID      = "LOKTV-HOOK-PRO";
     public static final String MODULE_NAME    = "LOKTV Hook Pro";
-    public static final String VERSION        = "3.1.0";
-    public static final int    VERSION_CODE   = 310;
-    public static final String BUILD_TAG      = "2026.10.08-r3";
+    public static final String VERSION        = "3.2.0";
+    public static final int    VERSION_CODE   = 320;
+    public static final String BUILD_TAG      = "2026.10.08-r4";
     public static final String AUTHOR         = "LOKTV Hook Pro Project";
 
     /** Module supported Android range (mirrors manifest min/targetSdk). */
@@ -61,7 +61,7 @@ public final class ModuleInfo {
             "F10 Dex-wide scanner (boolean/int/long, survives renaming & obfuscation)",
             "F11 Packed/protected APK + package-agnostic dex-signature detection",
             "F12 Crash-guard: isolated steps + full-stack hook-origin check",
-            "F13 File + logcat runtime log with applied/failed counters",
+            "F13 File + logcat runtime log + proof toast + per-feature counters",
             "F14 Hot configuration (key=value, no re-patch, validated rotation)",
             "F15 Ads/splash/banner/reward/interstitial block",
             "F16 Analytics/tracker disabler (perf + privacy)",
@@ -74,12 +74,12 @@ public final class ModuleInfo {
 
     /** Short description for the module manager (Arabic, concise). */
     public static final String DESCRIPTION_AR =
-            "LOKTV Hook Pro v3.1.0 | هوك LOKTV: VIP + منع التحديث + حجب إعلانات/تتبع. "
+            "LOKTV Hook Pro v3.2.0 | هوك LOKTV: VIP + منع التحديث + حجب إعلانات/تتبع. "
           + "يعمل على أي إصدار/حزمة عبر NPatch و LSPatch و HKP بدون روت. أندرويد 5.0–14.";
 
     /** Short description for the module manager (English, concise). */
     public static final String DESCRIPTION_EN =
-            "LOKTV Hook Pro v3.1.0 | LOKTV hook: VIP + no forced update + ads/trackers off. "
+            "LOKTV Hook Pro v3.2.0 | LOKTV hook: VIP + no forced update + ads/trackers off. "
           + "Any version/package via NPatch, LSPatch, HKP, no root. Android 5.0-14.";
 
     /** Compact one-liner used in the runtime log header. */

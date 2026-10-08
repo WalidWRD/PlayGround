@@ -149,7 +149,8 @@ public final class Features {
                 if (Reflect.isAbstract(m)) continue;
                 if (Reflect.returnsBoolean(m)) n += replace(m, Boolean.FALSE, c);
                 else if (Reflect.returnsString(m)) n += replace(m, "", c);
-                else n += replace(m, null, c);
+                else if (Reflect.returnsVoid(m)) n += replace(m, null, c);
+                // v3.2.0: other return types are skipped (null would NPE the caller).
             }
         }
         return n;
@@ -268,7 +269,8 @@ public final class Features {
             try {
                 for (Method m : cls.getDeclaredMethods()) {
                     if (Reflect.isAbstract(m)) continue;
-                    if (Reflect.returnsInt(m) || m.getReturnType() == Object.class) {
+                    // v3.2.0: only int gates (Object return would risk CCE).
+                    if (Reflect.returnsInt(m)) {
                         n += replace(m, value, c);
                     }
                 }
@@ -475,11 +477,13 @@ public final class Features {
                         || nm.startsWith("alert") || nm.contains("dialog"));
                 if (!dlg) continue;
                 try {
-                    if (Reflect.returnsVoid(m) || Reflect.returnsBoolean(m)) {
-                        n += replace(m, Reflect.returnsBoolean(m) ? (Object) Boolean.FALSE : null, c);
-                    } else {
+                    // v3.2.0: replacement value must match the return type.
+                    if (Reflect.returnsVoid(m)) {
                         n += replace(m, null, c);
+                    } else if (Reflect.returnsBoolean(m)) {
+                        n += replace(m, Boolean.FALSE, c);
                     }
+                    // other return types: skipped, never null-replaced.
                 } catch (Throwable ignored) {}
             }
         }
@@ -681,13 +685,14 @@ public final class Features {
         return 0;
     }
 
-    /** v3.1.0 smart no-op: void installer -> INVOKE; boolean -> FALSE; else replace null. */
+    /** v3.1.0 smart no-op: void installer -> INVOKE; boolean -> FALSE; else skip. */
     private static int gateNoop(Class<?> cls, String method, Counter c) {
         Method m = Reflect.methodNoArg(cls, method);
         if (m == null) { c.fail(cls.getSimpleName() + "#" + method + " not found", null); return 0; }
         if (Reflect.returnsVoid(m)) return invokeInstaller(m, c);
         if (Reflect.returnsBoolean(m)) return replace(m, Boolean.FALSE, c);
-        return replace(m, null, c);
+        c.fail(cls.getSimpleName() + "#" + method + " skipped (unsafe return type)", null);
+        return 0;
     }
 
     /**
@@ -771,8 +776,10 @@ public final class Features {
         for (String name : names) {
             Method m = Reflect.methodNoArg(cls, name);
             if (m == null) continue;
+            // v3.2.0 type-safe: never return null for a primitive/object
+            // gate (would NPE the caller). Void -> no-op, else skip.
             if (Reflect.returnsBoolean(m)) n += replace(m, Boolean.FALSE, c);
-            else n += replace(m, null, c);
+            else if (Reflect.returnsVoid(m)) n += replace(m, null, c);
         }
         return n;
     }
@@ -791,7 +798,8 @@ public final class Features {
         int n = 0;
         for (String name : names) {
             Method m = Reflect.methodNoArg(cls, name);
-            if (m != null) n += replace(m, null, c);
+            // v3.2.0: only void methods may be no-op'd. Anything else is skipped.
+            if (m != null && Reflect.returnsVoid(m)) n += replace(m, null, c);
         }
         return n;
     }

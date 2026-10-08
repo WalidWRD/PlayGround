@@ -161,15 +161,19 @@ public final class LokTvHook implements IXposedHookLoadPackage, IXposedHookZygot
     }
 
     /**
-     * v2.1.0: packed apps sometimes expose dex files a moment AFTER
-     * attachBaseContext. One delayed re-apply catches late dex without
-     * risking an apply loop (Engine caps applies per loader).
+     * v3.2.0: chained delayed re-applies for packed apps whose dex appears
+     * AFTER attachBaseContext (1.5s -> 4s -> 10s). Engine caps total passes
+     * and HookRegistry dedups, so repeats are cheap and safe.
      */
     private static void scheduleRetry(final Context ctx, final String pkg, final int attempt) {
-        if (attempt > 2) return;
+        if (attempt > 3) return;
         try {
             android.os.Handler h = new android.os.Handler(android.os.Looper.getMainLooper());
             final int next = attempt + 1;
+            long delay;
+            if (attempt == 1) delay = 1500L;
+            else if (attempt == 2) delay = 4000L;
+            else delay = 10000L;
             h.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -178,8 +182,11 @@ public final class LokTvHook implements IXposedHookLoadPackage, IXposedHookZygot
                                 : LokTvHook.class.getClassLoader();
                         if (cl != null) Engine.apply(cl, pkg, ctx);
                     } catch (Throwable ignored) {}
+                    try {
+                        scheduleRetry(ctx, pkg, next);
+                    } catch (Throwable ignored) {}
                 }
-            }, attempt == 1 ? 1500L : 4000L);
+            }, delay);
         } catch (Throwable ignored) {}
     }
 

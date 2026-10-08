@@ -1,9 +1,9 @@
 {
   "module_id": "LOKTV-HOOK-PRO",
   "module_name": "LOKTV Hook Pro",
-  "version": "3.1.0",
-  "version_code": 310,
-  "build_tag": "2026.10.08-r3",
+  "version": "3.2.0",
+  "version_code": 320,
+  "build_tag": "2026.10.08-r4",
   "min_sdk": 21,
   "target_sdk": 34,
   "entry_point": "com.loktv.hook.LokTvHook",
@@ -26,7 +26,7 @@
     {"id": "F10", "name": "Dex-wide class scanner", "hook": "boolean/int/long heuristic resolver"},
     {"id": "F11", "name": "Packed APK + signature detection", "hook": "attachBaseContext/onCreate + retry; dex-signature fallback for renamed packages"},
     {"id": "F12", "name": "Crash guard", "hook": "isolated steps + full-stack origin check"},
-    {"id": "F13", "name": "Runtime log", "hook": "logcat + app-private file"},
+    {"id": "F13", "name": "Runtime log + proof toast", "hook": "logcat + app-private file + launch toast"},
     {"id": "F14", "name": "Hot configuration", "hook": "loktv_hook.conf key=value (validated)"},
     {"id": "F15", "name": "Ads/splash/banner/reward block", "hook": "ad gates -> false, show/load -> no-op"},
     {"id": "F16", "name": "Tracker disabler", "hook": "analytics/track/report/log -> no-op"},
@@ -37,6 +37,6 @@
     {"id": "F21", "name": "Legacy installer invoker", "hook": "void isVip/isDisable/isVipItem/init -> INVOKE (idempotent)"}
   ],
   "config_file": "loktv_hook.conf",
-  "config_keys": ["vip","skip_update","valid_collection","video_data","disable_popup","anti_detect","anti_vpn","floating_view","generic_scanner","ads_block","tracker_block","update_dialog","hide_vip_ui","vip_item","license_bypass","legacy_invoke","rotation","debug"],
+  "config_keys": ["vip","skip_update","valid_collection","video_data","disable_popup","anti_detect","anti_vpn","floating_view","generic_scanner","ads_block","tracker_block","update_dialog","hide_vip_ui","vip_item","license_bypass","legacy_invoke","toast","rotation","debug"],
   "log_file": "loktv_hook.log"
 }

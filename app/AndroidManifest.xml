@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.loktv.hook"
-    android:versionCode="310"
-    android:versionName="3.1.0">
+    android:versionCode="320"
+    android:versionName="3.2.0">
 
     <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="34" />
 
     <!-- Xposed/LSPatch/NPatch/HKP module metadata -->
     <application
-        android:label="LOKTV Hook Pro v3.1.0"
+        android:label="LOKTV Hook Pro v3.2.0"
         android:hasCode="true"
         android:allowBackup="false"
         android:extractNativeLibs="true">
 
         <meta-data android:name="xposedmodule" android:value="true" />
         <meta-data android:name="xposeddescription"
-            android:value="LOKTV Hook Pro v3.1.0 | هوك LOKTV: VIP + منع التحديث + حجب إعلانات/تتبع. أي إصدار/حزمة عبر NPatch و LSPatch و HKP بدون روت. أندرويد 5.0–14." />
+            android:value="LOKTV Hook Pro v3.2.0 | هوك LOKTV: VIP + منع التحديث + حجب إعلانات/تتبع. أي إصدار/حزمة عبر NPatch و LSPatch و HKP بدون روت. أندرويد 5.0–14." />
         <meta-data android:name="xposedminversion" android:value="82" />
         <meta-data android:name="xposedscope"
             android:resource="@array/xposedscope" />

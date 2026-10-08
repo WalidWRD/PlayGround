@@ -13,7 +13,8 @@ public final class Engine {
 
     private static final Object LOCK = new Object();
     private static int sApplies = 0;
-    private static final int MAX_APPLIES = 3;
+    /** v3.2.0: raised to allow chained late-dex retries (1.5s/4s/10s). */
+    private static final int MAX_APPLIES = 6;
 
     public static void apply(final ClassLoader cl, final String pkg, final Context ctx) {
         synchronized (LOCK) {
@@ -92,9 +93,43 @@ public final class Engine {
                     + " | unique=" + HookRegistry.size()
                     + " | classes scanned=" + ClassScanner.names(cl).size());
             if (!failures.isEmpty()) Log.i("skipped list: " + failures);
+            // v3.2.0: visible proof-of-life (no logcat needed to confirm activity).
+            proofToast(ctx, cfg, counters[0]);
         } catch (Throwable t) {
             Log.e("apply() fatal (contained)", t);
         }
+    }
+
+    /**
+     * v3.2.0: shows "LOKTV Hook Pro vX | hooks=N" once on the UI thread.
+     * This is the field test: if the toast appears, the module IS running
+     * inside the target and hooks=N were installed. Disable via toast=0.
+     */
+    private static void proofToast(final Context ctx, final HookConfig cfg, final int hooks) {
+        try {
+            if (ctx == null || (cfg != null && !cfg.toast)) return;
+            final Context app;
+            try {
+                Context ac = ctx.getApplicationContext();
+                app = ac == null ? ctx : ac;
+            } catch (Throwable t) {
+                return;
+            }
+            final String text = ModuleInfo.MODULE_NAME + " v" + ModuleInfo.VERSION
+                    + " | hooks=" + hooks;
+            try {
+                android.os.Handler h = new android.os.Handler(android.os.Looper.getMainLooper());
+                h.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            android.widget.Toast.makeText(app, text,
+                                    android.widget.Toast.LENGTH_LONG).show();
+                        } catch (Throwable ignored) {}
+                    }
+                });
+            } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {}
     }
 
     private static int passOf() {
