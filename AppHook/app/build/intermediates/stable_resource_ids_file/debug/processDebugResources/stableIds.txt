@@ -1,0 +1,2 @@
+com.apphook.log:string/xposed_description = 0x7f010001
+com.apphook.log:string/app_name = 0x7f010000

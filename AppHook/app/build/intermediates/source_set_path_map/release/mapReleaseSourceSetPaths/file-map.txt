@@ -1,0 +1,7 @@
+com.apphook.log.app-pngs-0 /home/runner/work/PlayGround/PlayGround/AppHook/app/build/generated/res/pngs/release
+com.apphook.log.app-resValues-1 /home/runner/work/PlayGround/PlayGround/AppHook/app/build/generated/res/resValues/release
+com.apphook.log.app-packageReleaseResources-2 /home/runner/work/PlayGround/PlayGround/AppHook/app/build/intermediates/incremental/release/packageReleaseResources/merged.dir
+com.apphook.log.app-packageReleaseResources-3 /home/runner/work/PlayGround/PlayGround/AppHook/app/build/intermediates/incremental/release/packageReleaseResources/stripped.dir
+com.apphook.log.app-release-4 /home/runner/work/PlayGround/PlayGround/AppHook/app/build/intermediates/merged_res/release/mergeReleaseResources
+com.apphook.log.app-main-5 /home/runner/work/PlayGround/PlayGround/AppHook/app/src/main/res
+com.apphook.log.app-release-6 /home/runner/work/PlayGround/PlayGround/AppHook/app/src/release/res

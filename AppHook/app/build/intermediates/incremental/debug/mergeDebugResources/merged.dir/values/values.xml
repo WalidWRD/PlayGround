@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AppHook</string>
+    <string name="xposed_description">AppHook v3.1 | Flutter-filtered: channel+webview+prefs+json | proxy-free | آمن ضد الكراش | LSPatch/NPatch/HKP بلا روت</string>
+</resources>
