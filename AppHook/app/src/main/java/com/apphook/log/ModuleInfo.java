@@ -34,7 +34,8 @@ public final class ModuleInfo {
         try {
             fw.log(Log.INFO, "AppHook", describe());
             fw.log(Log.INFO, "AppHook",
-                    "[Features] flutter-channel, prefs-override, okhttp-watch, "
+                    "[Features] flutter-channel-filtered, webview-watch, appsflyer-watch, "
+                    + "urlconn-watch, prefs-override, okhttp-watch, "
                     + "gson-patch, billing-fallback, integrity-watch, "
                     + "dex-scanner, packed-app-ready, protective-mode");
         } catch (Throwable ignored) {}

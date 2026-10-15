@@ -6,11 +6,11 @@
                 {
                     "source": "/home/runner/work/PlayGround/PlayGround/AppHook/app/src/main/res/values/strings.xml",
                     "from": {
-                        "startLines": "-1,3",
-                        "startColumns": "-1,4",
-                        "startOffsets": "-1,135",
-                        "endColumns": "-1,164",
-                        "endOffsets": "-1,295"
+                        "startLines": "4,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "300,135",
+                        "endColumns": "44,164",
+                        "endOffsets": "340,295"
                     },
                     "to": {
                         "startLines": "2,3",
@@ -18,28 +18,6 @@
                         "startOffsets": "55,100",
                         "endColumns": "44,164",
                         "endOffsets": "95,260"
-                    }
-                }
-            ]
-        },
-        {
-            "outputFile": "/home/runner/.gradle/daemon/9.8.0/com.apphook.log.app-mergeReleaseResources-2:/values/values.xml",
-            "map": [
-                {
-                    "source": "/home/runner/work/PlayGround/PlayGround/AppHook/app/src/main/res/values/strings.xml",
-                    "from": {
-                        "startLines": "4,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "307,135",
-                        "endColumns": "44,171",
-                        "endOffsets": "347,302"
-                    },
-                    "to": {
-                        "startLines": "2,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "55,100",
-                        "endColumns": "44,171",
-                        "endOffsets": "95,267"
                     }
                 }
             ]

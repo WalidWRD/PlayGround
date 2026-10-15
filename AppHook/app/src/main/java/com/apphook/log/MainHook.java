@@ -7,14 +7,15 @@ import io.github.libxposed.api.XposedModule;
 import io.github.libxposed.api.XposedModuleInterface;
 
 /**
- * نقطة الدخول الحديثة (libxposed 101/102) — v3.0 Flutter-Aware.
+ * نقطة الدخول الحديثة (libxposed 101/102) — v3.1 Flutter-Filtered.
  *
  * <p>الاستراتيجية (Flutter + Native + تحقق خادمي): Dart AOT في libapp.so
  * لا يُعمل له Hook مباشر — نعترض الجسر:</p>
  * <ol>
- *   <li>MethodChannel (الأهم): لفّ handler/result وتعديل الرد قبل Dart.</li>
+ *   <li>MethodChannel (الأهم): ربط onMethodCall/success على الفئات
+ *       الحقيقية — proxy-free — مع فلترة ضجيج WebView.</li>
  *   <li>SharedPreferences: إجبار أعلام الاشتراك (يخزن Flutter هنا).</li>
- *   <li>HTTP/JSON: اعتراض استجابة الخادم قبل وصولها لـ Flutter.</li>
+ *   <li>HTTP/JSON/WebView/AppsFlyer/UrlConnection: مراقبة قبل Flutter.</li>
  *   <li>Billing/Integrity: طبقات احتياطية.</li>
  *   <li>DynamicScanner: اكتشاف الفئات الحقيقية بعد R8.</li>
  * </ol>
@@ -34,7 +35,7 @@ public final class MainHook extends XposedModule {
         SafeHook.attach(this);
         ModuleInfo.logStartup(this);
         try {
-            log(Log.INFO, "AppHook", "v3.0.1 Flutter-safe (proxy-free) loaded in: " + param.getProcessName()
+            log(Log.INFO, "AppHook", "v3.1.0 Flutter-filtered (proxy-free) loaded in: " + param.getProcessName()
                     + " | framework=" + getFrameworkName() + " " + getFrameworkVersion());
         } catch (Throwable ignored) {}
     }
