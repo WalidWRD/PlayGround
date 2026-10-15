@@ -7,17 +7,13 @@ import io.github.libxposed.api.XposedModule;
 import io.github.libxposed.api.XposedModuleInterface;
 
 /**
- * نقطة الدخول الحديثة (libxposed 101/102) — v3.0 Flutter-Aware.
+ * نقطة الدخول الحديثة (libxposed 101/102) — v4.0 WebView-Aware (Nuxt.js).
  *
- * <p>الاستراتيجية (Flutter + Native + تحقق خادمي): Dart AOT في libapp.so
- * لا يُعمل له Hook مباشر — نعترض الجسر:</p>
- * <ol>
- *   <li>MethodChannel (الأهم): لفّ handler/result وتعديل الرد قبل Dart.</li>
- *   <li>SharedPreferences: إجبار أعلام الاشتراك (يخزن Flutter هنا).</li>
- *   <li>HTTP/JSON: اعتراض استجابة الخادم قبل وصولها لـ Flutter.</li>
- *   <li>Billing/Integrity: طبقات احتياطية.</li>
- *   <li>DynamicScanner: اكتشاف الفئات الحقيقية بعد R8.</li>
- * </ol>
+ * <p>الاكتشاف الحاسم: الاشتراك صفحة Nuxt.js ({@code BillingSwitchConfirmDialog})
+ * داخل {@code flutter_inappwebview} تتواصل عبر {@code FlutterBridge} —
+ * لا PBL ولا RevenueCat ولا prefs محلية. لذا الطبقة الأولى هي
+ * {@link WebViewHook} (التقاط الجسر + حقن JS + مراقبة API)، والبقية
+ * احتياطي/تشخيص.</p>
  *
  * <p>يستخدم {@code getClassLoader()} من {@code PackageReadyParam}
  * (= lpparam.classLoader) — لا أسماء ثابتة. الهوك الحقيقي بعد فك الـ stub
@@ -34,7 +30,7 @@ public final class MainHook extends XposedModule {
         SafeHook.attach(this);
         ModuleInfo.logStartup(this);
         try {
-            log(Log.INFO, "AppHook", "v3.0.1 Flutter-safe (proxy-free) loaded in: " + param.getProcessName()
+            log(Log.INFO, "AppHook", "v4.2 WebView body-patch loaded in: " + param.getProcessName()
                     + " | framework=" + getFrameworkName() + " " + getFrameworkVersion());
         } catch (Throwable ignored) {}
     }
@@ -78,7 +74,13 @@ public final class MainHook extends XposedModule {
     }
 
     static void installAll(XposedInterface fw, ClassLoader cl, String pkg) {
-        // 1. قناة Flutter (الأهم — اعتراض الجسر قبل Dart)
+        // 0. WebView أولاً (مسار الاشتراك الحقيقي — Nuxt/FlutterBridge)
+        try {
+            WebViewHook.install(fw, cl);
+        } catch (Throwable t) {
+            SafeHook.logError("WebViewHook", t);
+        }
+        // 1. قناة Flutter (احتياطي/تشخيص)
         try {
             FlutterChannelHook.install(fw, cl);
         } catch (Throwable t) {
@@ -102,13 +104,7 @@ public final class MainHook extends XposedModule {
         } catch (Throwable t) {
             SafeHook.logError("JsonHook", t);
         }
-        // 4.1 v3.1: مسار WebView (flutter_inappwebview) — مراقبة
-        try {
-            WebViewHook.install(fw, cl);
-        } catch (Throwable t) {
-            SafeHook.logError("WebViewHook", t);
-        }
-        // 4.2 v3.1: أحداث AppsFlyer (لحظة الشراء) — مراقبة
+        // 4.1 v3.1/v4.0: أحداث AppsFlyer (لحظة الشراء) — مراقبة
         try {
             AppsFlyerHook.install(fw, cl);
         } catch (Throwable t) {
@@ -143,7 +139,7 @@ public final class MainHook extends XposedModule {
         } catch (Throwable t) {
             SafeHook.logError("IntegrityHook", t);
         }
-        SafeHook.log("All v3.1 layers installed for: " + pkg);
+        SafeHook.log("All v4.2 layers installed for: " + pkg);
     }
 
     /**

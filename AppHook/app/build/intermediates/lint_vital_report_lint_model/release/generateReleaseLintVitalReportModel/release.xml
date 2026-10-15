@@ -26,6 +26,6 @@
       applicationId="com.apphook.log"
       generatedSourceFolders="build/generated/ap_generated_sources/release/out"
       generatedResourceFolders="build/generated/res/resValues/release"
-      desugaredMethodsFiles="/home/runner/.gradle/caches/9.8.0/transforms/f09dcacf4e3832485e403ed48bac617b/transformed/D8BackportedDesugaredMethods.txt">
+      desugaredMethodsFiles="/home/runner/.gradle/caches/9.8.1/transforms/0516f5c7fb966b3e08b5352687f9e552/transformed/D8BackportedDesugaredMethods.txt">
   </artifact>
 </variant>

@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "/home/runner/.gradle/daemon/9.8.0/com.apphook.log.app-release-4:/values_values.arsc.flat",
+            "outputFile": "/home/runner/.gradle/daemon/9.8.1/com.apphook.log.app-release-4:/values_values.arsc.flat",
             "map": [
                 {
                     "source": "/home/runner/work/PlayGround/PlayGround/AppHook/app/src/main/res/values/strings.xml",
@@ -9,15 +9,15 @@
                         "startLines": "-1,3",
                         "startColumns": "-1,4",
                         "startOffsets": "-1,135",
-                        "endColumns": "-1,173",
-                        "endOffsets": "-1,304"
+                        "endColumns": "-1,166",
+                        "endOffsets": "-1,297"
                     },
                     "to": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
                         "startOffsets": "55,100",
-                        "endColumns": "44,173",
-                        "endOffsets": "95,269"
+                        "endColumns": "44,166",
+                        "endOffsets": "95,262"
                     }
                 }
             ]
@@ -31,15 +31,15 @@
                         "startLines": "-1,3",
                         "startColumns": "-1,4",
                         "startOffsets": "-1,135",
-                        "endColumns": "-1,164",
-                        "endOffsets": "-1,295"
+                        "endColumns": "-1,168",
+                        "endOffsets": "-1,299"
                     },
                     "to": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
                         "startOffsets": "55,100",
-                        "endColumns": "44,164",
-                        "endOffsets": "95,260"
+                        "endColumns": "44,168",
+                        "endOffsets": "95,264"
                     }
                 }
             ]

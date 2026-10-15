@@ -1,6 +1,6 @@
 {
   "module": "AppHook",
-  "version": "3.1.0",
+  "version": "4.2.0",
   "scope": ["ai.mainfunc.genspark", "ai.mainfunc.genspark.test"],
   "note": "Fingerprint DB — read instead of re-analyzing. Runtime matches by signature, not fixed names.",
   "fingerprints": [
@@ -24,15 +24,21 @@
     {"feature": "orgjson", "class": "org.json.JSONObject", "method": "getBoolean", "return": "boolean", "args": 1, "action": "force true on premium keys", "stability": "stable"},
     {"feature": "dex-scan", "class": "<app-dex>", "method": "entries()", "return": "candidate classes", "args": 0, "action": "log premium|vip|subscription|billing|purchase|entitlement matches (cap 200)", "stability": "stable"},
     {"feature": "webview-jsbridge", "class": "android.webkit.WebView", "method": "addJavascriptInterface", "return": "void", "args": 2, "action": "watch bridge names", "stability": "stable"},
-    {"feature": "webview-intercept", "class": "android.webkit.WebViewClient", "method": "shouldInterceptRequest", "return": "WebResourceResponse", "args": 2, "action": "watch pay URLs only (both overloads)", "stability": "stable"},
+    {"feature": "webview-intercept", "class": "android.webkit.WebViewClient", "method": "shouldInterceptRequest", "return": "WebResourceResponse", "args": 2, "action": "watch genspark.ai/api/* (both overloads, no block in v4.0)", "stability": "stable"},
+    {"feature": "webview-bridge-methods", "class": "<FlutterBridge-impl>", "method": "postMessage", "return": "any", "args": "any", "action": "watch args (native patch in v4.1)", "stability": "stable", "fallback": "enumerate declared methods"},
+    {"feature": "webview-evaljs", "class": "android.webkit.WebView", "method": "evaluateJavascript", "return": "void", "args": 2, "action": "watch subscription scripts only", "stability": "stable"},
+    {"feature": "webview-fetch-patch", "class": "JS:window.fetch", "method": "SENSITIVE_GRAPH:/api/(user|payment/current_subscriptions|quota/plan_usage|payment/get_credit_balance|payment/sub2/tier_config|payment/sub2/pending_schedule)", "return": "Response", "args": 1, "action": "clone+text+patchJson(25+ rules)+new Response(patched)", "stability": "stable"},
+    {"feature": "webview-xhr-patch", "class": "JS:XMLHttpRequest.prototype", "method": "open/send", "return": "void", "args": 2, "action": "defineProperty responseText/response on sensitive URLs", "stability": "stable"},
+    {"feature": "webview-bridge-patch", "class": "JS:window.FlutterBridge", "method": "postMessage", "return": "void", "args": 1, "action": "patchJson before forward + 50ms poll", "stability": "stable"},
+    {"feature": "webview-pagefinished", "class": "android.webkit.WebViewClient", "method": "onPageFinished", "return": "void", "args": 2, "action": "inject PATCH_JS fallback (dedup per URL)", "stability": "stable", "risk": "CSP may block inline logic -> v4.2 native response patch"},
+    {"feature": "webview-console", "class": "android.webkit.WebChromeClient", "method": "onConsoleMessage", "return": "boolean", "args": 1, "action": "read [AppHook]/premium/subscription/plan messages", "stability": "stable"},
     {"feature": "appsflyer", "class": "com.appsflyer.AppsFlyerLib", "method": "logEvent", "return": "any", "args": "any", "action": "watch purchase/subscribe events", "stability": "R8-sensitive", "fallback": "hookAll by name"},
     {"feature": "urlconn-stream", "class": "java.net.HttpURLConnection", "method": "getInputStream", "return": "InputStream", "args": 0, "action": "watch URL (dart:io via JNI)", "stability": "stable"}
   ],
   "breakage_watch": [
-    {"priority": "P0", "point": "RealInterceptorChain.proceed (internal)", "fail_sign": "internal absent / signature differs", "alt": "optional only - does not block unlock"},
-    {"priority": "P0", "point": "MethodChannel.setMethodCallHandler", "fail_sign": "signature differs", "alt": "fallback to PrefsHook + JsonHook"},
-    {"priority": "P1", "point": "Gson.fromJson(String,Class)", "fail_sign": "signature differs", "alt": "hook org.json"},
-    {"priority": "P1", "point": "SharedPreferencesImpl.getBoolean", "fail_sign": "impl absent", "alt": "watch getAll()/interface + channel"},
-    {"priority": "P2", "point": "Purchase.getPurchaseState (PBL v9)", "fail_sign": "method-not-found", "alt": "rely on channel hook"},
+    {"priority": "P0", "point": "WebViewClient.onPageFinished signature", "fail_sign": "no 2-arg overload", "alt": "hookAll by name across hierarchy"},
+    {"priority": "P0", "point": "JS injection blocked by CSP", "fail_sign": "injected but no [AppHook] JS logs", "alt": "v4.1 native WebResourceResponse patch"},
+    {"priority": "P1", "point": "Nuxt $fetch/axios bypass of window.fetch", "fail_sign": "fetch logs absent but API works", "alt": "add $fetch/axios patch + XHR path"},
+    {"priority": "P1", "point": "FlutterBridge not ready at inject time", "fail_sign": "bridge undefined in JS", "alt": "inject on onPageStarted + onPageFinished"},
   ]
 }

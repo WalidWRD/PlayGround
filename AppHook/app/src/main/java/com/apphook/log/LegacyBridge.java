@@ -17,6 +17,7 @@ final class LegacyBridge {
 
     static void installAll(XC_LoadPackage.LoadPackageParam lp) {
         ClassLoader cl = lp.classLoader;
+        safe(() -> hookWebViewLegacy(cl));
         safe(() -> hookFlutterChannel(cl));
         safe(() -> hookPrefs(cl));
         safe(() -> hookJson(cl));
@@ -409,6 +410,8 @@ final class LegacyBridge {
 
     // --- v3.1: WebView (legacy) — مراقبة فقط ---
     private static void hookWebViewLegacy(ClassLoader cl) {
+        final java.util.Set<String> seenBridges =
+                java.util.Collections.synchronizedSet(new java.util.HashSet<String>());
         try {
             Class<?> wv = Class.forName("android.webkit.WebView");
             for (Method m : wv.getDeclaredMethods()) {
@@ -420,12 +423,71 @@ final class LegacyBridge {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam p) {
                             try {
-                                XposedBridge.log("[AppHook] [WebView] JS bridge: "
+                                XposedBridge.log("[AppHook] [WebView] JS bridge registered: "
                                         + p.args[nameIdx]);
+                                Object bridge = p.args[1 - nameIdx];
+                                if (bridge != null
+                                        && seenBridges.add(bridge.getClass().getName())) {
+                                    XposedBridge.log("[AppHook] [WebView] iface = "
+                                            + bridge.getClass().getName());
+                                    try {
+                                        XposedBridge.hookAllMethods(bridge.getClass(),
+                                                "postMessage", new XC_MethodHook() {
+                                                    @Override
+                                                    protected void beforeHookedMethod(
+                                                            MethodHookParam p2) {
+                                                        try {
+                                                            for (Object a : p2.args) {
+                                                                XposedBridge.log("[AppHook] [WebView] * postMessage arg = "
+                                                                        + cappedLegacy(String.valueOf(a)));
+                                                            }
+                                                        } catch (Throwable ignored) {}
+                                                    }
+                                                });
+                                    } catch (Throwable ignored) {}
+                                }
                             } catch (Throwable ignored) {}
                         }
                     });
                     XposedBridge.log("[AppHook] Hook OK: WebView.addJavascriptInterface");
+                } catch (Throwable ignored) {}
+            }
+            // evaluateJavascript / loadUrl — تسجيل سكربتات الاشتراك فقط
+            for (Method m : wv.getDeclaredMethods()) {
+                try {
+                    if (m.getName().equals("evaluateJavascript")
+                            && m.getParameterTypes().length == 2) {
+                        XposedBridge.hookMethod(m, new XC_MethodHook() {
+                            @Override
+                            protected void beforeHookedMethod(MethodHookParam p) {
+                                try {
+                                    if (p.args[0] instanceof String) {
+                                        String s = (String) p.args[0];
+                                        if (s.length() <= 2000 && WebViewHook.isSubJs(s)) {
+                                            XposedBridge.log("[AppHook] [WebView] evaluateJavascript: "
+                                                    + cappedLegacy(s));
+                                        }
+                                    }
+                                } catch (Throwable ignored) {}
+                            }
+                        });
+                    } else if (m.getName().equals("loadUrl")
+                            && m.getParameterTypes().length == 1) {
+                        XposedBridge.hookMethod(m, new XC_MethodHook() {
+                            @Override
+                            protected void beforeHookedMethod(MethodHookParam p) {
+                                try {
+                                    if (p.args[0] instanceof String) {
+                                        String s = (String) p.args[0];
+                                        if (s.startsWith("javascript:")) {
+                                            XposedBridge.log("[AppHook] [WebView] loadUrl(js): "
+                                                    + cappedLegacy(s));
+                                        }
+                                    }
+                                } catch (Throwable ignored) {}
+                            }
+                        });
+                    }
                 } catch (Throwable ignored) {}
             }
         } catch (Throwable ignored) {}
@@ -456,7 +518,82 @@ final class LegacyBridge {
                     XposedBridge.log("[AppHook] Hook OK: shouldInterceptRequest");
                 } catch (Throwable ignored) {}
             }
+            // onPageStarted (v4.1 — حقن قبل أي JS) + onPageFinished احتياطي
+            for (Method m : client.getDeclaredMethods()) {
+                if (!m.getName().equals("onPageStarted")
+                        || m.getParameterTypes().length != 3) continue;
+                try {
+                    XposedBridge.hookMethod(m, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam p) {
+                            try {
+                                if (p.args[1] instanceof String
+                                        && ((String) p.args[1]).contains("genspark.ai")) {
+                                    XposedBridge.log("[AppHook] [WebView] onPageStarted: "
+                                            + p.args[1]);
+                                    if (p.args[0] != null) {
+                                        WebViewHook.injectPatchScript(p.args[0]);
+                                    }
+                                }
+                            } catch (Throwable ignored) {}
+                        }
+                    });
+                    XposedBridge.log("[AppHook] Hook OK: onPageStarted");
+                } catch (Throwable ignored) {}
+            }
+            // onPageFinished → حقن JS على صفحات genspark
+            for (Method m : client.getDeclaredMethods()) {
+                if (!m.getName().equals("onPageFinished")
+                        || m.getParameterTypes().length != 2) continue;
+                try {
+                    XposedBridge.hookMethod(m, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam p) {
+                            try {
+                                if (p.args[1] instanceof String
+                                        && ((String) p.args[1]).contains("genspark.ai")) {
+                                    XposedBridge.log("[AppHook] [WebView] page finished: "
+                                            + p.args[1]);
+                                    if (p.args[0] != null) {
+                                        WebViewHook.injectPatchScript(p.args[0]);
+                                    }
+                                }
+                            } catch (Throwable ignored) {}
+                        }
+                    });
+                    XposedBridge.log("[AppHook] Hook OK: onPageFinished");
+                } catch (Throwable ignored) {}
+            }
         } catch (Throwable ignored) {}
+        // onConsoleMessage في WebChromeClient — قراءة رسائل [AppHook] من JS
+        try {
+            Class<?> chrome = Class.forName("android.webkit.WebChromeClient");
+            XposedBridge.hookAllMethods(chrome, "onConsoleMessage", new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam p) {
+                    try {
+                        if (p.args.length > 0 && p.args[0] != null) {
+                            String text;
+                            try {
+                                Object mm = XposedHelpers.callMethod(p.args[0], "message");
+                                text = mm != null ? String.valueOf(mm) : String.valueOf(p.args[0]);
+                            } catch (Throwable ignored) {
+                                text = String.valueOf(p.args[0]);
+                            }
+                            if (text.contains("[AppHook]") || text.contains("premium")
+                                    || text.contains("subscription") || text.contains("plan")) {
+                                XposedBridge.log("[AppHook] [WebView-JS] " + text);
+                            }
+                        }
+                    } catch (Throwable ignored) {}
+                }
+            });
+        } catch (Throwable ignored) {}
+    }
+
+    private static String cappedLegacy(String s) {
+        if (s == null) return "null";
+        return s.length() > 200 ? s.substring(0, 200) + "..." : s;
     }
 
     // --- v3.1: AppsFlyer (legacy) — مراقبة أحداث الشراء ---

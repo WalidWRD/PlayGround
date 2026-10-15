@@ -282,3 +282,119 @@ null **دون** `proceed()` — إيقاف آمن بلا كراش. تكييف AP
 3. المطلوب رصده: `★ Native: <اسم>` + `args = ...` + `result class = ...` +
    `prefs_bool:flutter.<key>` + `[WebView] REQ:` + `[AppsFlyer] event:`.
 4. هذه الأسماء = بصمة التحقق الحقيقية → v3.2 بأسماء دقيقة.
+
+---
+
+# ملحق v4.0 — WebView-Aware: الاشتراك داخل Nuxt.js (اكتشاف السجل الحاسم)
+
+## 20) الاكتشاف
+
+- `WebView REQ: .../_nuxt/BillingSwitchConfirmDialog...` + `JS bridge: FlutterBridge`
+  داخل `flutter_inappwebview` → الموقع Nuxt.js 3، وصفحة الاشتراك تُحمّل في
+  WebView وتتواصل عبر `FlutterBridge.postMessage(json)`، والتحقق عبر
+  `genspark.ai/api/*` الخادمي.
+- لا نشاط PBL/RevenueCat/prefs محلية — كل خطافات الفتح السابقة استهدفت
+  طبقة خاطئة. الفرصة الوحيدة: اعتراض WebView نفسه.
+
+## 21) تغييرات v4.0 (الطبقة الصحيحة أخيراً)
+
+1. **التقاط الجسر [D]**: `addJavascriptInterface` قراءة فقط → تعداد دوال
+   كائن `FlutterBridge` الحقيقي + ربط `postMessage` (تسجيل الوسائط، عدّاد
+   عند حمولة اشتراك) — بلا Proxy بلا استبدال وسائط.
+2. **حقن JS [E/C]**: `onPageFinished` على صفحات `genspark.ai` →
+   `evaluateJavascript` يرقّع `fetch` و`XMLHttpRequest` و
+   `FlutterBridge.postMessage` (free→pro، false→true، subscription null→active)
+   + تسجيل `evaluateJavascript`/`loadUrl(javascript:)` الخاصة بالاشتراك فقط.
+3. **مراقبة API [A]**: `shouldInterceptRequest` بكل الـ overloads ثنائية
+   الوسائط — تسجيل `genspark.ai/api/*` فقط (dedup)، بلا حظر في v4.0.
+4. **Console**: `WebChromeClient.onConsoleMessage` — قراءة رسائل
+   `[AppHook]/premium/subscription/plan` من JS (تأكيد الحقن + بنية الرد).
+5. **ترتيب جديد**: WebView أولاً ثم Flutter/Prefs/JSON/Billing احتياطي.
+6. تكييف API 102 مطبّق (لا XposedHelpers — `hookAll` الخاصة + `ReflectCall`)،
+   ومرايا Legacy كاملة (بما فيها الحقن عبر `injectPatchScript`).
+
+## 22) مخاطر v4.0 والاحتياطي v4.1
+
+- P0: توقيع `onPageFinished` مختلف → `hookAll` عبر الهرم يغطيه.
+- P0: حجب CSP للحقن (محقون لكن بلا رسائل JS) → v4.1: ترقيع
+  `WebResourceResponse` على مستوى Native وإرجاعه عبر السلسلة.
+- P1: تجاوز Nuxt عبر `$fetch`/axios → ترقيع إضافي لهما (v4.1).
+- P1: `FlutterBridge` غير جاهز لحظة الحقن → حقن مزدوج
+  `onPageStarted + onPageFinished` (v4.1).
+
+## 23) خطة الاختبار (بالترتيب)
+
+1. ثبّت v4.0 → افتح Genspark → شاشة Premium.
+2. راقب: `JS bridge registered: FlutterBridge` ← تأكيد، ثم
+   `page finished: ...genspark.ai...` + `JS patch injected` ثم
+   `[WebView-JS] [AppHook] injected` ← الحقن يعمل، ثم
+   `[WebView-JS] [AppHook] fetch:.../api/... => {...}` ← بنية الرد، ثم
+   `* FlutterBridge.postMessage` ← الالتقاط.
+3. النجاح = `PATCHED fetch:` / اختفاء شاشة Upgrade / عمل ميزة مدفوعة.
+4. أرسل السجل الكامل → v4.1 بقواعد patch دقيقة على البنية الفعلية.
+
+---
+
+# ملحق v4.1 — حقن مبكر + تشخيص كامل (إصلاح فشل حقن v4.0)
+
+## 24) التشخيص
+
+- نجح: `addJavascriptInterface` + `shouldInterceptRequest (x2)` +
+  `onPageFinished` + التقاط `JavaScriptBridgeInterface` + صفحة
+  `genspark.ai/pricing`.
+- فشل: لا `JS patch injected` (evaluate فشل بصمت) + لا `[AppHook-JS]`
+  + لا ربط bridge + لا API URLs (الـ API من Dart Native) + لا console
+  (تابع للحقن).
+- الجذر: الحقن في `onPageFinished` فقط = بعد تنفيذ Nuxt لاستدعاءاته، وقد
+  يحجبه CSP — بلا logging صريح يُخفي الفشل.
+
+## 25) تغييرات v4.1
+
+1. الحقن في `onPageStarted` (3 وسائط، قبل أي JS) + `onPageFinished` احتياطي
+   (dedup لكل URL).
+2. Logging صريح: `injecting JS (phase) len=` → `evaluateJavascript called` →
+   callback `JS injected (phase) -> value`.
+3. سكربت v4.1: fetch (طلب+رد 800 حرف + `PATCH needed`) + XHR عبر prototype
+   (status+body) + `FlutterBridge.postMessage` مع polling 50ms + `patchJson`
+   (تشخيصي — يطبع الحاجة دون استبدال الرد).
+4. `shouldInterceptRequest`: كل `genspark.ai` (لا API فقط) + dedup.
+5. Console: كل الرسائل مع `messageLevel` (بدون فلترة).
+6. `evaluateJavascript`: تسجيل كل الاستدعاءات (تشخيصي).
+7. تعداد دوال الجسر الكاملة لاكتشاف نقطة الهوك الحقيقية.
+8. تكييف API 102 + مرايا Legacy (بما فيها `onPageStarted`).
+
+## 26) القرار بعد سجل v4.1
+
+- (أ) fetch/XHR تظهر → نحلل JSON ونبني patch دقيق (v4.2).
+- (ب) حقن مؤكد بلا fetch → CSP/مسار Dart → حقن عبر `shouldInterceptRequest`
+  (تعديل الاستجابة Native).
+- (ج) لا حقن أصلاً → `WebViewCompat.addDocumentStartJavaScript` (AndroidX).
+
+---
+
+# ملحق v4.2 — تعديل الأجسام فعلياً (إصلاح regex المسارات النسبية)
+
+## 27) التشخيص
+
+- نجح: `onPageStarted` + `v4.1 injected` + `FlutterBridge.postMessage hooked` +
+  عشرات `fetch -> /api/...` + صفر كراش.
+- خريطة API الحقيقية (بالترتيب): `/api/user` → `price_config` → `is_login` →
+  `get_credit_balance` → **`current_subscriptions` (الهدف)** → `tier_config` →
+  `plan_usage` → `pending_schedule`.
+- الجذر: شرط v4.1 (`/genspark\.ai/i`) لا يطابق URLs نسبية (`/api/user`) →
+  لم يُنفَّذ `c.text()` أبداً.
+
+## 28) تغييرات v4.2
+
+1. `SENSITIVE` على المسار فقط (6 مسارات) — يطابق النسبي والمطلق.
+2. fetch: `clone+text` → طباعة `ORIG[...] (1500)` → `patchJson (25+ قاعدة)` →
+   `new Response(patched)` عند الاختلاف + `★PATCHED`.
+3. XHR: `defineProperty(responseText/response)` + `★XHR PATCHED`.
+4. Bridge: `patchJson` قبل التمرير + `★bridge PATCHED` + polling 50ms.
+5. `ORIG[...]` يكشف بنية JSON الفعلية → v4.3 patch دقيق.
+6. تكييف API 102 + مرايا Legacy (الحقن v4.2 يعمل عبر `injectPatchScript`).
+
+## 29) الاختبار
+
+ثبّت → Pricing → 15 ثانية → تنقل → ميزة مدفوعة → السجل. النجاح =
+`ORIG[...]` + `★PATCHED[...]` + اختفاء Upgrade.
