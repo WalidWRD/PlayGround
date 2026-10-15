@@ -20,7 +20,11 @@ final class LegacyBridge {
         safe(() -> hookFlutterChannel(cl));
         safe(() -> hookPrefs(cl));
         safe(() -> hookJson(cl));
+        safe(() -> hookJson43(cl));
         safe(() -> hookWebViewLegacy(cl));
+        safe(() -> hookWebView43(cl));
+        safe(() -> hookBridgeLog43(cl, lp));
+        safe(() -> hookRealChrome47(cl));
         safe(() -> hookAppsFlyerLegacy(cl));
         safe(() -> hookUrlConnLegacy(cl));
         safe(() -> hookBilling(cl));
@@ -28,6 +32,7 @@ final class LegacyBridge {
         safe(() -> hookPremium(cl, lp.packageName));
         safe(() -> hookNetwork(cl));
         safe(() -> hookIntegrity(cl));
+        safe(() -> hookShapes43(cl, lp));
     }
 
     private interface Job { void run() throws Throwable; }
@@ -511,5 +516,340 @@ final class LegacyBridge {
                 XposedBridge.log("[AppHook] Hook OK: HttpURLConnection.getInputStream");
             } catch (Throwable ignored) {}
         }
+    }
+
+    // --- v4.7: اعتراض setWebChromeClient + إثبات getTitle (legacy) ---
+    private static final java.util.Set<String> legacyChrome =
+            java.util.Collections.synchronizedSet(new java.util.HashSet<String>());
+
+    private static void hookRealChrome47(ClassLoader cl) {
+        Class<?> wv;
+        try {
+            wv = Class.forName("android.webkit.WebView");
+        } catch (Throwable ignored) {
+            return;
+        }
+        for (Method m : wv.getDeclaredMethods()) {
+            if (!m.getName().equals("setWebChromeClient")
+                    || m.getParameterTypes().length != 1) continue;
+            try {
+                XposedBridge.hookMethod(m, new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam p) {
+                        try {
+                            if (p.args.length > 0 && p.args[0] != null) {
+                                Class<?> actual = p.args[0].getClass();
+                                XposedBridge.log("[AppHook] Real ChromeClient: "
+                                        + actual.getName());
+                                hookActualChromeLegacy(actual);
+                            }
+                        } catch (Throwable ignored) {}
+                    }
+                });
+                XposedBridge.log("[AppHook] Hook OK: WebView.setWebChromeClient");
+            } catch (Throwable ignored) {}
+        }
+        for (Method m : wv.getDeclaredMethods()) {
+            if (!m.getName().equals("getTitle")
+                    || m.getParameterTypes().length != 0) continue;
+            try {
+                XposedBridge.hookMethod(m, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam p) {
+                        try {
+                            Object r = p.getResult();
+                            if (r instanceof String
+                                    && ((String) r).startsWith("AH51_")) {
+                                XposedBridge.log("[AppHook] [WebView] ** JS PROOF — " + r);
+                            }
+                        } catch (Throwable ignored) {}
+                    }
+                });
+                XposedBridge.log("[AppHook] Hook OK: WebView.getTitle(proof)");
+                break;
+            } catch (Throwable ignored) {}
+        }
+    }
+
+    private static void hookActualChromeLegacy(Class<?> actual) {
+        if (actual == null || !legacyChrome.add(actual.getName())) return;
+        try {
+            XposedBridge.hookAllMethods(actual, "onConsoleMessage", new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam p) {
+                    try {
+                        String text = null;
+                        String level = null;
+                        if (p.args.length == 1 && p.args[0] != null) {
+                            try {
+                                Object msg = XposedHelpers.callMethod(p.args[0], "message");
+                                if (msg != null) text = String.valueOf(msg);
+                            } catch (Throwable ignored) {
+                                text = String.valueOf(p.args[0]);
+                            }
+                            try {
+                                Object lv = XposedHelpers.callMethod(p.args[0], "messageLevel");
+                                if (lv != null) level = String.valueOf(lv);
+                            } catch (Throwable ignored) {}
+                        } else if (p.args.length >= 1 && p.args[0] instanceof String) {
+                            text = (String) p.args[0];
+                        }
+                        if (text != null && (text.contains("[AppHook]")
+                                || text.contains("PATCHED[") || text.contains("ORIG["))) {
+                            XposedBridge.log("[AppHook] [WebView-JS]"
+                                    + (level != null ? "[" + level + "]" : "")
+                                    + ": " + text);
+                        }
+                    } catch (Throwable ignored) {}
+                }
+            });
+            XposedBridge.log("[AppHook] hooked " + actual.getSimpleName());
+        } catch (Throwable ignored) {}
+    }
+
+    // --- v4.4: قناة bridge-log عبر postMessage (legacy) ---
+    private static void hookBridgeLog43(ClassLoader cl,
+                                        XC_LoadPackage.LoadPackageParam lp) {
+        String[] known = {
+                "com.pichillilorenzo.flutter_inappwebview_android.webview.JavaScriptBridgeInterface",
+                "com.pichillilorenzo.flutter_inappwebview_android.in_app_webview.InAppWebViewJavaScriptBridgeInterface",
+                "com.pichillilorenzo.flutter_inappwebview_android.JavaScriptBridgeInterface"
+        };
+        for (String name : known) {
+            try {
+                Class<?> c = XposedHelpers.findClass(name, cl);
+                hookBridgePostMessage(c);
+            } catch (Throwable ignored) {}
+        }
+    }
+
+    private static void hookBridgePostMessage(Class<?> c) {
+        try {
+            XposedBridge.hookAllMethods(c, "postMessage", new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam p) {
+                    try {
+                        for (Object a : p.args) {
+                            if (!(a instanceof String)) continue;
+                            String body = WebViewHook.extractLogBody((String) a);
+                            if (body != null) {
+                                XposedBridge.log("[AppHook] [WebView-JS] " + body);
+                                break;
+                            }
+                        }
+                    } catch (Throwable ignored) {}
+                }
+            });
+            XposedBridge.log("[AppHook] Hook OK: bridge.postMessage -> " + c.getName());
+        } catch (Throwable ignored) {}
+    }
+
+    // --- v4.3: حقن JS عند onPageFinished + إعادة نشر console (legacy) ---
+    private static final java.util.Set<String> legacyInjected =
+            java.util.Collections.synchronizedSet(new java.util.HashSet<String>());
+
+    private static void hookWebView43(ClassLoader cl) {
+        Class<?> client;
+        try {
+            client = Class.forName("android.webkit.WebViewClient");
+        } catch (Throwable ignored) {
+            return;
+        }
+        for (Method m : client.getDeclaredMethods()) {
+            if (!m.getName().equals("onPageFinished")
+                    || m.getParameterTypes().length != 2) continue;
+            try {
+                XposedBridge.hookMethod(m, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam p) {
+                        try {
+                            Object wv = p.args[0];
+                            if (wv == null) return;
+                            final android.webkit.WebView view =
+                                    (android.webkit.WebView) wv;
+                            final String key = view.getClass().getName()
+                                    + "@" + System.identityHashCode(view);
+                            final boolean first = legacyInjected.add(key);
+                            // v4.9: شرائح loadUrl (الأساسي) — evaluate لا يعمل على InAppWebView
+                            try {
+                                WebViewHook.injectChunks(view, "legacy");
+                            } catch (Throwable ignored) {}
+                            try {
+                                Object url = p.args[1];
+                                if (url instanceof String
+                                        && ((String) url).contains("genspark.ai")) {
+                                    try {
+                                        view.loadUrl(WebViewHook.TEST_JS);
+                                        XposedBridge.log(
+                                                "[AppHook] [WebView] TEST_JS sent (legacy)");
+                                    } catch (Throwable ignored) {}
+                                }
+                            } catch (Throwable ignored) {}
+                            try {
+                                view.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            view.evaluateJavascript(
+                                                    WebViewHook.patchJs(), null);
+                                            if (first) {
+                                                XposedBridge.log(
+                                                        "[AppHook] [WebView] JS patch injected");
+                                            }
+                                        } catch (Throwable ignored) {}
+                                    }
+                                });
+                            } catch (Throwable ignored) {}
+                            if (legacyInjected.size() > 200) legacyInjected.clear();
+                        } catch (Throwable ignored) {}
+                    }
+                });
+                XposedBridge.log("[AppHook] Hook OK: WebViewClient.onPageFinished(+JS)");
+            } catch (Throwable ignored) {}
+        }
+        try {
+            Class<?> chrome = Class.forName("android.webkit.WebChromeClient");
+            XposedBridge.hookAllMethods(chrome, "onConsoleMessage", new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam p) {
+                    try {
+                        String text = null;
+                        String level = null;
+                        if (p.args.length == 1 && p.args[0] != null) {
+                            try {
+                                Object msg = XposedHelpers.callMethod(p.args[0], "message");
+                                if (msg != null) text = String.valueOf(msg);
+                            } catch (Throwable ignored) {
+                                text = String.valueOf(p.args[0]);
+                            }
+                            try {
+                                Object lv = XposedHelpers.callMethod(p.args[0], "messageLevel");
+                                if (lv != null) level = String.valueOf(lv);
+                            } catch (Throwable ignored) {}
+                        } else if (p.args.length >= 1 && p.args[0] instanceof String) {
+                            text = (String) p.args[0];
+                        }
+                        if (text != null && (text.contains("[AppHook]")
+                                || text.contains("PATCHED[") || text.contains("ORIG["))) {
+                            XposedBridge.log("[AppHook] [WebView-JS]"
+                                    + (level != null ? "[" + level + "]" : "")
+                                    + ": " + text);
+                        }
+                    } catch (Throwable ignored) {}
+                }
+            });
+            XposedBridge.log("[AppHook] Hook OK: WebChromeClient.onConsoleMessage");
+        } catch (Throwable ignored) {}
+    }
+
+    // --- v4.3: ترقيع Gson input + JSONObject getInt/getString (legacy) ---
+    private static void hookJson43(ClassLoader cl) {
+        try {
+            Class<?> g = XposedHelpers.findClass("com.google.gson.Gson", cl);
+            for (Method m : g.getDeclaredMethods()) {
+                if (!m.getName().equals("fromJson")
+                        || m.getParameterTypes().length != 2) continue;
+                if (m.getParameterTypes()[0] != String.class) continue;
+                try {
+                    XposedBridge.hookMethod(m, new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam p) {
+                            try {
+                                if (p.args[0] instanceof String) {
+                                    String patched = SubscriptionPatch.patchJson(
+                                            (String) p.args[0]);
+                                    if (patched != p.args[0]) {
+                                        p.args[0] = patched;
+                                        XposedBridge.log(
+                                                "[AppHook] [Json] *PATCHED[gson-input]");
+                                    }
+                                }
+                            } catch (Throwable ignored) {}
+                        }
+                    });
+                    XposedBridge.log("[AppHook] Hook OK: Gson.fromJson(input-patch)");
+                } catch (Throwable ignored) {}
+            }
+        } catch (Throwable ignored) {}
+        try {
+            Class<?> j = Class.forName("org.json.JSONObject");
+            for (Method m : j.getDeclaredMethods()) {
+                try {
+                    if (m.getName().equals("getInt") && m.getParameterTypes().length == 1) {
+                        XposedBridge.hookMethod(m, after(p -> {
+                            Object k = p.args[0];
+                            Integer f = SubscriptionPatch.patchInt(
+                                    k instanceof String ? (String) k : null,
+                                    p.getResult());
+                            if (f != null) return f;
+                            return After.KEEP;
+                        }));
+                    } else if (m.getName().equals("getString")
+                            && m.getParameterTypes().length == 1) {
+                        XposedBridge.hookMethod(m, after(p -> {
+                            Object k = p.args[0];
+                            String f = SubscriptionPatch.patchString(
+                                    k instanceof String ? (String) k : null,
+                                    p.getResult());
+                            if (f != null) return f;
+                            return After.KEEP;
+                        }));
+                    }
+                } catch (Throwable ignored) {}
+            }
+            XposedBridge.log("[AppHook] Hook OK: JSONObject.getInt/getString(patch)");
+        } catch (Throwable ignored) {}
+    }
+
+    // --- v4.3: ربط بالبصمة (legacy) — هجين الشكل+الاسم داخل فئات مرشحة ---
+    private static void hookShapes43(ClassLoader cl,
+                                     XC_LoadPackage.LoadPackageParam lp) {
+        java.util.List<String> cands;
+        try {
+            android.content.pm.ApplicationInfo ai = lp.appInfo;
+            cands = DynamicScanner.scanTargets(ai);
+        } catch (Throwable ignored) {
+            return;
+        }
+        if (cands == null || cands.isEmpty()) return;
+        int n = 0;
+        for (String name : cands) {
+            if (n >= 200 || name == null) break;
+            Class<?> c;
+            try {
+                c = XposedHelpers.findClass(name, cl);
+            } catch (Throwable ignored) {
+                continue;
+            }
+            Method[] ms;
+            try {
+                ms = c.getDeclaredMethods();
+            } catch (Throwable ignored) {
+                continue;
+            }
+            for (Method m : ms) {
+                if (n >= 200) break;
+                try {
+                    if (m.isSynthetic()) continue;
+                    String mn = m.getName();
+                    if (mn == null || !ShapeHook.nameHit(mn.toLowerCase())) continue;
+                    Class<?> rt = m.getReturnType();
+                    Class<?>[] ps = m.getParameterTypes();
+                    boolean b = (rt == boolean.class || rt == Boolean.class)
+                            && (ps.length == 0 || (ps.length == 1 && ps[0] == String.class));
+                    boolean ii = (rt == int.class || rt == Integer.class)
+                            && (ps.length == 0 || (ps.length == 1 && ps[0] == String.class));
+                    if (!b && !ii) continue;
+                    final boolean isB = b;
+                    XposedBridge.hookMethod(m, after(p -> {
+                        if (isB && Boolean.FALSE.equals(p.getResult())) return true;
+                        if (!isB && Integer.valueOf(0).equals(p.getResult())) return 1;
+                        return After.KEEP;
+                    }));
+                    n++;
+                } catch (Throwable ignored) {}
+            }
+        }
+        XposedBridge.log("[AppHook] ShapeHook(legacy): hooked=" + n);
     }
 }

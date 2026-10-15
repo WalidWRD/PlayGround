@@ -5,6 +5,10 @@
     public <init>();
 }
 -adaptresourcefilecontents META-INF/xposed/java_init.list
+# فئات WebView (قناة console.log — لا تُمس)
+-keep class android.webkit.WebChromeClient { *; }
+-keep class android.webkit.WebViewClient { *; }
+-keep class android.webkit.WebView { *; }
 # فئات مستقرة عبر R8 (Billing/RevenueCat/OkHttp/Integrity/Flutter/JSON)
 -keep class com.android.billingclient.api.** { *; }
 -keep class com.revenuecat.purchases.** { *; }

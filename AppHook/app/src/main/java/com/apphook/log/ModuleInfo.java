@@ -13,8 +13,8 @@ public final class ModuleInfo {
 
     public static final String NAME = "AppHook";
     public static final String PACKAGE = "com.apphook.log";
-    public static final String VERSION_NAME = "3.1.0";
-    public static final int VERSION_CODE = 310;
+    public static final String VERSION_NAME = "5.1.0";
+    public static final int VERSION_CODE = 510;
 
     public static final int MIN_SDK = 26;      // Android 8.0
     public static final int TARGET_SDK = 35;   // Android 15
@@ -24,19 +24,17 @@ public final class ModuleInfo {
     /** الوصف المدمج (): مختصر جداً — مدير الموديولات + سجل التشغيل */
     public static String describe() {
         return NAME + " v" + VERSION_NAME
-                + " | Flutter-filtered: channel+webview+prefs+json"
-                + " | proxy-free | انعكاس+بصمة"
-                + " | آمن ضد الكراش"
-                + " | LSPatch/NPatch/HKP بلا روت";
+                + " | WebView v5.1: NUXT-patch+DOM-fix+error-hide+headers-fix+storage"
+                + " | full subscription | crash-proof";
     }
 
     public static void logStartup(XposedInterface fw) {
         try {
             fw.log(Log.INFO, "AppHook", describe());
             fw.log(Log.INFO, "AppHook",
-                    "[Features] flutter-channel, prefs-override, okhttp-watch, "
-                    + "gson-patch, billing-fallback, integrity-watch, "
-                    + "dex-scanner, packed-app-ready, protective-mode");
+                    "[Features] webview-js-patch, gson-input-patch, json-int-str, "
+                    + "flutter-channel, prefs-override, shape-hooks, "
+                      + "dex-scanner, protective-mode");
         } catch (Throwable ignored) {}
     }
 }

@@ -7,21 +7,20 @@ import io.github.libxposed.api.XposedModule;
 import io.github.libxposed.api.XposedModuleInterface;
 
 /**
- * نقطة الدخول الحديثة (libxposed 101/102) — v3.0 Flutter-Aware.
+ * نقطة الدخول الحديثة (libxposed 101/102) — v4.4 bridge-log full-patch.
  *
- * <p>الاستراتيجية (Flutter + Native + تحقق خادمي): Dart AOT في libapp.so
- * لا يُعمل له Hook مباشر — نعترض الجسر:</p>
+ * <p>الاستراتيجية (Flutter + Native + تحقق خادمي + WebView): Dart AOT في
+ * libapp.so لا يُعمل له Hook مباشر — نعترض الجسور:</p>
  * <ol>
- *   <li>MethodChannel (الأهم): لفّ handler/result وتعديل الرد قبل Dart.</li>
+ *   <li>WebView (الأساس في v4): حقن patchJson (30+ قاعدة) في fetch/XHR/
+ *       bridge عند onPageFinished + إعادة نشر console إلى السجل.</li>
+ *   <li>MethodChannel: لفّ handler/result وتعديل الرد قبل Dart.</li>
  *   <li>SharedPreferences: إجبار أعلام الاشتراك (يخزن Flutter هنا).</li>
- *   <li>HTTP/JSON: اعتراض استجابة الخادم قبل وصولها لـ Flutter.</li>
+ *   <li>HTTP/JSON native: ترقيع Gson/org.json بنفس القواعد.</li>
+ *   <li>ShapeHook: ربط بالبصمة (شكل الدالة) لا بالاسم الصريح.</li>
  *   <li>Billing/Integrity: طبقات احتياطية.</li>
  *   <li>DynamicScanner: اكتشاف الفئات الحقيقية بعد R8.</li>
  * </ol>
- *
- * <p>يستخدم {@code getClassLoader()} من {@code PackageReadyParam}
- * (= lpparam.classLoader) — لا أسماء ثابتة. الهوك الحقيقي بعد فك الـ stub
- * (يدعم المضغوط/المحمي). بلا روت: LSPosed/LSPatch/NPatch/HKP.</p>
  */
 public final class MainHook extends XposedModule {
 
@@ -34,7 +33,7 @@ public final class MainHook extends XposedModule {
         SafeHook.attach(this);
         ModuleInfo.logStartup(this);
         try {
-            log(Log.INFO, "AppHook", "v3.0.1 Flutter-safe (proxy-free) loaded in: " + param.getProcessName()
+            log(Log.INFO, "AppHook", "v5.1 NUXT+DOM final loaded in: " + param.getProcessName()
                     + " | framework=" + getFrameworkName() + " " + getFrameworkVersion());
         } catch (Throwable ignored) {}
     }
@@ -68,16 +67,21 @@ public final class MainHook extends XposedModule {
             return;
         }
         SafeHook.log("package ready: " + pkg + " | cl=" + cl);
-        installAll(this, cl, pkg);
-        // مسح الاكتشاف الديناميكي (DexFile عبر ApplicationInfo — بلا Context)
-        try {
-            DynamicScanner.scan(param.getApplicationInfo());
-        } catch (Throwable t) {
-            SafeHook.logError("DynamicScanner", t);
-        }
+        installAll(this, cl, pkg, param.getApplicationInfo());
     }
 
     static void installAll(XposedInterface fw, ClassLoader cl, String pkg) {
+        installAll(fw, cl, pkg, null);
+    }
+
+    static void installAll(XposedInterface fw, ClassLoader cl, String pkg,
+                           android.content.pm.ApplicationInfo ai) {
+        // 0. v4.4: مسار WebView أولاً (حقن patchJson + قناة bridge-log)
+        try {
+            WebViewHook.install(fw, cl, ai);
+        } catch (Throwable t) {
+            SafeHook.logError("WebViewHook", t);
+        }
         // 1. قناة Flutter (الأهم — اعتراض الجسر قبل Dart)
         try {
             FlutterChannelHook.install(fw, cl);
@@ -102,12 +106,7 @@ public final class MainHook extends XposedModule {
         } catch (Throwable t) {
             SafeHook.logError("JsonHook", t);
         }
-        // 4.1 v3.1: مسار WebView (flutter_inappwebview) — مراقبة
-        try {
-            WebViewHook.install(fw, cl);
-        } catch (Throwable t) {
-            SafeHook.logError("WebViewHook", t);
-        }
+        // 4.1 v4.3: مسار WebView — مثبت أولاً (انظر 0 أعلاه)
         // 4.2 v3.1: أحداث AppsFlyer (لحظة الشراء) — مراقبة
         try {
             AppsFlyerHook.install(fw, cl);
@@ -143,7 +142,20 @@ public final class MainHook extends XposedModule {
         } catch (Throwable t) {
             SafeHook.logError("IntegrityHook", t);
         }
-        SafeHook.log("All v3.1 layers installed for: " + pkg);
+        // 8. v4.3: مسح + ربط بالبصمة (DexFile عبر ApplicationInfo — بلا Context)
+        try {
+            java.util.List<String> cands = DynamicScanner.scanTargets(ai);
+            ShapeHook.install(fw, cl, cands);
+        } catch (Throwable t) {
+            SafeHook.logError("ShapeHook", t);
+        }
+        // فحص داخلي لسلامة سكربت WebView
+        try {
+            SafeHook.log("WebView selfTest=" + WebViewHook.selfTest());
+        } catch (Throwable t) {
+            SafeHook.logError("WebView.selfTest", t);
+        }
+        SafeHook.log("All v5.1 layers installed for: " + pkg);
     }
 
     /**

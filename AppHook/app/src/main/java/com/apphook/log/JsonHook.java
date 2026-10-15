@@ -7,9 +7,11 @@ import java.lang.reflect.Method;
 
 /**
  * اعتراض طبقة JSON (قبل وصول استجابة الخادم لـ Flutter/Dart).
- *  - Gson.fromJson(String, Class): ترقيع حقول الاشتراك في الكائن الناتج.
+ *  - Gson.fromJson(String, Class): ترقيع نص JSON المدخل أولاً (v4.3:
+ *    نفس 30+ قاعدة SubscriptionPatch) ثم ترقيع حقول الكائن الناتج.
  *  - Moshi: رصد وجود (توقيع متغير).
- *  - org.json.JSONObject.getBoolean: إجبار true للمفاتيح المشتبهة.
+ *  - org.json: getBoolean→true / getInt (balance→999999) /
+ *    getString ("free"→"plus" لحقول العضوية).
  */
 public final class JsonHook {
     private JsonHook() {}
@@ -20,6 +22,8 @@ public final class JsonHook {
         hookGson(fw, cl);
         watchMoshi(cl);
         hookOrgJson(fw, cl);
+        hookOrgJsonInt(fw, cl);
+        hookOrgJsonString(fw, cl);
     }
 
     private static void hookGson(XposedInterface fw, ClassLoader cl) {
@@ -41,6 +45,19 @@ public final class JsonHook {
                             .setExceptionMode(XposedInterface.ExceptionMode.PROTECTIVE)
                             .intercept(chain -> {
                                 try {
+                                    // v4.3: رقّع نص JSON المدخل قبل التحليل
+                                    Object in0 = chain.getArg(0);
+                                    if (in0 instanceof String) {
+                                        String patched =
+                                                SubscriptionPatch.patchJson((String) in0);
+                                        if (patched != in0) {
+                                            SafeHook.log("[Json] *PATCHED[gson:"
+                                                    + typeOf(chain.getArg(1)) + "]");
+                                            SafeHook.countFeature("gson-input");
+                                            return chain.proceed(
+                                                    new Object[]{patched, chain.getArg(1)});
+                                        }
+                                    }
                                     Object obj = chain.proceed();
                                     if (obj != null) {
                                         String cn = obj.getClass().getSimpleName().toLowerCase();
@@ -119,7 +136,98 @@ public final class JsonHook {
         }
     }
 
-    /** ترقيع حقول الكائن بالانعكاس: boolean→true / int 0→1 للحقول المشتبهة. */
+    /** v4.3: getInt — balance/credits الصغيرة → 999999 */
+    private static void hookOrgJsonInt(XposedInterface fw, ClassLoader cl) {
+        Class<?> j = orgJson(cl);
+        if (j == null) {
+            SafeHook.logSafe(TAG + ".org.json-int", "absent");
+            return;
+        }
+        Method m = FingerprintEngine.findMethodByFingerprint(j, "getInt", int.class, 1);
+        if (m == null) {
+            SafeHook.logSafe(TAG + ".JSONObject.getInt", "method-not-found");
+            return;
+        }
+        final Method target = m;
+        try {
+            fw.hook(target)
+                    .setExceptionMode(XposedInterface.ExceptionMode.PROTECTIVE)
+                    .intercept(chain -> {
+                        try {
+                            Object orig = chain.proceed();
+                            String key = (String) chain.getArg(0);
+                            Integer forced = SubscriptionPatch.patchInt(key, orig);
+                            if (forced != null) {
+                                SafeHook.log(TAG + ": getInt(" + key + ") "
+                                        + orig + "->" + forced);
+                                SafeHook.countFeature("json-int:" + key);
+                                return forced;
+                            }
+                            return orig;
+                        } catch (Throwable t) {
+                            SafeHook.logError(TAG + ".getInt", t);
+                            return chain.proceed();
+                        }
+                    });
+            SafeHook.log("Hook OK: JSONObject.getInt -> " + m);
+        } catch (Throwable t) {
+            SafeHook.logError(TAG + ".getInt", t);
+        }
+    }
+
+    /** v4.3: getString — "free"→"plus" لحقول العضوية/الخطة */
+    private static void hookOrgJsonString(XposedInterface fw, ClassLoader cl) {
+        Class<?> j = orgJson(cl);
+        if (j == null) {
+            SafeHook.logSafe(TAG + ".org.json-str", "absent");
+            return;
+        }
+        Method m = FingerprintEngine.findMethodByFingerprint(j, "getString",
+                String.class, 1);
+        if (m == null) {
+            SafeHook.logSafe(TAG + ".JSONObject.getString", "method-not-found");
+            return;
+        }
+        final Method target = m;
+        try {
+            fw.hook(target)
+                    .setExceptionMode(XposedInterface.ExceptionMode.PROTECTIVE)
+                    .intercept(chain -> {
+                        try {
+                            Object orig = chain.proceed();
+                            String key = (String) chain.getArg(0);
+                            String forced = SubscriptionPatch.patchString(key, orig);
+                            if (forced != null) {
+                                SafeHook.log(TAG + ": getString(" + key + ") "
+                                        + orig + "->" + forced);
+                                SafeHook.countFeature("json-str:" + key);
+                                return forced;
+                            }
+                            return orig;
+                        } catch (Throwable t) {
+                            SafeHook.logError(TAG + ".getString", t);
+                            return chain.proceed();
+                        }
+                    });
+            SafeHook.log("Hook OK: JSONObject.getString -> " + m);
+        } catch (Throwable t) {
+            SafeHook.logError(TAG + ".getString", t);
+        }
+    }
+
+    private static Class<?> orgJson(ClassLoader cl) {
+        Class<?> j = FingerprintEngine.findClassQuiet(cl, "org.json.JSONObject");
+        if (j == null) {
+            try {
+                j = Class.forName("org.json.JSONObject");
+            } catch (Throwable ignored) {}
+        }
+        return j;
+    }
+
+    private static String typeOf(Object o) {
+        return o == null ? "null" : o.toString();
+    }
     static void patchObject(Object obj) {
         try {
             for (Field f : obj.getClass().getDeclaredFields()) {

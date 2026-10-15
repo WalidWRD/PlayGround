@@ -24,9 +24,15 @@ public final class DynamicScanner {
     };
 
     public static void scan(ApplicationInfo ai) {
+        scanTargets(ai);
+    }
+
+    /** نفس المسح لكن يُرجع قائمة المرشحين (لـ ShapeHook) — مع التسجيل المعتاد */
+    public static java.util.List<String> scanTargets(ApplicationInfo ai) {
+        java.util.List<String> all = new java.util.ArrayList<>();
         if (ai == null) {
             SafeHook.logSafe(TAG, "ApplicationInfo null");
-            return;
+            return all;
         }
         List<String> paths = new ArrayList<>();
         if (ai.sourceDir != null) paths.add(ai.sourceDir);
@@ -39,12 +45,14 @@ public final class DynamicScanner {
         } catch (Throwable ignored) {}
         int total = 0;
         for (String path : paths) {
-            total += scanOne(path);
+            total += scanOne(path, all);
         }
-        SafeHook.log(TAG + ": scan complete over " + paths.size() + " dex path(s)");
+        SafeHook.log(TAG + ": scan complete over " + paths.size()
+                + " dex path(s), total=" + total);
+        return all;
     }
 
-    private static int scanOne(String path) {
+    private static int scanOne(String path, java.util.List<String> all) {
         DexFile dex = null;
         try {
             dex = new DexFile(path);
@@ -71,6 +79,7 @@ public final class DynamicScanner {
             for (String c : targets) {
                 SafeHook.log(TAG + "  -> " + c);
             }
+            all.addAll(targets);
             return targets.size();
         } catch (Throwable t) {
             SafeHook.logError(TAG + ".scan(" + path + ")", t);
