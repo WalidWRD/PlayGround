@@ -1,0 +1,11 @@
+<dependencies>
+  <compile
+      roots="io.github.libxposed:api:102.0.0@aar,de.robv.android.xposed:api:82@jar">
+    <dependency
+        name="io.github.libxposed:api:102.0.0@aar"
+        simpleName="io.github.libxposed:api"/>
+    <dependency
+        name="de.robv.android.xposed:api:82@jar"
+        simpleName="de.robv.android.xposed:api"/>
+  </compile>
+</dependencies>

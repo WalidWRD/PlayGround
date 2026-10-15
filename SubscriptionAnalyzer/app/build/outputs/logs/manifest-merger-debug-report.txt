@@ -1,0 +1,71 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:2:1-27:12
+INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:2:1-27:12
+INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:2:1-27:12
+INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:2:1-27:12
+	package
+		INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:2:11-69
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:3:5-81
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:3:22-78
+application
+ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:5:5-26:19
+INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:5:5-26:19
+	android:extractNativeLibs
+		INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml
+	android:supportsRtl
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:8:9-35
+	android:label
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:6:9-45
+	android:allowBackup
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:7:9-36
+meta-data#xposedmodule
+ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:9:9-11:36
+	android:value
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:11:13-33
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:10:13-40
+meta-data#xposeddescription
+ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:12:9-14:144
+	android:value
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:14:13-141
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:13:13-45
+meta-data#xposedminversion
+ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:15:9-17:34
+	android:value
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:17:13-31
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:16:13-44
+activity#com.apphook.log.InfoActivity
+ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:18:9-25:20
+	android:exported
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:20:13-36
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:19:13-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:21:13-24:29
+action#android.intent.action.MAIN
+ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:22:17-69
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:22:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:23:17-77
+	android:name
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:23:27-74
+uses-sdk
+INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml
+INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml

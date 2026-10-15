@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- الوصف المدمج (): يظهر في مدير الموديولات وسجل التشغيل — مختصر جداً -->
-    <string name="xposed_description">WebView v5.1: NUXT-patch+DOM-fix+error-hide+headers-fix+storage | full subscription</string>
+    <string name="xposed_description">WebView+Flutter+Prefs-JSON | full subscription patch | balance+membership | crash-proof</string>
     <string name="app_name">AppHook</string>
 </resources>

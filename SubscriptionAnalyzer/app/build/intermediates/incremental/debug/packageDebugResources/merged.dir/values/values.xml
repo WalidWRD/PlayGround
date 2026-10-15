@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SubscriptionAnalyzer</string>
+    <string name="xposed_description">SubscriptionAnalyzer v6.0 — ANALYZE/PATCH subscription framework | billing+webview+flutter+network | crash-proof</string>
+</resources>

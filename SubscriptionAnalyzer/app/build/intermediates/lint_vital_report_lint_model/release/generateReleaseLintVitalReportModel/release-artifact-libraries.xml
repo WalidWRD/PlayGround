@@ -1,0 +1,21 @@
+<libraries>
+  <library
+      name="io.github.libxposed:api:102.0.0@aar"
+      jars="/home/runner/.gradle/caches/9.8.0/transforms/236fa61e15cc997acd1e3579fd954bbb/transformed/api-102.0.0/jars/classes.jar"
+      resolved="io.github.libxposed:api:102.0.0"
+      provided="true"
+      folder="/home/runner/.gradle/caches/9.8.0/transforms/236fa61e15cc997acd1e3579fd954bbb/transformed/api-102.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="de.robv.android.xposed:api:82@jar"
+      jars="/home/runner/.gradle/caches/modules-2/files-2.1/de.robv.android.xposed/api/82/35866b507b360d4789ff389ad7386b6e8bbf6cc4/api-82.jar"
+      resolved="de.robv.android.xposed:api:82"
+      provided="true"/>
+</libraries>

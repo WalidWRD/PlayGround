@@ -13,8 +13,8 @@ public final class ModuleInfo {
 
     public static final String NAME = "AppHook";
     public static final String PACKAGE = "com.apphook.log";
-    public static final String VERSION_NAME = "5.1.0";
-    public static final int VERSION_CODE = 510;
+    public static final String VERSION_NAME = "5.4.0";
+    public static final int VERSION_CODE = 540;
 
     public static final int MIN_SDK = 26;      // Android 8.0
     public static final int TARGET_SDK = 35;   // Android 15
@@ -24,8 +24,8 @@ public final class ModuleInfo {
     /** الوصف المدمج (): مختصر جداً — مدير الموديولات + سجل التشغيل */
     public static String describe() {
         return NAME + " v" + VERSION_NAME
-                + " | WebView v5.1: NUXT-patch+DOM-fix+error-hide+headers-fix+storage"
-                + " | full subscription | crash-proof";
+                + " | WebView+Flutter+Prefs-JSON"
+                + " | full subscription patch | balance+membership | crash-proof";
     }
 
     public static void logStartup(XposedInterface fw) {

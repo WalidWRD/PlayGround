@@ -1,6 +1,6 @@
 {
   "module": "AppHook",
-  "version": "5.1.0",
+  "version": "5.4.0",
   "scope": ["ai.mainfunc.genspark", "ai.mainfunc.genspark.test"],
   "note": "Fingerprint DB — read instead of re-analyzing. Runtime matches by signature, not fixed names.",
   "fingerprints": [
@@ -19,7 +19,8 @@
     {"feature": "flutter-invoke", "class": "io.flutter.plugin.common.MethodChannel", "method": "invokeMethod", "return": "void", "args": 3, "action": "watch + count premium queries", "stability": "stable", "fallback": "match by name+3args"},
     {"feature": "flutter-handler", "class": "io.flutter.plugin.common.MethodChannel", "method": "setMethodCallHandler", "return": "void", "args": 1, "action": "proxy handler+result (success->true/1/map-patch)", "stability": "stable", "fallback": "prefs+json layers"},
     {"feature": "prefs-bool", "class": "android.app.SharedPreferencesImpl", "method": "getBoolean", "return": "boolean", "args": 2, "action": "force true on premium keys", "stability": "stable", "fallback": "interface watch"},
-    {"feature": "prefs-int", "class": "android.app.SharedPreferencesImpl", "method": "getInt", "return": "int", "args": 2, "action": "force 1 on premium keys (0->1)", "stability": "stable"},
+    {"feature": "prefs-json", "class": "android.app.SharedPreferencesImpl", "method": "getString", "return": "String", "args": 2, "action": "patch stored JSON via 65-rule SubscriptionPatch when content bears plan/balance/credit/premium/vip/subscri/membership/entitle", "stability": "stable", "note": "v5.4 decisive gap fix — flutter plugin stores everything as one JSON string"},
+    {"feature": "prefs-int", "class": "android.app.SharedPreferencesImpl", "method": "getInt", "return": "int", "args": 2, "action": "any value <1000000 on premium/balance/credit/plan/membership keys -> 9999999 (was 0->1)", "stability": "stable"},
     {"feature": "gson", "class": "com.google.gson.Gson", "method": "fromJson", "return": "T", "args": 2, "action": "patch subscription fields", "stability": "stable", "fallback": "org.json"},
     {"feature": "orgjson", "class": "org.json.JSONObject", "method": "getBoolean", "return": "boolean", "args": 1, "action": "force true on premium keys", "stability": "stable"},
     {"feature": "dex-scan", "class": "<app-dex>", "method": "entries()", "return": "candidate classes", "args": 0, "action": "log premium|vip|subscription|billing|purchase|entitlement matches (cap 200)", "stability": "stable"},
@@ -28,7 +29,8 @@
     {"feature": "webview-realclient", "class": "android.webkit.WebView", "method": "setWebChromeClient", "return": "void", "args": 1, "action": "trap actual subclass, hook onConsoleMessage on it (dedup REAL:), log Real ChromeClient name", "stability": "stable", "note": "v4.7 decisive fix — base-class hook misses subclass without super"},
     {"feature": "webview-jsproof", "class": "android.webkit.WebView", "method": "getTitle", "return": "String", "args": 0, "action": "JS sets document.title=AH48_<ts>; log ** JS PROOF when seen (console-independent)", "stability": "stable"},
     {"feature": "webview-visualtest", "class": "android.webkit.WebView", "method": "loadUrl(javascript:...)", "return": "void", "args": 1, "action": "TEST_JS: green + AH49_ title + TEST_JS_EXECUTED; sent on started + delayed 2s (genspark.ai)", "stability": "stable", "note": "proven diagnostic: green=JS runs"},
-    {"feature": "webview-domwatch", "class": "<page DOM>", "method": "setInterval(fixDom,1500)", "return": "void", "args": 0, "action": "rewrite leaf '0'/'0.00' near Credit/credit/رصيد to 9999999; hide 'لقد استنفدت رصيدك' nodes", "stability": "page-dependent", "note": "v5.0 visual layer for stale __NUXT__ state"},
+    {"feature": "flutter-result-patch", "class": "io.flutter.plugin.common.MethodChannel$Result impls", "method": "success", "return": "void", "args": 1, "action": "patch String-JSON (balance/plan/subType/membershipType/is_active) and Map (numbers->9999999, free->plus, never_purchased->active), per (class:method) dedup", "stability": "stable", "note": "v5.2 native-screen layer"},
+    {"feature": "webview-domwatch", "class": "<page DOM>", "method": "MutationObserver+setInterval(fixDom,800)", "return": "void", "args": 0, "action": "rewrite small/decimal numbers near Credit (5-level context) to 9999999; hide exhausted/insufficient/Upgrade-to-Plus (self+parent)", "stability": "page-dependent", "note": "v5.2 real MutationObserver"},
     {"feature": "webview-nuxt", "class": "window.__NUXT__ + #__NUXT_DATA__", "method": "patchObj/deep-replace", "return": "void", "args": 0, "action": "recursive object patch (depth 8): plan-ish free->plus, numeric credit/balance/remaining/available/quota <1M -> 9999999; NUXT_DATA text replace; interval 2000ms", "stability": "page-dependent", "note": "v5.1 hydration-state layer"},
     {"feature": "webview-headersfix", "class": "fetch wrapper", "method": "Response rebuild", "return": "Response", "args": 1, "action": "strip content-length/content-encoding headers on patched responses (anti-truncation)", "stability": "stable"},
     {"feature": "webview-storagewrite", "class": "localStorage+sessionStorage", "method": "fixStorage/interval", "return": "void", "args": 0, "action": "write 9999999/plus for credit|balance|quota|plan|member|sub keys with small-int/free values, log storage+", "stability": "stable"},
@@ -53,6 +55,6 @@
     {"priority": "P0", "point": "MethodChannel.setMethodCallHandler", "fail_sign": "signature differs", "alt": "fallback to PrefsHook + JsonHook"},
     {"priority": "P1", "point": "onConsoleMessage not firing", "fail_sign": "JS patched but no *PATCHED lines", "alt": "check [AH] markers; hook discovered *ChromeClient subclasses"},
     {"priority": "P1", "point": "SharedPreferencesImpl.getBoolean", "fail_sign": "impl absent", "alt": "watch getAll()/interface + channel"},
-    {"priority": "P2", "point": "Purchase.getPurchaseState (PBL v9)", "fail_sign": "method-not-found", "alt": "rely on channel hook"},
+    {"priority": "P2", "point": "Purchase.getPurchaseState (PBL v9)", "fail_sign": "method-not-found", "alt": "rely on channel hook"}
   ]
 }

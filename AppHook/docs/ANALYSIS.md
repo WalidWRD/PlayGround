@@ -649,3 +649,50 @@ PATCHED في السجل + Credits=5 في UI = UI يقرأ hydration state
 
 - `XposedHelpers` من libxposed غير موجودة — البديل المعتاد.
 - القواعد بقيت 61 (لم تُخفَّض) — التحقق الآلي يغطيها.
+
+---
+
+# ملحق v5.2 — الهجين: MethodChannel + MutationObserver (تشخيص v5.1)
+
+## 54) المفارقة المحلولة
+
+WebView (pricing/credit-usage): كل PATCHED + 9999999 ✅ مقابل Flutter
+Native (main/settings/super-agent): Upgrade/Credits-0/استنفدت ❌.
+التطبيق هجين — Native يقرأ عبر MethodChannel/SharedPreferences لا عبر fetch.
+
+## 55) الطبقتان الجديدتان
+
+1. **Result patch لكل (فئة:دالة)**: String-JSON بنفس قواعد الرصيد/الخطة
+   + Map (أرقام→9999999، free→plus، never_purchased→active) بنفس النوع.
+   سطور `★ patched: <method>` هي الدليل.
+2. **MutationObserver حقيقي**: `MO active` + بحث 5 مستويات + أرقام عشرية
+   + إخفاء `Upgrade to Plus` (مع الأب) + interval 800ms.
+
+## 56) التكييفات
+
+- `XposedHelpers` من libxposed غير موجودة في API 102 — البديل المعتاد
+  (`fw.hook`/`hookAll`/`ReflectCall`) + `onPackageReady`.
+
+---
+
+# ملحق v5.3 — المسار الصحيح كان Legacy (تشخيص v5.2)
+
+## 57) تصحيح التشخيص: ليست نسخة قديمة بل مسار آخر
+
+سطرا `(read-only)` و`handler hooked: S7.g` اللذان ظنا أنهما من
+`FlutterChannelHook.java` القديم — هما في الحقيقة من `LegacyBridge`
+(شيم de.robv عبر `assets/xposed_init`). أي أن الباتشر عند المستخدم
+يوجّه عبر المسار الـ legacy، ومرآة Flutter فيه كانت أضعف: ربط
+`success()` لكل فئة (بلا سياق دالة) وبلا ترقيع String-JSON للردود.
+
+## 58) ما تغير في v5.3
+
+1. **Legacy mirror بنفس مستوى الحديث**: ربط `success()` لكل
+   (فئة#دالة) + ترقيع String-JSON وMap عبر نفس دوال القناة
+   (patchChannelString/patchChannelMap) + نفس علامات السجل
+   (`installing v5.3` / `capture handler:` / `←` / `★ patched:`)
+   في المسارين — التشخيص موحد.
+2. **الحديث**: بوابة (فئة#دالة) فعلية (كانت تُحجب خطأً ببوابة الفئة)،
+   +قواعد `credit`/`membership_status`/`isPremium`/`premium`،
+   +تعمق خرائط متداخلة ومفاتيح remaining/available.
+3. بناء نظيف كامل (`clean`) + تحقق من سلاسل الـ dex قبل التسليم.

@@ -109,6 +109,7 @@ public final class WebViewHook {
         {"\"membershipType\":\\s*\"free\"", "\"membershipType\":\"plus\""},
         {"\"membershipStatus\":\\s*\"never_purchased\"", "\"membershipStatus\":\"active\""},
         {"\"membershipStatus\":\\s*\"canceled\"", "\"membershipStatus\":\"active\""},
+        {"\"membership_status\":\\s*\"free\"", "\"membership_status\":\"plus\""},
         {"\"membership_type\":\\s*\"free\"", "\"membership_type\":\"plus\""},
         {"\"personal_membership_type\":\\s*\"free\"", "\"personal_membership_type\":\"plus\""},
         {"\"personal_paid_membership_type\":\\s*\"free\"", "\"personal_paid_membership_type\":\"plus\""},
@@ -126,6 +127,8 @@ public final class WebViewHook {
         {"\"current_period_end\":\\s*null", "\"current_period_end\":\"2027-10-15T00:00:00Z\""},
         {"\"effective_current_period_since\":\\s*null", "\"effective_current_period_since\":\"2026-10-15T00:00:00Z\""},
         {"\"plan\":\\s*\"free\"", "\"plan\":\"plus\""},
+        {"\"sub_type\":\\s*\"free\"", "\"sub_type\":\"plus\""},
+        {"\"user_plan\":\\s*\"free\"", "\"user_plan\":\"plus\""},
         {"\"personal_plan\":\\s*\"free\"", "\"personal_plan\":\"plus\""},
         {"\"org_plan\":\\s*\"\"", "\"org_plan\":\"plus\""},
         {"\"org_active_membership_type\":\\s*\"free\"", "\"org_active_membership_type\":\"plus\""},
@@ -135,6 +138,7 @@ public final class WebViewHook {
         {"\"credit_balance\":\\s*[0-9]+", "\"credit_balance\":9999999"},
         {"\"creditBalance\":\\s*[0-9]+", "\"creditBalance\":9999999"},
         {"\"credits\":\\s*[0-9]+(?=[,}])", "\"credits\":9999999"},
+        {"\"credit\":\\s*[0-9]+", "\"credit\":9999999"},
         {"\"credit_quota\":\\s*[0-9]+", "\"credit_quota\":9999999"},
         {"\"creditQuota\":\\s*[0-9]+", "\"creditQuota\":9999999"},
         {"\"remaining\":\\s*[0-9]+", "\"remaining\":9999999"},
@@ -244,27 +248,34 @@ public final class WebViewHook {
     }
 
     /**
-     * v5.1 — DOM fixer المحسّن: أي رقم صغير (حتى 5 خانات) قريب من
-     * Credit (الأب أو الجد) + إخفاء رسائل النفاد (مع الأب).
+     * v5.2 — DOM fixer: MutationObserver حقيقي + بحث 5 مستويات لأعلى +
+     * أرقام عشرية + إخفاء "Upgrade to Plus". يغطي شاشات WebView التي
+     * تُرسم قبل الحقن أو من state قديم.
      */
     static String domJs() {
         return "function fixDom(){try{"
-                + "var els=document.querySelectorAll('span,div,p,b,strong,h1,h2,h3,h4');"
+                + "var els=document.querySelectorAll('*');"
                 + "for(var i=0;i<els.length;i++){var el=els[i];"
                 + "if(el.children.length>0)continue;"
                 + "var t=(el.textContent||'').trim();if(!t)continue;"
-                + "if(/^[0-9]{1,5}$/.test(t)&&parseInt(t)<1000000){"
-                + "var par=el.parentElement?el.parentElement.textContent||'':'';"
-                + "var gp=el.parentElement&&el.parentElement.parentElement"
-                + "?el.parentElement.parentElement.textContent||'':'';"
-                + "if(/credit|balance|Credits|رصيد/i.test(par+' '+gp)){"
-                + "el.textContent='9999999';LG('DOM fix: '+t);}}"
-                + "if(/غير\\s*كافية|استنفدت|insufficient|exhausted|رصيدك بالكامل/i.test(t)){"
+                + "if(/^[0-9]{1,6}([.,][0-9]+)?$/.test(t)){"
+                + "var n=parseFloat(t.replace(/,/g,''));"
+                + "if(n<1000000){"
+                + "var ctx='';var p=el;var d=0;"
+                + "while(p&&d<5){ctx+=' '+(p.textContent||'');p=p.parentElement;d++;}"
+                + "if(/credit|balance|Credits|رصيد|كريدت/i.test(ctx)){"
+                + "el.textContent='9999999';LG('DOM fix: '+t);}}}"
+                + "if(/غير\\s*كافية|استنفدت|insufficient|exhausted|رصيدك بالكامل|Upgrade to Plus/i.test(t)){"
                 + "if(el.style)el.style.display='none';"
                 + "var pp=el.parentElement;if(pp&&pp.style)pp.style.display='none';"
-                + "LG('DOM hide error');}"
+                + "LG('DOM hide: '+t.substring(0,30));}"
                 + "}}catch(e){}}"
-                + "try{setInterval(fixDom,1200);LG('dom watcher on');}catch(e){}"
+                + "try{"
+                + "var mo=new MutationObserver(function(){setTimeout(fixDom,100);});"
+                + "mo.observe(document.body,{childList:true,subtree:true,characterData:true});"
+                + "LG('MO active');"
+                + "}catch(e){}"
+                + "try{setInterval(fixDom,800);LG('dom watcher on');}catch(e){}"
                 + "try{fixDom();}catch(e){}";
     }
 

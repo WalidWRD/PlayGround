@@ -232,13 +232,16 @@ final class LegacyBridge {
         }
     }
 
-    // --- v3.0.1: Flutter MethodChannel (legacy) — بلا Proxy، بلا استبدال وسائط ---
+    // --- v5.3: Flutter MethodChannel (legacy) — بلا Proxy، بلا استبدال وسائط ---
+    // يعكس نفس منطق المسار الحديث: ربط Result لكل (فئة#دالة) + ترقيع
+    // String-JSON وMap + نفس علامات السجل (capture/←/★) لتوحيد التشخيص.
     private static final java.util.Set<String> legacyHandlers =
             java.util.Collections.synchronizedSet(new java.util.HashSet<String>());
     private static final java.util.Set<String> legacyResults =
             java.util.Collections.synchronizedSet(new java.util.HashSet<String>());
 
     private static void hookFlutterChannel(ClassLoader cl) {
+        XposedBridge.log("[AppHook.Flutter] installing v5.3 MethodChannel patch (legacy)");
         Class<?> mc;
         try {
             mc = XposedHelpers.findClass("io.flutter.plugin.common.MethodChannel", cl);
@@ -255,11 +258,14 @@ final class LegacyBridge {
                         protected void beforeHookedMethod(MethodHookParam p) {
                             try {
                                 Object n = p.args[0];
+                                String method = n instanceof String ? (String) n : "?";
                                 if (n instanceof String
                                         && FlutterChannelHook.isPremiumQuery((String) n)) {
                                     XposedBridge.log("[AppHook] [Flutter] query: " + n);
                                 }
-                                if (p.args[2] != null) hookLegacyResult(p.args[2].getClass());
+                                if (p.args[2] != null) {
+                                    hookLegacyResult(p.args[2].getClass(), method);
+                                }
                             } catch (Throwable ignored) {}
                         }
                     });
@@ -277,7 +283,8 @@ final class LegacyBridge {
                     } catch (Throwable ignored) {}
                 }
             });
-            XposedBridge.log("[AppHook] Hook OK: Flutter.setMethodCallHandler (read-only)");
+            XposedBridge.log("[AppHook] Hook OK: Flutter.setMethodCallHandler (read-only, v5.3)");
+            XposedBridge.log("[AppHook.Flutter] v5.3 installed successfully (legacy)");
         } catch (Throwable ignored) {}
     }
 
@@ -285,6 +292,7 @@ final class LegacyBridge {
     private static void hookLegacyHandler(Class<?> h) {
         if (h == null || ProxyMarker.isProxy(h)) return;
         if (!legacyHandlers.add(h.getName())) return;
+        XposedBridge.log("[AppHook.Flutter] capture handler: " + h.getName());
         try {
             XposedBridge.hookAllMethods(h, "onMethodCall", new XC_MethodHook() {
                 @Override
@@ -298,18 +306,20 @@ final class LegacyBridge {
                             return;
                         }
                         if (!(mName instanceof String)) return;
-                        XposedBridge.log("[AppHook] [Flutter] handler: " + mName);
-                        if (FlutterChannelHook.isPremiumQuery((String) mName)) {
-                            if (p.args[1] != null) {
-                                try {
-                                    XposedHelpers.callMethod(p.args[1], "success", Boolean.TRUE);
-                                } catch (Throwable ignored) {}
-                            }
-                            p.setResult(null); // تخطي آمن للأصلي
-                            XposedBridge.log("[AppHook] [Flutter] intercepted: " + mName);
-                        } else if (p.args[1] != null) {
-                            hookLegacyResult(p.args[1].getClass());
+                        String method = (String) mName;
+                        if (FlutterChannelHook.isNoise(method)) return;
+                        XposedBridge.log("[AppHook.Flutter] <- " + method);
+                        if (p.args[1] != null) {
+                            hookLegacyResult(p.args[1].getClass(), method);
                         }
+                        if (!FlutterChannelHook.isPremiumQuery(method)) return;
+                        if (p.args[1] != null) {
+                            try {
+                                XposedHelpers.callMethod(p.args[1], "success", Boolean.TRUE);
+                            } catch (Throwable ignored) {}
+                        }
+                        p.setResult(null); // تخطي آمن للأصلي
+                        XposedBridge.log("[AppHook] [Flutter] intercepted: " + method);
                     } catch (Throwable ignored) {}
                 }
             });
@@ -317,10 +327,10 @@ final class LegacyBridge {
         } catch (Throwable ignored) {}
     }
 
-    /** ربط success(value) — نفس النوع دائماً (legacy API). */
-    private static void hookLegacyResult(Class<?> r) {
-        if (r == null || ProxyMarker.isProxy(r)) return;
-        if (!legacyResults.add(r.getName())) return;
+    /** ربط success(value) لكل (فئة#دالة) — نفس النوع دائماً (legacy API). */
+    private static void hookLegacyResult(Class<?> r, String method) {
+        if (r == null || ProxyMarker.isProxy(r) || method == null) return;
+        if (!legacyResults.add(r.getName() + "#" + method)) return;
         try {
             XposedBridge.hookAllMethods(r, "success", new XC_MethodHook() {
                 @Override
@@ -331,13 +341,18 @@ final class LegacyBridge {
                         Object mod = FlutterChannelHook.modifyResult(v);
                         if (mod != v) {
                             p.args[0] = mod; // نفس النوع — آمن
-                            XposedBridge.log("[AppHook] [Flutter] Result.success patched");
+                            XposedBridge.log("[AppHook.Flutter] * patched: " + method);
                         }
                     } catch (Throwable ignored) {}
                 }
             });
-            XposedBridge.log("[AppHook] Result hooked: " + r.getName());
+            XposedBridge.log("[AppHook] Result hooked: " + r.getName() + " for " + method);
         } catch (Throwable ignored) {}
+    }
+
+    /** توافق: ربط بلا سياق دالة (يُستخدم من مسار invokeMethod). */
+    private static void hookLegacyResult(Class<?> r) {
+        hookLegacyResult(r, "?");
     }
 
     // --- v3: SharedPreferences (legacy) ---
@@ -367,10 +382,32 @@ final class LegacyBridge {
                     XposedBridge.hookMethod(m, after(p -> {
                         Object k = p.args[0];
                         if (k instanceof String && PrefsHook.isPremiumKey((String) k)
-                                && Integer.valueOf(0).equals(p.getResult())) return 1;
+                                && p.getResult() instanceof Integer
+                                && ((Integer) p.getResult()) < 1000000) {
+                            XposedBridge.log("[AppHook] [Prefs] getInt(" + k + ")->9999999");
+                            return 9999999;
+                        }
                         return After.KEEP;
                     }));
                     XposedBridge.log("[AppHook] Hook OK: Prefs.getInt");
+                } else if (m.getName().equals("getString") && m.getParameterTypes().length == 2) {
+                    // v5.4: ترقيع JSON المخزن (legacy mirror)
+                    XposedBridge.hookMethod(m, after(p -> {
+                        try {
+                            Object r = p.getResult();
+                            if (!(r instanceof String)) return After.KEEP;
+                            String s = (String) r;
+                            if (!PrefsHook.containsPremium(s)) return After.KEEP;
+                            String patched = SubscriptionPatch.patchJson(s);
+                            if (patched != s) {
+                                XposedBridge.log("[AppHook] [Prefs] getString("
+                                        + p.args[0] + ") JSON patched");
+                                return patched;
+                            }
+                        } catch (Throwable ignored) {}
+                        return After.KEEP;
+                    }));
+                    XposedBridge.log("[AppHook] Hook OK: Prefs.getString(JSON)");
                 }
             } catch (Throwable ignored) {}
         }

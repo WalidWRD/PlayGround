@@ -85,6 +85,7 @@ public final class SubscriptionPatch {
         p = r(p, "\"membershipType\"\\s*:\\s*\"free\"", "\"membershipType\":\"plus\"");
         p = r(p, "\"membershipStatus\"\\s*:\\s*\"never_purchased\"", "\"membershipStatus\":\"active\"");
         p = r(p, "\"membershipStatus\"\\s*:\\s*\"canceled\"", "\"membershipStatus\":\"active\"");
+        p = r(p, "\"membership_status\"\\s*:\\s*\"free\"", "\"membership_status\":\"plus\"");
 
         // 2) membershipResult وكل حقول membership_type
         p = r(p, "\"membership_type\"\\s*:\\s*\"free\"", "\"membership_type\":\"plus\"");
@@ -113,6 +114,7 @@ public final class SubscriptionPatch {
         p = r(p, "\"credit_balance\"\\s*:\\s*[0-9]+", "\"credit_balance\":9999999");
         p = r(p, "\"creditBalance\"\\s*:\\s*[0-9]+", "\"creditBalance\":9999999");
         p = r(p, "\"credits\"\\s*:\\s*[0-9]+(?=[,}])", "\"credits\":9999999");
+        p = r(p, "\"credit\"\\s*:\\s*[0-9]+", "\"credit\":9999999");
         p = r(p, "\"credit_quota\"\\s*:\\s*[0-9]+", "\"credit_quota\":9999999");
         p = r(p, "\"creditQuota\"\\s*:\\s*[0-9]+", "\"creditQuota\":9999999");
         p = r(p, "\"remaining\"\\s*:\\s*[0-9]+", "\"remaining\":9999999");
@@ -128,6 +130,8 @@ public final class SubscriptionPatch {
 
         // 6) الخطة العامة
         p = r(p, "\"plan\"\\s*:\\s*\"free\"", "\"plan\":\"plus\"");
+        p = r(p, "\"sub_type\"\\s*:\\s*\"free\"", "\"sub_type\":\"plus\"");
+        p = r(p, "\"user_plan\"\\s*:\\s*\"free\"", "\"user_plan\":\"plus\"");
         p = r(p, "\"personal_plan\"\\s*:\\s*\"free\"", "\"personal_plan\":\"plus\"");
         p = r(p, "\"org_plan\"\\s*:\\s*\"\"", "\"org_plan\":\"plus\"");
         p = r(p, "\"org_active_membership_type\"\\s*:\\s*\"free\"", "\"org_active_membership_type\":\"plus\"");

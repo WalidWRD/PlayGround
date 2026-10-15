@@ -14,7 +14,7 @@ public final class InfoActivity extends Activity {
         super.onCreate(b);
         TextView tv = new TextView(this);
         tv.setText(
-                "AppHook v5.1.0 (code 510) — NUXT+DOM Final\n"
+                "AppHook v5.4.0 (code 540) — Prefs-JSON Gap Fix\n"
                 + "الحزمة: com.apphook.log\n"
                 + "النطاق: ai.mainfunc.genspark (+ .test)\n"
                 + "أندرويد: 8.0 (API 26) حتى 15 (API 35)\n"

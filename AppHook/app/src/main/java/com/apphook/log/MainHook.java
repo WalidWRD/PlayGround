@@ -33,7 +33,7 @@ public final class MainHook extends XposedModule {
         SafeHook.attach(this);
         ModuleInfo.logStartup(this);
         try {
-            log(Log.INFO, "AppHook", "v5.1 NUXT+DOM final loaded in: " + param.getProcessName()
+            log(Log.INFO, "AppHook", "v5.4 prefs-JSON gap fix loaded in: " + param.getProcessName()
                     + " | framework=" + getFrameworkName() + " " + getFrameworkVersion());
         } catch (Throwable ignored) {}
     }
@@ -155,7 +155,7 @@ public final class MainHook extends XposedModule {
         } catch (Throwable t) {
             SafeHook.logError("WebView.selfTest", t);
         }
-        SafeHook.log("All v5.1 layers installed for: " + pkg);
+        SafeHook.log("All v5.4 layers installed for: " + pkg);
     }
 
     /**

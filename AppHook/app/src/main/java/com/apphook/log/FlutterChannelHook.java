@@ -10,28 +10,23 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * v3.0.1 — اعتراض قناة Flutter ↔ Native **بدون Proxy** (إصلاح كراش v3.0).
+ * v5.2 — قناة Flutter ↔ Native **بدون Proxy** + ترقيع ردود Native→Dart.
  *
- * <p>سبب كراش v3.0: استبدال وسيط {@code setMethodCallHandler} بكائن
- * {@code $Proxy} رفضه {@code Method.invoke} لأن النوع الدقيق
- * ({@code MethodChannel$MethodCallHandler}) لا يطابق الفئة الديناميكية —
- * {@code IllegalArgumentException} فوري.</p>
- *
- * <p>القاعدة الجديدة: **لا نستبدل أي وسيط أبداً**. بدلاً من ذلك:</p>
+ * <p>الخلفية: v5.1 أثبتت أن شاشات WebView (pricing/credit-usage) تُرقّع
+ * بنجاح بينما شاشات Flutter Native (main/settings/super-agent) تقرأ عبر
+ * MethodChannel. هذه الطبقة تعترض الردود قبل وصولها لـ Dart:</p>
  * <ol>
- *   <li>{@code invokeMethod}: مراقبة فقط + ربط {@code success} على فئة
- *       الـ Result الحقيقية.</li>
- *   <li>{@code setMethodCallHandler}: قراءة فقط — نربط {@code onMethodCall}
- *       على فئة الـ handler الحقيقية (تشمل الموروث والـ lambdas).</li>
- *   <li>اعتراض استعلام اشتراك: نستدعي {@code result.success(TRUE)} الأصلي
- *       ثم **نتخطى** الأصلي بإرجاع null دون {@code proceed()}.</li>
- *   <li>ترقيع {@code success(value)}: نفس النوع دائماً عبر
- *       {@code proceed(newArgs)} — لا {@code ClassCastException}.</li>
- *   <li>مجموعتا dedup تمنعان الـ double-hook (ضجيج الـ 60+ سطر).</li>
+ *   <li>{@code setMethodCallHandler}: قراءة فقط — ربط {@code onMethodCall}
+ *       على فئة الـ handler الحقيقية (dedup لكل فئة).</li>
+ *   <li>{@code onMethodCall}: تسجيل كل استدعاء غير ضجيج + ربط
+ *       {@code success} على فئة الـ Result لكل (فئة:دالة).</li>
+ *   <li>{@code success(value)}: ترقيع String-JSON (نفس قواعد الرصيد/
+ *       الخطة) وMap (أرقام→9999999، free→plus، never_purchased→active)
+ *       بنفس النوع دائماً.</li>
  * </ol>
  *
- * <p>ملاحظة API 102: لا يوجد XposedHelpers — نستخدم Class.forName(cl)
- * + fw.hook(Method) PROTECTIVE + ReflectCall + hookAll الخاصة بنا.</p>
+ * <p>ملاحظة API 102: لا يوجد XposedHelpers — Class.forName(cl) +
+ * fw.hook(Method) PROTECTIVE + ReflectCall + hookAll الخاصة بنا.</p>
  */
 public final class FlutterChannelHook {
     private FlutterChannelHook() {}
@@ -43,6 +38,13 @@ public final class FlutterChannelHook {
             Collections.synchronizedSet(new HashSet<String>());
     static final Set<String> hookedResults =
             Collections.synchronizedSet(new HashSet<String>());
+    /** v5.2: ربط Result لكل (فئة:دالة) — يكشف ردود Native→Dart لكل استدعاء */
+    static final Set<String> hookedResultKeys =
+            Collections.synchronizedSet(new HashSet<String>());
+    /** محجوز للتوافق — البوابة الفعلية مفتاح (فئة#دالة) في hookedResults */
+    static boolean noteResultKey(String key) {
+        return key != null && hookedResultKeys.add(key);
+    }
 
     static final String[] PREMIUM_KEYWORDS = {
             // عام
@@ -82,6 +84,7 @@ public final class FlutterChannelHook {
     }
 
     public static void install(XposedInterface fw, ClassLoader cl) {
+        SafeHook.log(TAG + ": installing v5.3 MethodChannel patch");
         Class<?> mc = FingerprintEngine.findClassQuiet(cl,
                 "io.flutter.plugin.common.MethodChannel");
         if (mc == null) {
@@ -90,7 +93,7 @@ public final class FlutterChannelHook {
         }
         hookInvokeMethod(fw, mc);
         hookSetHandler(fw, mc);
-        SafeHook.log(TAG + ": MethodChannel hooked (crash-safe, proxy-free)");
+        SafeHook.log(TAG + ": v5.3 installed successfully");
     }
 
     /** مكافئ hookAllMethods: يربط كل declared عبر الهرم الوراثي. */
@@ -181,6 +184,7 @@ public final class FlutterChannelHook {
         if (handlerClass == null) return;
         if (ProxyMarker.isProxy(handlerClass)) return;
         if (!hookedHandlers.add(handlerClass.getName())) return; // dedup
+        SafeHook.log(TAG + ": capture handler: " + handlerClass.getName());
         hookAll(fw, handlerClass, "onMethodCall", 2, 2,
                 "Flutter.onMethodCall", chain -> {
                     Object call = chain.getArg(0);
@@ -189,7 +193,12 @@ public final class FlutterChannelHook {
                     String mName = (String) ReflectCall.call(call, "method");
                     if (mName == null) return chain.proceed();
                     if (isNoise(mName)) return chain.proceed(); // إسكات الضجيج
-                    if (!isPremiumQuery(mName)) return chain.proceed(); // المهم فقط
+                    // v5.2: سجل كل استدعاء (غير ضجيج) + اربط Result لهذه الدالة
+                    SafeHook.log(TAG + " <- Dart: " + mName);
+                    if (result != null) {
+                        hookResultForMethod(fw, result.getClass(), mName);
+                    }
+                    if (!isPremiumQuery(mName)) return chain.proceed(); // المهم فقط يُعترض
                     SafeHook.log(TAG + " * Native: " + mName
                             + " [" + handlerClass.getSimpleName() + "]");
                     // طباعة الوسائط الكاملة للفهم (مختصرة وآمنة)
@@ -197,10 +206,6 @@ public final class FlutterChannelHook {
                         Object args = ReflectCall.call(call, "arguments");
                         SafeHook.log(TAG + "   args = " + capped(String.valueOf(args)));
                     } catch (Throwable ignored) {}
-                    if (result != null) {
-                        SafeHook.log(TAG + "   result class = "
-                                + result.getClass().getName());
-                    }
                     if (result != null) {
                         SafeHook.log(TAG + "   result class = "
                                 + result.getClass().getName());
@@ -216,26 +221,47 @@ public final class FlutterChannelHook {
         SafeHook.log(TAG + ": handler hooked: " + handlerClass.getName());
     }
 
-    /** 4) ربط success/error/notImplemented على فئة الـ Result (مرة واحدة). */
+    /**
+     * v5.2: ربط success() لهذه الدالة تحديداً (مفتاح فئة:دالة).
+     * يضمن ترقيع ردود Native→Dart لكل استدعاء حتى لو تشاركت الفئة.
+     */
+    static void hookResultForMethod(XposedInterface fw, Class<?> resultClass,
+                                    String methodName) {
+        if (resultClass == null || methodName == null) return;
+        if (ProxyMarker.isProxy(resultClass)) return;
+        // البوابة داخل wrapResultSafe (مفتاح فئة#دالة) — تفويض مباشر
+        wrapResultSafe(fw, resultClass, methodName);
+    }
+
+    /** 4) ربط success/error/notImplemented على فئة الـ Result. */
     static void wrapResultSafe(XposedInterface fw, Class<?> resultClass) {
         wrapResultSafe(fw, resultClass, "?");
     }
 
+    /**
+     * v5.3: البوابة لكل (فئة:دالة) — نفس فئة الـ Result قد تخدم
+     * استدعاءات مختلفة، وكل واحدة تستحق interceptor بسياقها.
+     * الترقيع مبني على المحتوى (آمن للتكرار) والتسجيل يحمل اسم الدالة.
+     */
     static void wrapResultSafe(XposedInterface fw, Class<?> resultClass,
                                final String methodName) {
         if (resultClass == null) return;
         if (ProxyMarker.isProxy(resultClass)) return; // لا نربط فئات Proxy أبداً
-        if (!hookedResults.add(resultClass.getName())) return; // dedup
+        String key;
+        try {
+            key = resultClass.getName() + "#" + methodName;
+        } catch (Throwable ignored) {
+            return;
+        }
+        if (!hookedResults.add(key)) return; // dedup لكل (فئة#دالة)
         // success: ترقيع بنفس النوع + تسجيل
         hookAll(fw, resultClass, "success", 1, 1, "Flutter.Result.success", chain -> {
             Object value = chain.getArg(0);
-            SafeHook.log(TAG + "   Result.success for " + methodName
-                    + " arg=" + capped(String.valueOf(value)));
             Object mod = modifyResult(value);
             if (mod != value) {
-                SafeHook.log(TAG + ": Result.success patched ("
-                        + typeOf(value) + "->" + typeOf(mod) + ")");
-                SafeHook.countFeature("result:success");
+                SafeHook.log(TAG + " * patched: " + methodName
+                        + " (" + typeOf(value) + "->" + typeOf(mod) + ")");
+                SafeHook.countFeature("result:" + methodName);
                 return chain.proceed(new Object[]{mod}); // نفس النوع دائماً
             }
             return chain.proceed();
@@ -274,9 +300,17 @@ public final class FlutterChannelHook {
         return false;
     }
 
-    /** نفس النوع دائماً: Boolean→Boolean / Integer→Integer / Map/List داخلها. */
+    /** نفس النوع دائماً: String-JSON يُرقّع + Boolean/Integer/Map كما قبل. */
     static Object modifyResult(Object value) {
         if (value == null) return null;
+        // v5.2: String تحمل JSON اشتراك/رصيد من Native → رقّعها
+        if (value instanceof String) {
+            String patched = patchChannelString((String) value);
+            if (patched != value) {
+                SafeHook.countFeature("channel-str");
+            }
+            return patched;
+        }
         if (value instanceof Boolean) {
             return ((Boolean) value) ? value : Boolean.TRUE;
         }
@@ -284,24 +318,7 @@ public final class FlutterChannelHook {
             return ((Integer) value) == 0 ? Integer.valueOf(1) : value;
         }
         if (value instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<Object, Object> map = (Map<Object, Object>) value;
-            try {
-                for (Map.Entry<Object, Object> e : map.entrySet()) {
-                    String k = String.valueOf(e.getKey());
-                    if (isPremiumQuery(k)) {
-                        Object v = e.getValue();
-                        if (v instanceof Boolean && !((Boolean) v)) {
-                            e.setValue(Boolean.TRUE);
-                            SafeHook.countFeature("map:" + k);
-                        } else if (v instanceof Integer && ((Integer) v) == 0) {
-                            e.setValue(Integer.valueOf(1));
-                            SafeHook.countFeature("map:" + k);
-                        }
-                    }
-                }
-            } catch (Throwable ignored) {}
-            return map;
+            return patchChannelMap((Map<?, ?>) value);
         }
         if (value instanceof List) {
             try {
@@ -310,5 +327,80 @@ public final class FlutterChannelHook {
             return value;
         }
         return value;
+    }
+
+    /**
+     * v5.2: ترقيع String-JSON لردود القناة (مرآة مختصرة لقواعد
+     * SubscriptionPatch — نفس القيم: plus/active/9999999).
+     */
+    static String patchChannelString(String s) {
+        if (s == null || s.length() < 2) return s;
+        String p = s;
+        try {
+            p = p.replaceAll("\"balance\"\\s*:\\s*[0-9]+", "\"balance\":9999999");
+            p = p.replaceAll("\"credit_balance\"\\s*:\\s*[0-9]+", "\"credit_balance\":9999999");
+            p = p.replaceAll("\"credits\"\\s*:\\s*[0-9]+(?=[,}])", "\"credits\":9999999");
+            p = p.replaceAll("\"credit\"\\s*:\\s*[0-9]+", "\"credit\":9999999");
+            p = p.replaceAll("\"remaining\"\\s*:\\s*[0-9]+", "\"remaining\":9999999");
+            p = p.replaceAll("\"plan\"\\s*:\\s*\"free\"", "\"plan\":\"plus\"");
+            p = p.replaceAll("\"subType\"\\s*:\\s*\"free\"", "\"subType\":\"plus\"");
+            p = p.replaceAll("\"membershipType\"\\s*:\\s*\"free\"", "\"membershipType\":\"plus\"");
+            p = p.replaceAll("\"membership_status\"\\s*:\\s*\"free\"", "\"membership_status\":\"plus\"");
+            p = p.replaceAll("\"is_active\"\\s*:\\s*false", "\"is_active\":true");
+            p = p.replaceAll("\"isPremium\"\\s*:\\s*false", "\"isPremium\":true");
+            p = p.replaceAll("\"premium\"\\s*:\\s*false", "\"premium\":true");
+        } catch (Throwable ignored) {
+            return s;
+        }
+        return p;
+    }
+
+    /**
+     * v5.2: ترقيع Map لردود القناة — أرقام الرصيد→9999999،
+     * free→plus لحقول الخطة/العضوية، never_purchased→active.
+     */
+    static Object patchChannelMap(Map<?, ?> m) {
+        try {
+            @SuppressWarnings("unchecked")
+            Map<Object, Object> map = (Map<Object, Object>) m;
+            for (Map.Entry<Object, Object> e : map.entrySet()) {
+                String k = String.valueOf(e.getKey());
+                Object v = e.getValue();
+                if (v == null) continue;
+                try {
+                    if (v instanceof Number) {
+                        String lk = k.toLowerCase();
+                        if (lk.contains("balance") || lk.contains("credit")
+                                || lk.contains("remaining") || lk.contains("available")) {
+                            e.setValue(9999999);
+                            SafeHook.countFeature("channel-map:" + k);
+                        }
+                    } else if (v instanceof String) {
+                        String sv = (String) v;
+                        if ("free".equals(sv) && (k.contains("plan") || k.contains("Type")
+                                || k.contains("membership") || k.contains("status"))) {
+                            e.setValue("plus");
+                            SafeHook.countFeature("channel-map:" + k);
+                        } else if ("never_purchased".equals(sv)) {
+                            e.setValue("active");
+                            SafeHook.countFeature("channel-map:" + k);
+                        }
+                    } else if (v instanceof Map) {
+                        patchChannelMap((Map<?, ?>) v); // تعمق — خرائط متداخلة
+                    } else if (v instanceof Boolean && !((Boolean) v)
+                            && isPremiumQuery(k)) {
+                        e.setValue(Boolean.TRUE);
+                        SafeHook.countFeature("map:" + k);
+                    } else if (v instanceof Integer && ((Integer) v) == 0
+                            && isPremiumQuery(k)) {
+                        e.setValue(Integer.valueOf(1));
+                        SafeHook.countFeature("map:" + k);
+                    }
+                } catch (Throwable ignored) {}
+            }
+            return map;
+        } catch (Throwable ignored) {
+            return m;
+        }
     }
 }

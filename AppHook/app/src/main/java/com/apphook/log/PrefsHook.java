@@ -5,9 +5,9 @@ import io.github.libxposed.api.XposedInterface;
 import java.lang.reflect.Method;
 
 /**
- * Flutter يخزّن عبر shared_preferences بمفاتيح تبدأ عادةً بـ "flutter.".
- * نعترض SharedPreferencesImpl (كلاس النظام — نجلبه من boot loader عند غيابه
- * في loader التطبيق) ونُجبر getBoolean→true / getInt 0→1 للمفاتيح المشتبهة.
+ * v5.4 — Flutter يخزّن عبر shared_preferences: booleans/ints بأسماء
+ * مفاتيح مشبوهة + كتل JSON كاملة في getString (هذا ما يقرأه الـ plugin
+ * فعلياً: plan/balance/isPremium في String واحد). الثلاثة مُرقّعة هنا.
  */
 public final class PrefsHook {
     private PrefsHook() {}
@@ -17,6 +17,7 @@ public final class PrefsHook {
     static final String[] PREMIUM_KEYS = {
             "premium", "vip", "pro", "paid", "subscri", "member",
             "entitlement", "purchase", "billing", "is_pro",
+            "balance", "credit", "plan", "membership",
             "flutter.subscription", "flutter.premium", "flutter.vip"
     };
 
@@ -36,9 +37,9 @@ public final class PrefsHook {
         }
         hookGetter(fw, sp, "getBoolean", boolean.class);
         hookGetter(fw, sp, "getInt", int.class);
-        hookWatch(fw, sp, "getString");
+        hookJsonString(fw, sp); // v5.4: ترقيع JSON المخزن — الثغرة الحاسمة
         hookWatch(fw, sp, "getAll");
-        SafeHook.log(TAG + ": SharedPreferences hooked");
+        SafeHook.log(TAG + ": v5.4 hooked (bool/int/string)");
     }
 
     private static void hookGetter(XposedInterface fw, Class<?> sp,
@@ -61,10 +62,13 @@ public final class PrefsHook {
                                 SafeHook.countFeature("prefs_bool:" + key);
                                 return true;
                             }
-                            if (ret == int.class && Integer.valueOf(0).equals(orig)) {
-                                SafeHook.log(TAG + ": getInt(" + key + ") 0->1");
+                            // v5.4: أي رصيد صغير → 9999999 (كان 0→1 فقط)
+                            if (ret == int.class && orig instanceof Integer
+                                    && ((Integer) orig) < 1000000) {
+                                SafeHook.log(TAG + ": getInt(" + key + ") "
+                                        + orig + "->9999999");
                                 SafeHook.countFeature("prefs_int:" + key);
-                                return 1;
+                                return 9999999;
                             }
                             return orig;
                         } catch (Throwable t) {
@@ -76,6 +80,57 @@ public final class PrefsHook {
         } catch (Throwable t) {
             SafeHook.logError(TAG + "." + name, t);
         }
+    }
+
+    /**
+     * v5.4 — الثغرة الحاسمة: shared_preferences plugin يخزن كل شيء
+     * كـ JSON String تحت مفتاح واحد. نرقّع المحتوى بنفس قواعد
+     * SubscriptionPatch (65 قاعدة) — فقط للنصوص المشتبهة.
+     */
+    private static void hookJsonString(XposedInterface fw, Class<?> sp) {
+        Method m = FingerprintEngine.findMethodByFingerprint(sp, "getString",
+                String.class, 2);
+        if (m == null) {
+            SafeHook.logSafe(TAG + ".getString", "method-not-found");
+            return;
+        }
+        final Method target = m;
+        try {
+            fw.hook(target)
+                    .setExceptionMode(XposedInterface.ExceptionMode.PROTECTIVE)
+                    .intercept(chain -> {
+                        try {
+                            Object orig = chain.proceed();
+                            if (!(orig instanceof String)) return orig;
+                            String s = (String) orig;
+                            if (!containsPremium(s)) return orig;
+                            String patched = SubscriptionPatch.patchJson(s);
+                            if (patched != s) {
+                                String key = String.valueOf(chain.getArg(0));
+                                SafeHook.log(TAG + ": getString(" + key
+                                        + ") JSON patched len=" + s.length());
+                                SafeHook.countFeature("prefs_json:" + key);
+                                return patched;
+                            }
+                            return orig;
+                        } catch (Throwable t) {
+                            SafeHook.logError(TAG + ".getString", t);
+                            return chain.proceed();
+                        }
+                    });
+            SafeHook.log("Hook OK: Prefs.getString(JSON) -> " + m);
+        } catch (Throwable t) {
+            SafeHook.logError(TAG + ".getString", t);
+        }
+    }
+
+    /** بوابة رخيصة: JSON يستحق الترقيع فقط إن حمل إشارة اشتراك/رصيد */
+    static boolean containsPremium(String s) {
+        if (s == null || s.length() < 5) return false;
+        return s.contains("plan") || s.contains("balance") || s.contains("credit")
+                || s.contains("premium") || s.contains("isPremium") || s.contains("vip")
+                || s.contains("subscri") || s.contains("membership")
+                || s.contains("entitle");
     }
 
     private static void hookWatch(XposedInterface fw, Class<?> sp, String name) {
