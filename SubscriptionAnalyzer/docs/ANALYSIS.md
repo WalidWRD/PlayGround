@@ -81,3 +81,52 @@
 
 - **ANALYZE**: ثبّت → فعّل → تنقّل → اقرأ `report_*.json` (يُكتب كل 100 حدث).
 - **PATCH**: غيّر `Config.PATCH_MODE=true` (أو طبقة واحدة) → أعد البناء.
+
+---
+
+# ملحق v6.2 — PATCH+FREEZE+ROTATE (Request Interception + Balance Freeze + Account Rotation)
+
+## 63) ما الجديد
+
+1. **BalanceFreezeHook**: JS واحد (freeze responses/requests/XHR + حجب tracking) + مرآة Java (freezeResponseJson/freezeRequestBody) — التجميد عند 100.
+2. **RequestInterceptorHook**: تسجيل الطلبات الصادرة OkHttp (method+url+auth/ct+body) — record-only دائماً.
+3. **AccountRotationHook**: كشف `EXHAUSTED` + مسح (cookies/storage/IndexedDB) + `account_rotation:F008`.
+4. **Prefs freeze**: balance/credit/quota/remaining <100 → FROZEN_BALANCE (100) مع `F002`.
+5. **WebView**: حقن freeze + rotation-detector بعد الشرائح + console يقبل `[FREEZE]`/`[ROTATE]`.
+
+## 64) الاستراتيجية الثلاثية
+
+Request (model→gpt-4o-mini, use_credits→false) / Response (balance→100, consumed/used/spent→0) / Block (add_tracking_event→200 fake).
+
+## 65) القيود المعلنة
+
+السيرفر يقرأ الرصيد الحقيقي — Freeze يقنع الواجهة فقط؛ للسيرفر: Rotation. Dart:io AOT لا يُعترض — WebView layer يغطيه. WebSocket يحتاج طبقة لاحقة.
+
+---
+
+# ملحق v6.3 — القيمة الموحّدة + المطابقة الديناميكية + الترقيع النشط
+
+## 66) التشخيص (v6.2 → v6.3)
+
+- WebView/Prefs freeze يعملان (9999999 / 100) لكن Plan بقي Free في شاشات Native.
+- علة القيمة المزدوجة: WebView=9999999 مقابل Prefs=100 → التوحيد على 9999999.
+- علة الحزمة: الكلون `.hook` مغطى بـ startsWith — عُمم إلى 4 بادئات + سطر `★ Target matched`.
+- علة القناة: handlers ملتقطة لا تُستدعى للاشتراك → ترقيع نشط مُرشَّح (interesting/looksRelevant).
+
+## 67) ما تغير
+
+1. **Config**: PACKAGE_PREFIXES + isTargetPackage + FROZEN_BALANCE(_STR)=9999999 + FORCED_PLAN/DISPLAY/STATUS.
+2. **PrefsHook**: bool/int/long/string + isBalanceKey/isPremiumBool/isPremiumKey + patchJson موسّع (20+ حقل plan + display_plan).
+3. **FlutterChannelHook**: تسجيل مُرشَّح + patchJson/Map بالقيم الموحّدة + booleans + تعمق.
+4. **JsonHook**: bool/int/long/string + F002/F005.
+5. **BalanceFreezeHook JS**: القيم 9999999 + plan/tier/subType/membershipType.
+6. **MainHook**: مطابقة ديناميكية + تجاهل webview/vending + سطر `★ Target matched`.
+7. **scope.list**: + `.hook` + `ai.genspark`.
+
+## 68) معايير القبول
+
+1. `★ Target matched: ai.mainfunc.genspark.hook`
+2. Settings Credits = 9999999 (لا 100)
+3. Settings Plan = Genspark Plus (لا Free)
+4. `getInt ORIG=100 → NEW=9999999 ★`
+5. `[Flutter] ★ patched:` عند الاشتراك

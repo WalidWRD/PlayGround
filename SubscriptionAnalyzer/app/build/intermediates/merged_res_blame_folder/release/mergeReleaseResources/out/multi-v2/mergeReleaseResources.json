@@ -1,23 +1,45 @@
 {
     "logs": [
         {
-            "outputFile": "com.apphook.log.app-release-4:/values_values.arsc.flat",
+            "outputFile": "/home/runner/.gradle/daemon/9.8.1/com.apphook.log.app-release-4:/values_values.arsc.flat",
             "map": [
                 {
                     "source": "/home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/res/values/strings.xml",
                     "from": {
-                        "startLines": "3,2",
-                        "startColumns": "4,4",
-                        "startOffsets": "215,55",
-                        "endColumns": "57,159",
-                        "endOffsets": "268,210"
+                        "startLines": "-1,2",
+                        "startColumns": "-1,4",
+                        "startOffsets": "-1,55",
+                        "endColumns": "-1,206",
+                        "endOffsets": "-1,257"
                     },
                     "to": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
                         "startOffsets": "55,113",
-                        "endColumns": "57,159",
-                        "endOffsets": "108,268"
+                        "endColumns": "57,206",
+                        "endOffsets": "108,315"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.apphook.log.app-release-4:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "/home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "-1,2",
+                        "startColumns": "-1,4",
+                        "startOffsets": "-1,55",
+                        "endColumns": "-1,170",
+                        "endOffsets": "-1,221"
+                    },
+                    "to": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,113",
+                        "endColumns": "57,170",
+                        "endOffsets": "108,279"
                     }
                 }
             ]

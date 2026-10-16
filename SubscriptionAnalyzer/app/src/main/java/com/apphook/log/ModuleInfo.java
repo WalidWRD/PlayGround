@@ -12,8 +12,8 @@ public final class ModuleInfo {
 
     public static final String NAME = "SubscriptionAnalyzer";
     public static final String PACKAGE = "com.apphook.log";
-    public static final String VERSION_NAME = "6.0.0";
-    public static final int VERSION_CODE = 600;
+    public static final String VERSION_NAME = "6.3.0";
+    public static final int VERSION_CODE = 630;
 
     public static final int MIN_SDK = 26;
     public static final int TARGET_SDK = 35;
@@ -23,8 +23,8 @@ public final class ModuleInfo {
     /** الوصف المدمج: مختصر — مدير الموديولات + سجل التشغيل */
     public static String describe() {
         return NAME + " v" + VERSION_NAME + " [" + Config.modeName() + "]"
-                + " | billing+webview+flutter+network measurement"
-                + " | optional patch | crash-proof";
+                + " | PATCH+FREEZE+ROTATE v6.3: dynamic-pkg-match + unified-balance(9999999)"
+                + " | + plan-enforcer + flutter-active-patch | crash-proof";
     }
 
     public static void logStartup(XposedInterface fw) {

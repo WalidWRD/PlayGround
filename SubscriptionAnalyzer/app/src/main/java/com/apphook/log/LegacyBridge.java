@@ -219,13 +219,22 @@ final class LegacyBridge {
                         Object o = p.getResult();
                         Object k = p.args[0];
                         Object q = o;
-                        if (Config.PATCH_PREFS && k instanceof String
-                                && PrefsHook.isPremiumKey((String) k)
-                                && o instanceof Integer && ((Integer) o) < 1000000) {
-                            q = 9999999;
-                            SafeHook.countOpen("prefs_int:" + k, "F006");
+                        if (Config.PATCH_PREFS && o instanceof Integer) {
+                            int v = (Integer) o;
+                            boolean bal = k instanceof String
+                                    && PrefsHook.isBalanceKey((String) k);
+                            if (bal && Config.ENABLE_BALANCE_FREEZE && v < 100) {
+                                q = Config.FROZEN_BALANCE;
+                                SafeHook.countOpen("prefs.int.balance", "F002");
+                            } else if (k instanceof String
+                                    && PrefsHook.isPremiumKey((String) k) && v < 1000000) {
+                                q = 9999999;
+                                SafeHook.countOpen("prefs_int:" + k, "F006");
+                            }
                         }
-                        if (k instanceof String && PrefsHook.isPremiumKey((String) k)) {
+                        if (k instanceof String
+                                && (PrefsHook.isPremiumKey((String) k)
+                                || PrefsHook.isBalanceKey((String) k))) {
                             SafeHook.recordCall("Prefs", "getInt(" + k + ")", 2, o, q);
                             if (q != o) return q;
                         }
@@ -359,7 +368,8 @@ final class LegacyBridge {
                         } else if (p.args.length >= 1 && p.args[0] instanceof String) {
                             text = (String) p.args[0];
                         }
-                        if (text != null && text.startsWith("[SA]")) {
+                        if (text != null && (text.startsWith("[SA]")
+                                || text.startsWith("[FREEZE]") || text.startsWith("[ROTATE]"))) {
                             SafeHook.recordCall("WebView.js", abbrev(text, 80),
                                     p.args.length, text, text);
                         }
@@ -405,6 +415,21 @@ final class LegacyBridge {
                             }
                         } catch (Throwable ignored) {}
                     }
+                    // v6.2 legacy: freeze + rotation-detector بعد الشرائح
+                    try {
+                        v.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    v.loadUrl("javascript:"
+                                            + com.apphook.log.hooks.BalanceFreezeHook.JS_FREEZE);
+                                } catch (Throwable ignored) {}
+                                try {
+                                    com.apphook.log.hooks.AccountRotationHook.injectDetector(v);
+                                } catch (Throwable ignored) {}
+                            }
+                        }, chunks.size() * 300 + 200);
+                    } catch (Throwable ignored) {}
                 }
             });
             if (legacyInjected.size() > 200) legacyInjected.clear();

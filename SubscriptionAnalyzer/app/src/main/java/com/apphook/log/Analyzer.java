@@ -61,7 +61,7 @@ public final class Analyzer {
         StringBuilder sb = new StringBuilder(65536);
         sb.append("{\n");
         sb.append("  \"module\": \"SubscriptionAnalyzer\",\n");
-        sb.append("  \"version\": \"6.0.0\",\n");
+        sb.append("  \"version\": \"6.3.0\",\n");
         sb.append("  \"mode\": \"").append(Config.modeName()).append("\",\n");
         sb.append("  \"package\": \"").append(escape(Config.runtimePackage)).append("\",\n");
         sb.append("  \"startedAt\": ").append(startTime).append(",\n");

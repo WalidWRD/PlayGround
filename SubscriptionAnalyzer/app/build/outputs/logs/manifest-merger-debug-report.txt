@@ -34,9 +34,9 @@ ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/
 	android:name
 		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:10:13-40
 meta-data#xposeddescription
-ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:12:9-14:144
+ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:12:9-14:155
 	android:value
-		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:14:13-141
+		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:14:13-152
 	android:name
 		ADDED from /home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:13:13-45
 meta-data#xposedminversion

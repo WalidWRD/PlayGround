@@ -243,6 +243,11 @@ public final class WebViewHook {
     }
 
     static void injectChunks(Object wv, String phase) {
+        injectAll(wv, phase);
+    }
+
+    /** v6.2: حقن الطبقات الأربع: chunks + freeze + rotation-detector. */
+    static void injectAll(Object wv, String phase) {
         if (!(wv instanceof WebView)) return;
         final WebView view = (WebView) wv;
         String key;
@@ -251,7 +256,7 @@ public final class WebViewHook {
         } catch (Throwable ignored) {
             return;
         }
-        if (!chunked.add(key)) return;
+        final boolean firstChunk = chunked.add(key);
         final List<String> chunks;
         try {
             chunks = patchChunks();
@@ -281,6 +286,32 @@ public final class WebViewHook {
                             }
                         } catch (Throwable ignored) {}
                     }
+                    // v6.2: Freeze + Rotation بعد الشرائح الأساسية
+                    try {
+                        if (Config.PATCH_REQUESTS || Config.PATCH_RESPONSES
+                                || Config.ENABLE_BALANCE_FREEZE) {
+                            view.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        view.loadUrl("javascript:"
+                                                + BalanceFreezeHook.JS_FREEZE);
+                                        SafeHook.log(TAG + ": freeze injected (" + phase + ")");
+                                    } catch (Throwable ignored) {}
+                                }
+                            }, chunks.size() * 300 + 200);
+                        }
+                    } catch (Throwable ignored) {}
+                    try {
+                        if (Config.ENABLE_ROTATION) {
+                            view.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    AccountRotationHook.injectDetector(view);
+                                }
+                            }, chunks.size() * 300 + 400);
+                        }
+                    } catch (Throwable ignored) {}
                 }
             });
         } catch (Throwable t) {
@@ -375,7 +406,8 @@ public final class WebViewHook {
         HookKit.hookAll(fw, clazz, "onConsoleMessage", 1, 3, TAG + ".console", chain -> {
             try {
                 String text = extractConsole(chain);
-                if (text != null && text.startsWith("[SA]")) {
+                if (text != null && (text.startsWith("[SA]")
+                        || text.startsWith("[FREEZE]") || text.startsWith("[ROTATE]"))) {
                     SafeHook.recordCall(TAG + ".js", abbrev(text, 80),
                             chain.getArgs().size(), text, text);
                 }

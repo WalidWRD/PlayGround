@@ -1,10 +1,10 @@
 <libraries>
   <library
       name="io.github.libxposed:api:102.0.0@aar"
-      jars="/home/runner/.gradle/caches/9.8.0/transforms/236fa61e15cc997acd1e3579fd954bbb/transformed/api-102.0.0/jars/classes.jar"
+      jars="/home/runner/.gradle/caches/9.8.1/transforms/90c64ba5135a3b788de1c79cea8d25ec/transformed/api-102.0.0/jars/classes.jar"
       resolved="io.github.libxposed:api:102.0.0"
       provided="true"
-      folder="/home/runner/.gradle/caches/9.8.0/transforms/236fa61e15cc997acd1e3579fd954bbb/transformed/api-102.0.0"
+      folder="/home/runner/.gradle/caches/9.8.1/transforms/90c64ba5135a3b788de1c79cea8d25ec/transformed/api-102.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"

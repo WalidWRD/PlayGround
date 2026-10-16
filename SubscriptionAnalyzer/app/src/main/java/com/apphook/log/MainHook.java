@@ -8,6 +8,7 @@ import com.apphook.log.hooks.IntegrityHook;
 import com.apphook.log.hooks.JsonHook;
 import com.apphook.log.hooks.NetworkHook;
 import com.apphook.log.hooks.PrefsHook;
+import com.apphook.log.hooks.RequestInterceptorHook;
 import com.apphook.log.hooks.RevenueCatHook;
 import com.apphook.log.hooks.UpdateGateHook;
 import com.apphook.log.hooks.WebViewHook;
@@ -17,8 +18,9 @@ import io.github.libxposed.api.XposedModule;
 import io.github.libxposed.api.XposedModuleInterface;
 
 /**
- * نقطة الدخول الحديثة (libxposed 101/102) — SubscriptionAnalyzer v6.0.
- * الوضع من {@link Config}: ANALYZE (تسجيل فقط) أو PATCH (تعديل + قياس).
+ * نقطة الدخول الحديثة (libxposed 101/102) — SubscriptionAnalyzer v6.3.
+ * مطابقة الحزم ديناميكية عبر {@link Config#isTargetPackage} (تدعم الكلونات).
+ * الوضع من {@link Config}: PATCH+FREEZE+ROTATE.
  * الهوك الحقيقي في onPackageReady (بعد فك stub التطبيقات المحمية).
  */
 public final class MainHook extends XposedModule {
@@ -32,8 +34,10 @@ public final class MainHook extends XposedModule {
         SafeHook.attach(this);
         ModuleInfo.logStartup(this);
         try {
-            log(Log.INFO, "SA", "v6.0.0 loaded [MODE=" + Config.modeName() + "] in: "
+            log(Log.INFO, "SA", "v6.3.0 loaded [MODE=" + Config.modeName() + "] in: "
                     + param.getProcessName());
+            log(Log.INFO, "SA", "Accepted prefixes: "
+                    + String.join(", ", Config.PACKAGE_PREFIXES));
         } catch (Throwable ignored) {}
     }
 
@@ -45,8 +49,9 @@ public final class MainHook extends XposedModule {
         } catch (Throwable t) {
             return;
         }
-        if (!inScope(pkg)) return;
-        SafeHook.log("package loaded (early): " + pkg + " — waiting onPackageReady");
+        if (isSystem(pkg)) return;
+        if (!Config.isTargetPackage(pkg)) return; // تجاهل بصمت
+        SafeHook.log("★ Target matched (early): " + pkg + " — waiting onPackageReady");
     }
 
     @Override
@@ -60,13 +65,14 @@ public final class MainHook extends XposedModule {
             SafeHook.logError("onPackageReady/params", t);
             return;
         }
-        if (!inScope(pkg)) return;
+        if (isSystem(pkg)) return;
+        if (!Config.isTargetPackage(pkg)) return; // تجاهل بصمت
         if (cl == null) {
             SafeHook.logSafe(pkg, "ClassLoader null — abort safely");
             return;
         }
         Config.runtimePackage = pkg;
-        SafeHook.log("package ready: " + pkg + " [MODE=" + Config.modeName() + "]");
+        SafeHook.log("★ Target matched: " + pkg + " [MODE=" + Config.modeName() + "]");
         installAll(this, cl, pkg, param.getApplicationInfo());
     }
 
@@ -113,6 +119,11 @@ public final class MainHook extends XposedModule {
             SafeHook.logError("Network", t);
         }
         try {
+            RequestInterceptorHook.install(fw, cl);
+        } catch (Throwable t) {
+            SafeHook.logError("RequestInterceptor", t);
+        }
+        try {
             IntegrityHook.install(fw, cl);
         } catch (Throwable t) {
             SafeHook.logError("Integrity", t);
@@ -122,17 +133,23 @@ public final class MainHook extends XposedModule {
         } catch (Throwable t) {
             SafeHook.logError("UpdateGate", t);
         }
-        SafeHook.log("All v6.0 layers installed for: " + pkg
+        SafeHook.log("All v6.2 layers installed for: " + pkg
                 + " [MODE=" + Config.modeName() + "]");
     }
 
+    static boolean isSystem(String pkg) {
+        if (pkg == null) return true;
+        if (pkg.startsWith("android")) return true;
+        if (pkg.startsWith("com.android.systemui")) return true;
+        if (pkg.startsWith("com.google.android.gms")) return true;
+        if (pkg.startsWith("com.google.android.webview")) return true;
+        if (pkg.equals("com.android.vending")) return true;
+        if (pkg.equals(ModuleInfo.PACKAGE)) return true;
+        return false;
+    }
+
     static boolean inScope(String pkg) {
-        if (pkg == null) return false;
-        if (pkg.equals("android")) return false;
-        if (pkg.equals("com.android.systemui")) return false;
-        if (pkg.equals("com.google.android.gms")) return false;
-        if (pkg.equals("com.android.vending")) return false;
-        if (pkg.equals(ModuleInfo.PACKAGE)) return false;
-        return pkg.startsWith("ai.mainfunc.genspark");
+        if (isSystem(pkg)) return false;
+        return Config.isTargetPackage(pkg);
     }
 }

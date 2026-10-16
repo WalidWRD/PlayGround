@@ -11,7 +11,7 @@
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="SubscriptionAnalyzer v6.0 — ANALYZE/PATCH subscription framework | billing+webview+flutter+network | crash-proof" />
+            android:value="PATCH+FREEZE+ROTATE v6.3: dynamic-pkg-match + unified-balance(9999999) + plan-enforcer + flutter-active-patch + crash-proof" />
         <meta-data
             android:name="xposedminversion"
             android:value="82" />

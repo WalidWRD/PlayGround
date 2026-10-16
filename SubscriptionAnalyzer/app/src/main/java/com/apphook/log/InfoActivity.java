@@ -12,7 +12,7 @@ public final class InfoActivity extends Activity {
         super.onCreate(b);
         TextView tv = new TextView(this);
         tv.setText(
-                "SubscriptionAnalyzer v6.0.0 (code 600)\n"
+                "SubscriptionAnalyzer v6.3.0 (code 630) [PATCH+FREEZE+ROTATE]\n"
                 + "الحزمة: com.apphook.log\n"
                 + "الوضع: " + Config.modeName()
                 + " (يُبدّل من Config.java وقت البناء)\n"
@@ -20,8 +20,9 @@ public final class InfoActivity extends Activity {
                 + "libxposed: 101 -> 102\n\n"
                 + ModuleInfo.describe() + "\n\n"
                 + "الطبقات (تسجيل دائم + ترقيع اختياري):\n"
-                + "Billing / RevenueCat / FlutterChannel / WebView /\n"
-                + "Prefs(+JSON) / Json / Network / Integrity / UpdateGate\n\n"
+                + "Billing / RevenueCat / FlutterChannel / WebView(+Freeze) /\n"
+                + "Prefs(+JSON/Freeze) / Json / Network / RequestInterceptor /\n"
+                + "Integrity / UpdateGate / Rotation\n\n"
                 + "التقرير: /sdcard/SubscriptionAnalyzer/report_*.json\n"
                 + "(احتياطي: /data/data/<pkg>/cache/SubscriptionAnalyzer/)\n");
         tv.setTextSize(14);

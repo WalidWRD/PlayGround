@@ -1,8 +1,8 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.apphook.log"
-4    android:versionCode="600"
-5    android:versionName="6.0.0" >
+4    android:versionCode="630"
+5    android:versionName="6.3.0" >
 6
 7    <uses-sdk
 8        android:minSdkVersion="26"
@@ -28,11 +28,11 @@
 20            android:value="true" />
 20-->/home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:11:13-33
 21        <meta-data
-21-->/home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:12:9-14:144
+21-->/home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:12:9-14:155
 22            android:name="xposeddescription"
 22-->/home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:13:13-45
-23            android:value="SubscriptionAnalyzer v6.0 — ANALYZE/PATCH subscription framework | billing+webview+flutter+network | crash-proof" />
-23-->/home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:14:13-141
+23            android:value="PATCH+FREEZE+ROTATE v6.3: dynamic-pkg-match + unified-balance(9999999) + plan-enforcer + flutter-active-patch + crash-proof" />
+23-->/home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:14:13-152
 24        <meta-data
 24-->/home/runner/work/PlayGround/PlayGround/SubscriptionAnalyzer/app/src/main/AndroidManifest.xml:15:9-17:34
 25            android:name="xposedminversion"
